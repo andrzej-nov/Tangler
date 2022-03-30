@@ -90,12 +90,12 @@ class Controls(
         rotateRightX = centerX + tileHeight * 1.1f
         rotateButtonSize = tileHeight.toFloat() * 1.2f
 
-        if (boardLeftX > tileWidth + 2 * indent) {
+        if (boardLeftX > tileWidth * 1.4f) {
             // Horizontal viewport orientation. Draw buttons in vertical groups outside of the board width
             lowerButtonSize = tileWidth.toFloat()
-            lowerButtonY = circleY + tileWidth / 2 + indent
-            leftButtonsX = boardLeftX - 2 * indent - tileWidth
-            rightButtonsX = boardRightX + 2 * indent
+            lowerButtonY = circleY + tileWidth * 0.2f
+            leftButtonsX = boardLeftX - 0.4f * tileWidth - tileWidth
+            rightButtonsX = boardRightX + 0.4f * tileWidth
             bottomButtonsXOffset = 0f
             bottomButtonsYOffset = tileWidth + indent
         } else if (rotateButtonY > tileHeight + 2 * indent) {
@@ -109,8 +109,8 @@ class Controls(
         } else {
             // Viewport close to square. Draw buttons in vertical groups inside of the board width
             lowerButtonSize = (buttonsBaseY - rotateButtonY) / 2.3f
-            leftButtonsX = boardLeftX
-            rightButtonsX = boardRightX - lowerButtonSize
+            leftButtonsX = boardLeftX - tileWidth * 0.7f
+            rightButtonsX = boardRightX + tileWidth * 0.7f - lowerButtonSize
             lowerButtonY = buttonsBaseY - lowerButtonSize - indent
             bottomButtonsXOffset = 0f
             bottomButtonsYOffset = lowerButtonY - rotateButtonY + indent
