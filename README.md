@@ -5,6 +5,8 @@ a different twist.
 
 https://user-images.githubusercontent.com/89737218/160915390-636eaa88-bae2-42ab-a674-eff22d36c676.mp4
 
+![Clipboard02!](https://user-images.githubusercontent.com/89737218/160927554-3c74f7ee-cf5b-40a5-854a-1f6a8e261fbc.jpg)
+
 **Game objective:** put randomly generated tiles to the board, making up continuous color curves. When curves close
 to loops, they disappear, giving space for more moves.
 
@@ -24,7 +26,7 @@ The game is provided in two options:
 - **Desktop Java**. [Download Tangler.jar](https://github.com/andrzej-nov/Tangler/releases/download/v1.0/Tangler.jar). Run it with `java -jar Tangler.jar` command line, or in most cases just double-click
 the Tangler.jar file. It has been tested with Java 18 Runtime, should also work with prior versions up to Java 8.
 
-- **Android**. Get it on Google Play (recommended) or [download the Tangler.apk](https://github.com/andrzej-nov/Tangler/releases/download/v1.0/Tangler.apk) here for manual install. It has been
+- **Android**. [Get it on Google Play](https://play.google.com/store/apps/details?id=com.andrzejn.tangler) (recommended) or [download the Tangler.apk](https://github.com/andrzej-nov/Tangler/releases/download/v1.0/Tangler.apk) here for manual install. It has been
 tested on Android 8.0 and 10.0, should also work on any Android version starting from 4.4 and later.
 
 There is no iOS build because I do not have tools to build and test it. If somebody completes the iOS module (see below)
