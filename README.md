@@ -28,7 +28,7 @@ tested on Android 8.0 and 10.0, should also work on any Android version starting
 There is no iOS build because I do not have tools to build and test it. If somebody completes the iOS module (see below)
 I will add it here.
 
-##Development
+## Development
 
 The game is provided under the [Creative Commons Attribution license](https://creativecommons.org/licenses/by/4.0/).
 Please feel free to reuse, extend, derive, improve etc. as long as you keep a reference to the original and mention me,
