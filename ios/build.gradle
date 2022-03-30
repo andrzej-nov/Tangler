@@ -1,0 +1,33 @@
+sourceSets.main.java.srcDirs = [ "src/" ]
+
+sourceCompatibility = '1.8'
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+ext {
+	mainClassName = "com.andrzejn.tangler.IOSLauncher"
+}
+
+dependencies {
+	implementation project(":core")
+	api "com.mobidevelop.robovm:robovm-rt:$roboVMVersion"
+	api "com.mobidevelop.robovm:robovm-cocoatouch:$roboVMVersion"
+	api "com.badlogicgames.gdx:gdx-backend-robovm:$gdxVersion"
+	api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-ios"
+	api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+	implementation "space.earlygrey:shapedrawer:$shapedrawerVersion"
+	implementation "org.mini2Dx:universal-tween-engine:$tweenEngineVersion"
+}
+
+/*
+//TODO Uncomment that in order to build ios project. Assuming you know how to make it work.
+launchIPhoneSimulator.dependsOn build
+launchIPadSimulator.dependsOn build
+launchIOSDevice.dependsOn build
+createIPA.dependsOn build
+
+robovm {
+	archs = "thumbv7:arm64"
+}
+*/
+
+eclipse.project.name = appName + "-ios"

@@ -1,0 +1,186 @@
+
+atlas.png
+size: 708, 969
+format: RGBA8888
+filter: Linear, Linear
+repeat: none
+tile4
+  rotate: false
+  xy: 0, 0
+  size: 115, 136
+  index: -1
+tile6
+  rotate: false
+  xy: 115, 0
+  size: 118, 136
+  index: -1
+tile8
+  rotate: false
+  xy: 233, 0
+  size: 115, 136
+  index: -1
+tilenorepeat
+  rotate: false
+  xy: 348, 11
+  size: 115, 115
+  index: -1
+tilerepeat
+  rotate: false
+  xy: 463, 11
+  size: 115, 115
+  index: -1
+sidearrows
+  rotate: false
+  xy: 579, 3
+  size: 129, 130
+  index: -1
+gear
+  rotate: false
+  xy: 506, 132
+  size: 200, 200
+  index: -1
+black
+  rotate: false
+  xy: 20, 230
+  size: 1, 1
+  index: -1
+darkgrey
+  rotate: false
+  xy: 80, 230
+  size: 1, 1
+  index: -1
+lightgrey
+  rotate: false
+  xy: 140, 230
+  size: 1, 1
+  index: -1
+white
+  rotate: false
+  xy: 210, 230
+  size: 1, 1
+  index: -1
+logo
+  rotate: false
+  xy: 30, 720
+  size: 370, 225
+  index: -1
+home
+  rotate: false
+  xy: 5, 280
+  size: 76, 76
+  index: -1
+play
+  rotate: false
+  xy: 113, 280
+  size: 76, 76
+  index: -1
+pause
+  rotate: false
+  xy: 222, 280
+  size: 76, 76
+  index: -1
+options
+  rotate: false
+  xy: 330, 280
+  size: 76, 76
+  index: -1  
+accept
+  rotate: false
+  xy: 5, 370
+  size: 76, 76
+  index: -1
+cancel
+  rotate: false
+  xy: 113, 370
+  size: 76, 76
+  index: -1
+rotateleft
+  rotate: false
+  xy: 222, 370
+  size: 76, 76
+  index: -1
+poweroff
+  rotate: false
+  xy: 330, 370
+  size: 76, 76
+  index: -1
+nail
+  rotate: false
+  xy: 5, 460
+  size: 76, 76
+  index: -1
+leaderboard
+  rotate: false
+  xy: 113, 460
+  size: 76, 76
+  index: -1
+music
+  rotate: false
+  xy: 222, 460
+  size: 76, 76
+  index: -1
+rotateright
+  rotate: false
+  xy: 330, 460
+  size: 76, 76
+  index: -1
+movedown
+  rotate: false
+  xy: 5, 550
+  size: 76, 76
+  index: -1
+moveup
+  rotate: false
+  xy: 113, 550
+  size: 76, 76
+  index: -1
+moveright
+  rotate: false
+  xy: 222, 550
+  size: 76, 76
+  index: -1
+moveleft
+  rotate: false
+  xy: 330, 550
+  size: 76, 76
+  index: -1
+help
+  rotate: false
+  xy: 5, 640
+  size: 76, 76
+  index: -1
+sound
+  rotate: false
+  xy: 113, 640
+  size: 76, 76
+  index: -1
+lock
+  rotate: false
+  xy: 222, 640
+  size: 76, 76
+  index: -1
+settings
+  rotate: false
+  xy: 330, 640
+  size: 76, 76
+  index: -1
+icongmail
+  rotate: false
+  xy: 420, 365
+  size: 150, 150
+  index: -1
+icontelegram
+  rotate: false
+  xy: 420, 515
+  size: 150, 150
+  index: -1
+iconfacebook
+  rotate: false
+  xy: 420, 665
+  size: 150, 150
+  index: -1
+icongithub
+  rotate: false
+  xy: 420, 815
+  size: 150, 150
+  index: -1

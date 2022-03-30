@@ -1,0 +1,161 @@
+package com.andrzejn.tangler.screens
+
+import com.andrzejn.tangler.Context
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Input
+import com.badlogic.gdx.InputAdapter
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.g2d.BitmapFont
+import com.badlogic.gdx.graphics.g2d.BitmapFontCache
+import com.badlogic.gdx.graphics.g2d.Sprite
+import com.badlogic.gdx.utils.Align
+import ktx.app.KtxScreen
+
+/**
+ * The simplest screen. Just displays the credits and opens respective links.
+ */
+class CreditsScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
+    private val ia = IAdapter()
+    private var font: BitmapFont = BitmapFont()
+    private lateinit var fcText: BitmapFontCache
+
+    /**
+     * Called by GDX runtime on screen show
+     */
+    override fun show() {
+        super<BaseScreen>.show()
+        Gdx.input.inputProcessor = ia // Attach the input processor
+        Gdx.input.setCatchKey(Input.Keys.BACK, true) // Override the Android 'Back' button
+    }
+
+    /**
+     * Called by GDX runtime on screen hide.
+     * Uncatch the 'Back' button processing. The base screen will switch off the input processor
+     */
+    override fun hide() {
+        super<BaseScreen>.hide()
+        Gdx.input.setCatchKey(Input.Keys.BACK, false)
+    }
+
+    private var gridX = 0f
+    private var gridY = 0f
+    private val logo = Sprite(ctx.a.logo)
+    private val icongmail = Sprite(ctx.a.icongmail)
+    private val iconfacebook = Sprite(ctx.a.iconfacebook)
+    private val icontelegram = Sprite(ctx.a.icontelegram)
+    private val icongithub = Sprite(ctx.a.icongithub)
+    private val poweroff = Sprite(ctx.a.poweroff)
+    private val home = Sprite(ctx.a.home)
+
+    /**
+     * Invoked on each screen resize
+     */
+    override fun resize(width: Int, height: Int) {
+        super<BaseScreen>.resize(width, height)
+        gridX = ctx.viewportWidth / 8
+        gridY = ctx.viewportHeight / 9
+
+        ctx.fitToRect(logo, ctx.viewportWidth, 2 * gridY * 0.8f)
+        logo.setPosition(
+            (ctx.viewportWidth - logo.width) / 2,
+            gridY * 8 - logo.height / 2
+        )
+        ctx.fitToRect(icongmail, gridX * 0.9f, gridY * 0.9f)
+        icongmail.setPosition(
+            gridX - icongmail.width / 2,
+            gridY * 5 + (gridY - icongmail.height) / 2
+        )
+        ctx.fitToRect(iconfacebook, gridX * 0.9f, gridY * 0.9f)
+        iconfacebook.setPosition(
+            gridX - iconfacebook.width / 2,
+            gridY * 4 + (gridY - iconfacebook.height) / 2
+        )
+        ctx.fitToRect(icontelegram, gridX * 0.9f, gridY * 0.9f)
+        icontelegram.setPosition(
+            gridX - icontelegram.width / 2,
+            gridY * 3 + (gridY - icontelegram.height) / 2
+        )
+        ctx.fitToRect(icongithub, gridX * 0.9f, gridY * 0.9f)
+        icongithub.setPosition(
+            gridX - icongithub.width / 2,
+            gridY * 2 + (gridY - icongithub.height) / 2
+        )
+        ctx.fitToRect(poweroff, gridX * 0.9f, gridY * 0.9f)
+        poweroff.setPosition(
+            7 * gridX - poweroff.width / 2,
+            (gridY - poweroff.height) / 2
+        )
+        ctx.fitToRect(home, gridX * 0.9f, gridY * 0.9f)
+        home.setPosition(
+            gridX - home.width / 2,
+            (gridY - home.height) / 2
+        )
+        font.dispose()
+        font = ctx.a.createFont((icongmail.height * 0.5).toInt())
+        fcText = BitmapFontCache(font)
+        fcText.setText("andrzej.novosiolov@gmail.com", gridX * 1.7f, gridY * 5.5f, gridX * 5f, Align.left, false)
+        fcText.addText("fb.com/andrzej.novosiolov", gridX * 1.7f, gridY * 4.5f, gridX * 5f, Align.left, false)
+        fcText.addText("t.me/Andrzejn", gridX * 1.7f, gridY * 3.5f, gridX * 5f, Align.left, false)
+        fcText.addText("github.com/andrzej-nov", gridX * 1.7f, gridY * 2.5f, gridX * 5f, Align.left, false)
+        fcText.setColors(Color.WHITE)
+    }
+
+    /**
+     * Called by GDX runtime when the screen is rendered. It is invoked frequently, so do not create objects here
+     * and avoid extensive calculations
+     */
+    override fun render(delta: Float) {
+        super<BaseScreen>.render(delta)
+        ctx.batch.begin()
+        ctx.drw.sd.filledRectangle(0f, 0f, ctx.viewportWidth, ctx.viewportHeight, Color.DARK_GRAY)
+        logo.draw(ctx.batch)
+        icongmail.draw(ctx.batch)
+        iconfacebook.draw(ctx.batch)
+        icontelegram.draw(ctx.batch)
+        icongithub.draw(ctx.batch)
+        home.draw(ctx.batch)
+        poweroff.draw(ctx.batch)
+        fcText.draw(ctx.batch)
+        ctx.batch.end()
+    }
+
+    /**
+     * The input adapter (processor)
+     */
+    inner class IAdapter : InputAdapter() {
+        /**
+         * Handle clicks/presses
+         */
+        override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
+            val v = ctx.drw.pointerPosition(Gdx.input.x, Gdx.input.y)
+
+            if (5f * gridY < v.y && v.y < 6f * gridY)
+                Gdx.net.openURI("mailto:andrzej.novosiolov@gmail.com?subject=The%20Tangler%20game")
+            else if (4f * gridY < v.y && v.y < 5f * gridY)
+                Gdx.net.openURI("https://www.facebook.com/andrzej.novosiolov/")
+            else if (3f * gridY < v.y && v.y < 4f * gridY)
+                Gdx.net.openURI("https://t.me/AndrzejN")
+            else if (2f * gridY < v.y && v.y < 3f * gridY)
+                Gdx.net.openURI("https://github.com/andrzej-nov/Tangler")
+            else if (v.y < gridY) {
+                if (v.x < gridX * 2)
+                    ctx.game.setScreen<HomeScreen>()
+                else if (v.x > 6 * gridX)
+                    Gdx.app.exit()
+            }
+            return super.touchDown(screenX, screenY, pointer, button)
+        }
+
+        /**
+         * On Android 'Back' button switch back to the Home/Settings screen instead of default action
+         * (pausing the application)
+         */
+        override fun keyDown(keycode: Int): Boolean {
+            if (keycode == Input.Keys.BACK)
+                ctx.game.setScreen<HomeScreen>()
+            return super.keyDown(keycode)
+        }
+    }
+
+
+}

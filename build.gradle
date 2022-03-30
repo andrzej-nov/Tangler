@@ -1,0 +1,58 @@
+buildscript {
+	repositories {
+		mavenLocal()
+		mavenCentral()
+		google()
+		gradlePluginPortal()
+		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+		maven { url 'https://jitpack.io' }
+	}
+	dependencies {
+		classpath "com.android.tools.build:gradle:$gradleVersion"
+		classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+		classpath "org.wisepersist:gwt-gradle-plugin:$gwtPluginVersion"
+		classpath "com.android.tools.build:gradle:$androidPluginVersion"
+		classpath "space.earlygrey:shapedrawer:$shapedrawerVersion"
+		classpath "org.mini2Dx:universal-tween-engine:$tweenEngineVersion"
+	}
+}
+
+allprojects {
+	apply plugin: 'eclipse'
+	apply plugin: 'idea'
+}
+
+configure(subprojects - project(':android')) {
+	apply plugin: 'java-library'
+	apply plugin: 'kotlin'
+	sourceCompatibility = 8.0
+	compileJava {
+		options.incremental = true
+	}
+}
+
+/*
+//TODO Uncomment that in order to build ios project. Assuming you know how to make it work.
+configure(subprojects - project(':ios')) {
+	apply plugin: "kotlin"
+	apply plugin: "robovm"
+	sourceCompatibility = 8.0
+	compileJava {
+		options.incremental = true
+	}
+}
+*/
+
+subprojects {
+	version = '1.0'
+	ext.appName = 'Tangler'
+	repositories {
+		mavenLocal()
+		mavenCentral()
+		gradlePluginPortal()
+		maven { url 'https://oss.sonatype.org/content/repositories/snapshots/' }
+		maven { url 'https://jitpack.io' }
+	}
+}
+
+eclipse.project.name = 'Tangler' + '-parent'
