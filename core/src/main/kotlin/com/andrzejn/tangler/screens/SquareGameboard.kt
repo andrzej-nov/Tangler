@@ -127,4 +127,15 @@ class SquareGameboard(ctx: Context) :
         )
     }
 
+    /**
+     * Ensures that the rotation is in correct range. If it is not, wraps it over and returns corrected value.
+     */
+    override fun clipWrapRotation(rotation: Int): Int {
+        if (rotation > 2)
+            return rotation - 4
+        if (rotation < -1)
+            return rotation + 4
+        return rotation
+    }
+
 }

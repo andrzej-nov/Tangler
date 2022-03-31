@@ -248,7 +248,7 @@ class PlayField(private val fieldSize: Int, private val sidesCount: Int) {
         /**
          * Rotation steps (for the UI tiles, not the logical tile rotations)
          */
-        val rotation: Int,
+        var rotation: Int,
         /**
          * Target cell where to put tile after rotation
          */

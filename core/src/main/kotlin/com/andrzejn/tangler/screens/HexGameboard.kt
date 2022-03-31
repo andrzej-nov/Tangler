@@ -204,4 +204,15 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
         )
     }
 
+    /**
+     * Ensures that the rotation is in correct range. If it is not, wraps it over and returns corrected value.
+     */
+    override fun clipWrapRotation(rotation: Int): Int {
+        if (rotation > 3)
+            return rotation - 6
+        if (rotation < -2)
+            return rotation + 6
+        return rotation
+    }
+
 }

@@ -13,10 +13,12 @@ import com.andrzejn.tangler.logic.Tile
 import com.andrzejn.tangler.tiles.BaseTile
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Gdx.input
+import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.Vector2
+import kotlin.math.abs
 
 /**
  * Grid lines width. Used in some other places to draw lines.
@@ -101,11 +103,6 @@ abstract class BaseGameboard(
      */
     private var dragStartedFrom = PressedArea.None
 
-    /**
-     * Set by the "Hint next move" button click when there are no more moves available.
-     */
-    private var noMoreMoves = false
-
     // Those sprites are overlayed over the shadow sprite to inducate possible moves quality
     private val ok = Sprite(ctx.a.accept).also { it.setAlpha(0.5f) }
     private val bad = Sprite(ctx.a.cancel).also { it.setAlpha(0.5f) }
@@ -130,6 +127,8 @@ abstract class BaseGameboard(
      * Gets the pressed/clicked coordinates, determines which element has been clicked and invokes respective actions
      */
     fun dispatchClick(x: Float, y: Float): Boolean {
+        if (input.isButtonPressed(Input.Buttons.RIGHT))
+            return false
         val pressed = ctrl.pressedArea(x, y)
 
         lastPressedArea = pressed
@@ -161,19 +160,23 @@ abstract class BaseGameboard(
     }
 
     /**
-     * If we are scrolling the board by dragging
+     * If we are scrolling the board by dragging, record starting point of the drag
      */
-    private var inDrag = false
+    private val dragStartedAt = Vector2(-1f, -1f)
 
     /**
      * Process the sustem touch-up / mouse-up events.
      * Here we either finish the dragging or drop the tile to cell.
      */
     fun touchUp(x: Float, y: Float) {
-        if (inDrag) {
+        if (dragStartedAt.x > 0 && dragStartedAt.y > 0
+            && abs(x - dragStartedAt.x) > 3 && abs(y - dragStartedAt.y) > 3
+        ) { // filter out erroneous drags when pointer shofts on clich by a couple of pixels
+            println("dragend $x ${dragStartedAt.x} $y ${dragStartedAt.y}")
             dragEnd(x, y)
             return
         }
+        resetDragState()
         if (ctrl.pressedArea(x, y) != PressedArea.Board || ctx.tweenAnimationRunning())
             return
         val c = coordToValidMoveCell(x, y)
@@ -186,9 +189,7 @@ abstract class BaseGameboard(
      * to its place below the board
      */
     private fun dragEnd(x: Float, y: Float) {
-        inDrag = false
-        fieldScrollBase.x = -1
-        fieldScrollBase.y = -1
+        resetDragState()
         if (dragStartedFrom != PressedArea.NextTile) {
             dragStartedFrom = PressedArea.None
             return
@@ -203,7 +204,13 @@ abstract class BaseGameboard(
      * Process 'dragging-in-progress' event
      */
     fun dragTo(x: Float, y: Float) {
-        inDrag = true
+        if (input.isButtonPressed(Input.Buttons.RIGHT))
+            return
+        if (dragStartedAt.x < 0 && dragStartedAt.y < 0) {
+            println("dragstart $x $y")
+            dragStartedAt.x = x
+            dragStartedAt.y = y
+        }
         if (dragStartedFrom == PressedArea.None)
             dragStartedFrom = lastPressedArea // We not always get the press event before the drag.
         // So it's more reliable to determine what is been dragging, when we get the first dragTo event for it.
@@ -214,14 +221,12 @@ abstract class BaseGameboard(
                 val c = coordToScreenCell(x, y)
                 if (c.x == -1 && c.y == -1)
                     return
-                println("fieldScrollBase ${fieldScrollBase.x} ${fieldScrollBase.y} scrollOffset ${scrollOffset.x} ${scrollOffset.y}")
-                if (fieldScrollBase.x == -1 && fieldScrollBase.y == -1) {
+                if (fieldScrollBase.x < 0 && fieldScrollBase.y < 0) {
                     fieldScrollBase = c
                     return
                 }
                 val scrollStep = Coord(c.x - fieldScrollBase.x, (c.y - fieldScrollBase.y) / scrollYstepMultiplier)
                 if (scrollStep.x != 0 || scrollStep.y != 0) {
-                    println("scrollStep ${scrollStep.x} ${scrollStep.y}")
                     fieldScrollBase.x += scrollStep.x
                     fieldScrollBase.y += scrollStep.y * scrollYstepMultiplier
                     scrollField(scrollStep)
@@ -247,9 +252,20 @@ abstract class BaseGameboard(
      * Reset the "nextTile is dragging" state
      */
     private fun clearNextTileDrag() {
+        resetDragState()
+        dragStartedFrom = PressedArea.None
+    }
+
+    /**
+     * Sets the current "in drag" markers to "not in drag"
+     */
+    private fun resetDragState() {
+        dragStartedAt.x = -1f
+        dragStartedAt.y = -1f
+        fieldScrollBase.x = -1
+        fieldScrollBase.y = -1
         tileDragDelta.x = 0f
         tileDragDelta.y = 0f
-        dragStartedFrom = PressedArea.None
     }
 
     /**
@@ -275,17 +291,30 @@ abstract class BaseGameboard(
     private val tileDropTweenDuration = 0.1f
     private val shadowSpritesShowTweenDuration = 0.2f
 
+
+    /**
+     * Set by the "Hint next move" button click when there are no more moves available.
+     */
+    private var noMoreMoves = false
+    private var suggestedMove: PlayField.Move? = null
+
+    private fun lookForGoodMove(): PlayField.Move? {
+        if (noMoreMoves)
+            return null
+        if (suggestedMove == null)
+            suggestedMove = playField.suggestBestMove(nextTile.t, allowDuplicateColors)
+        if (suggestedMove == null)
+            noMoreMoves = true
+        return suggestedMove
+    }
+
     /**
      * Evaluate the suboptimal move for the current nextCell and board position,
      * and perform the move.
      */
     private fun autoMove() {
         if (ctx.tweenAnimationRunning()) return // Previous animation not ended yet
-        val suggested = playField.suggestBestMove(nextTile.t, allowDuplicateColors)
-        if (suggested == null) {
-            noMoreMoves = true
-            return
-        }
+        val suggested = lookForGoodMove() ?: return
         with(Timeline.createSequence()) {
             if (suggested.rotation != 0)
                 push(Tween.call { _, _ -> rotateNextTile(suggested.rotation) })
@@ -310,9 +339,18 @@ abstract class BaseGameboard(
         Tween.to(nextTile.sprite, TW_ANGLE, tileRotateTweenDuration).target(rotateDegrees(step))
             .setCallback { _, _ ->
                 nextTile.rotateBy(step)
+                with(suggestedMove) {
+                    if (this != null)
+                        rotation = clipWrapRotation(rotation - step)
+                }
                 validMovesList = null
             }.start(ctx.tweenManager)
     }
+
+    /**
+     * Ensures that the rotation is in correct range. If it is not, wraps it over and returns corrected value.
+     */
+    abstract fun clipWrapRotation(rotation: Int): Int
 
     /**
      * Used to blink the target cell when droppint nextTile to it
@@ -645,6 +683,7 @@ abstract class BaseGameboard(
     private fun assignNextTile(t: Tile) {
         nextTile = newUITile(t)
         validMovesList = null
+        suggestedMove = null
     }
 
     /**
@@ -657,6 +696,7 @@ abstract class BaseGameboard(
                 allowDuplicateColors
             )
         )
+        lookForGoodMove()
     }
 
     /**
@@ -761,6 +801,8 @@ abstract class BaseGameboard(
         playField.cell.flatten().filter { it.tile != null }.forEach {
             tile[it.x][it.y] = newUITile(it.tile ?: return@forEach)
         }
+        noMoreMoves = false
+        lookForGoodMove()
         resize()
         return true
     }
