@@ -2,7 +2,6 @@ package com.andrzejn.tangler.helper
 
 import com.andrzejn.tangler.Context
 import com.andrzejn.tangler.logic.Path
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.BitmapFontCache
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
@@ -20,6 +19,9 @@ class Score(
     // Score counters
     private var moves: Int = 0
     private var closedLoopPoints: Int = 0
+
+    private var recordMoves: Int = 0
+    private var recordPoints: Int = 0
 
     // Font and text drawing objects
     private lateinit var font: BitmapFont
@@ -57,15 +59,27 @@ class Score(
         }
         moves = m
         closedLoopPoints = p
+        // By this moment the game settings have been deserialized already, so we may rely on them
+        loadRecords()
         return true
+    }
+
+    /**
+     * Load record values for the current game settings
+     */
+    private fun loadRecords() {
+        recordMoves = ctx.gs.recordMoves
+        recordPoints = ctx.gs.recordPoints
     }
 
     /**
      * Reset score to zero
      */
     fun reset() {
+        saveRecords()
         moves = 0
         closedLoopPoints = 0
+        loadRecords()
         if (fontHeight > 0)
             setTexts()
     }
@@ -132,7 +146,14 @@ class Score(
      * Update text object with the current moves value (then that text will be siply rendered as needed)
      */
     private fun setMovesText() {
-        fcMoves.setText(moves.toString(), textMovesX, textY, textWidth, Align.right, false)
+        fcMoves.setText(
+            moves.toString() + if (moves > recordMoves) " !" else "",
+            textMovesX,
+            textY,
+            textWidth,
+            Align.right,
+            false
+        )
         fcMoves.setColors(ctx.drw.theme.scoreMoves)
     }
 
@@ -140,7 +161,14 @@ class Score(
      * Update text object with the current score value (then that text will be siply rendered as needed)
      */
     private fun setPointsText() {
-        fcPoints.setText(closedLoopPoints.toString(), textPointsX, textY, textWidth, Align.left, false)
+        fcPoints.setText(
+            closedLoopPoints.toString() + if (closedLoopPoints > recordPoints) " !" else "",
+            textPointsX,
+            textY,
+            textWidth,
+            Align.left,
+            false
+        )
         fcPoints.setColors(ctx.drw.theme.scorePoints)
     }
 
@@ -171,5 +199,19 @@ class Score(
     fun dispose() {
         if (this::font.isInitialized)
             font.dispose()
+    }
+
+    /**
+     * Update current records to the settings stotage, as needed
+     */
+    fun saveRecords() {
+        if (moves > recordMoves) {
+            ctx.gs.recordMoves = moves
+            recordMoves = moves
+        }
+        if (closedLoopPoints > recordPoints) {
+            ctx.gs.recordPoints = closedLoopPoints
+            recordPoints = closedLoopPoints
+        }
     }
 }

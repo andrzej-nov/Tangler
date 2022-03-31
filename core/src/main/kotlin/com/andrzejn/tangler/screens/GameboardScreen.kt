@@ -6,6 +6,7 @@ import com.badlogic.gdx.Gdx.input
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputAdapter
 import ktx.app.KtxScreen
+import java.util.*
 
 /**
  * The main game screen.
@@ -35,12 +36,36 @@ class GameboardScreen(ctx: Context) :
         // very little difference in the gameboard logic
     }
 
+    private var timeStart: Long = 0
+
     /**
-     * Invoked by the GDX library when the screen is displayed. Sets the input processing to our input adapter.
+     * Invoked by the GDX library when the screen is displayed. Sets the input processing to our input adapter
+     * and start measuring in-game time.
      */
     override fun show() {
         super<BaseScreen>.show()
         input.inputProcessor = ia
+        timeStart = Calendar.getInstance().timeInMillis
+    }
+
+    override fun hide() {
+        super<BaseScreen>.hide()
+        updateInGameDuration()
+    }
+
+    /**
+     * Invoked when the screen is about to close, for any reason.
+     * Update the in-game time.
+     */
+    override fun pause() {
+        updateInGameDuration()
+        ctx.score.saveRecords()
+        super<BaseScreen>.pause()
+    }
+
+    private fun updateInGameDuration() {
+        ctx.gs.inGameDuration += Calendar.getInstance().timeInMillis - timeStart
+        timeStart = Calendar.getInstance().timeInMillis
     }
 
     /**

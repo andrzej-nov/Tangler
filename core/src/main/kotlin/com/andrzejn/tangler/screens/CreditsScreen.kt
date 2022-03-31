@@ -4,7 +4,6 @@ import com.andrzejn.tangler.Context
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputAdapter
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.BitmapFontCache
 import com.badlogic.gdx.graphics.g2d.Sprite
@@ -18,6 +17,7 @@ class CreditsScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
     private val ia = IAdapter()
     private var font: BitmapFont = BitmapFont()
     private lateinit var fcText: BitmapFontCache
+    private lateinit var fcTime: BitmapFontCache
 
     /**
      * Called by GDX runtime on screen show
@@ -98,6 +98,23 @@ class CreditsScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
         fcText.addText("t.me/Andrzejn", gridX * 1.7f, gridY * 3.5f, gridX * 5f, Align.left, false)
         fcText.addText("github.com/andrzej-nov", gridX * 1.7f, gridY * 2.5f, gridX * 5f, Align.left, false)
         fcText.setColors(ctx.drw.theme.creditsText)
+        fcTime = BitmapFontCache(font)
+        fcTime.setText(millisToTimeString(ctx.gs.inGameDuration), gridX * 1.5f, gridY, gridX * 5f, Align.center, false)
+        fcTime.setColors(ctx.drw.theme.settingItem)
+    }
+
+    /***
+     * Convert the in-game spent milliseconds into days-hours-mins-secongs format
+     */
+    private fun millisToTimeString(millis: Long): String {
+        var s = millis / 1000
+        var m = s / 60
+        s -= m * 60
+        var h = m / 60
+        m -= h * 60
+        val d = h / 24
+        h -= d * 24
+        return String.format(". . . %4d %02d:%02d:%02d   . . .", d, h, m, s)
     }
 
     /**
@@ -116,6 +133,7 @@ class CreditsScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
         home.draw(ctx.batch)
         poweroff.draw(ctx.batch)
         fcText.draw(ctx.batch)
+        fcTime.draw(ctx.batch)
         ctx.batch.end()
     }
 

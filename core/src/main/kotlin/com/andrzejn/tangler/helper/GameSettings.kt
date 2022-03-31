@@ -12,12 +12,16 @@ class GameSettings {
     private val sALLOWDUPLICATECOLORS = "allowDuplicateColors"
     private val sSAVEDGAME = "savedGame"
     private val sDARKTHEME = "darkTheme"
+    private val sINGAMEDURATION = "inGameDuration"
+    private val sRECORDMOVES = "recordMoves"
+    private val sRECORDPOINTS = "recordPoints"
     private val pref by lazy { Gdx.app.getPreferences("com.andrzejn.tangler") }
     private var iBoardSize: Int = 6
     private var iSidesCount: Int = 4
-    private var iSolorsCount: Int = 3
+    private var iColorsCount: Int = 3
     private var iAllowDuplicateColors: Boolean = false
     private var iDarkTheme: Boolean = true
+    private var iInGameDuration: Long = 0
 
     /**
      * Reset game settings to default values
@@ -29,13 +33,14 @@ class GameSettings {
         iSidesCount = pref.getInteger(sSIDESCOUNT, 4)
         if (iSidesCount !in listOf(4, 6, 8)) iSidesCount = 4
         sidesCount = iSidesCount
-        iSolorsCount = pref.getInteger(sCOLORSCOUNT, 3)
-        if (iSolorsCount > 6) iSolorsCount = 6
-        else if (iSolorsCount < iSidesCount / 2) iSolorsCount = iSidesCount / 2
-        colorsCount = iSolorsCount
+        iColorsCount = pref.getInteger(sCOLORSCOUNT, 3)
+        if (iColorsCount > 6) iColorsCount = 6
+        else if (iColorsCount < iSidesCount / 2) iColorsCount = iSidesCount / 2
+        colorsCount = iColorsCount
         iAllowDuplicateColors = pref.getBoolean(sALLOWDUPLICATECOLORS, false)
         allowDuplicateColors = iAllowDuplicateColors
         iDarkTheme = pref.getBoolean(sDARKTHEME, true)
+        iInGameDuration = pref.getLong(sINGAMEDURATION, 0)
     }
 
     /**
@@ -64,9 +69,9 @@ class GameSettings {
      * Number of different colors used for tile segments. Allowed values are from (sidesCount / 2) to 6
      */
     var colorsCount: Int
-        get() = iSolorsCount
+        get() = iColorsCount
         set(value) {
-            iSolorsCount = value
+            iColorsCount = value
             pref.putInteger(sCOLORSCOUNT, value)
             pref.flush()
         }
@@ -94,12 +99,50 @@ class GameSettings {
         }
 
     /**
+     * Total time spent in game
+     */
+    var inGameDuration: Long
+        get() = iInGameDuration
+        set(value) {
+            iInGameDuration = value
+            pref.putLong(sINGAMEDURATION, value)
+            pref.flush()
+        }
+
+    /**
      * Serialized save game
      */
     var savedGame: String
         get() = pref.getString(sSAVEDGAME, "")
         set(value) {
             pref.putString(sSAVEDGAME, value)
+            pref.flush()
+        }
+
+    /**
+     * Key name for storing the records for the current tile type - game size - colors
+     */
+    private fun keyName(prefix: String): String {
+        return "$prefix$iSidesCount$iColorsCount${if (allowDuplicateColors) 1 else 0}$iBoardSize"
+    }
+
+    /**
+     * Record moves value for the current tile type - game size - colors
+     */
+    var recordMoves: Int
+        get() = pref.getInteger(keyName(sRECORDMOVES), 0)
+        set(value) {
+            pref.putInteger(keyName(sRECORDMOVES), value)
+            pref.flush()
+        }
+
+    /**
+     * Record moves value for the current tile type - game size - colors
+     */
+    var recordPoints: Int
+        get() = pref.getInteger(keyName(sRECORDPOINTS), 0)
+        set(value) {
+            pref.putInteger(keyName(sRECORDPOINTS), value)
             pref.flush()
         }
 
