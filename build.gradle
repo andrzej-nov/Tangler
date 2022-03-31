@@ -44,7 +44,7 @@ configure(subprojects - project(':ios')) {
 */
 
 subprojects {
-	version = '1.0'
+	version = '1.1'
 	ext.appName = 'Tangler'
 	repositories {
 		mavenLocal()
