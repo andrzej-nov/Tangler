@@ -172,16 +172,21 @@ abstract class BaseGameboard(
         if (dragStartedAt.x > 0 && dragStartedAt.y > 0
             && abs(x - dragStartedAt.x) > 3 && abs(y - dragStartedAt.y) > 3
         ) { // filter out erroneous drags when pointer shofts on clich by a couple of pixels
-            println("dragend $x ${dragStartedAt.x} $y ${dragStartedAt.y}")
             dragEnd(x, y)
             return
         }
         resetDragState()
-        if (ctrl.pressedArea(x, y) != PressedArea.Board || ctx.tweenAnimationRunning())
+        if (ctx.tweenAnimationRunning())
             return
-        val c = coordToValidMoveCell(x, y)
-        if (c.x >= 0 && c.y >= 0) // Valid cell clicked
-            doNextTileDrop(c)
+        when (ctrl.pressedArea(x, y)) {
+            PressedArea.Board -> {
+                val c = coordToValidMoveCell(x, y)
+                if (c.x >= 0 && c.y >= 0) // Valid cell clicked
+                    doNextTileDrop(c)
+            }
+            PressedArea.NextTile -> rotateNextTile(if (x < ctrl.centerX) -1 else 1)
+            else -> {}
+        }
     }
 
     /**
@@ -207,7 +212,6 @@ abstract class BaseGameboard(
         if (input.isButtonPressed(Input.Buttons.RIGHT))
             return
         if (dragStartedAt.x < 0 && dragStartedAt.y < 0) {
-            println("dragstart $x $y")
             dragStartedAt.x = x
             dragStartedAt.y = y
         }
