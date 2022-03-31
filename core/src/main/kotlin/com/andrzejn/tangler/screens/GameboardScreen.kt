@@ -118,11 +118,11 @@ class GameboardScreen(ctx: Context) :
         }
 
         /**
-         * Called when screen is untouched (mouse button released). We are interested in the end-of-drag case.
+         * Called when screen is untouched (mouse button released). That's either a drag end or tile drop.
          */
         override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
             val v = ctx.drw.pointerPosition(input.x, input.y)
-            gameboard.dragEnd(v.x, v.y)
+            gameboard.touchUp(v.x, v.y)
             return super.touchUp(screenX, screenY, pointer, button)
         }
 

@@ -1,8 +1,8 @@
 
 atlas.png
-size: 708, 969
+size: 720, 969
 format: RGBA8888
-filter: Linear, Linear
+filter: MipMap, MipMap
 repeat: none
 tile4
   rotate: false
@@ -182,5 +182,10 @@ iconfacebook
 icongithub
   rotate: false
   xy: 420, 815
+  size: 150, 150
+  index: -1
+icondonate
+  rotate: false
+  xy: 570, 515
   size: 150, 150
   index: -1

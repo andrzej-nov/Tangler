@@ -94,7 +94,7 @@ abstract class BaseGameboard(
      * That allows calculation where should we scroll the board. Cell coordinates are for the UI screen cells,
      * not for the logical tile/cell arrays.
      */
-    private var fieldScrollBase = Coord(0, 0)
+    private var fieldScrollBase = Coord(-1, -1)
 
     /**
      * Used to determine if we are dragging the nextTile or scrolling the board.
@@ -149,13 +149,10 @@ abstract class BaseGameboard(
                 pressedCell.y = -1
             } else { // Clicked on the board, try to put the nextTile
                 val c = coordToValidMoveCell(x, y)
-                if (c.x >= 0 && c.y >= 0) { // Valid cell clicked
-                    if (ctx.tweenAnimationRunning()) return false // Previous animation not ended yet
-                    if (doNextTileDrop(c)) return false
-                } else { // Not a valid move cell clicked, check for the rotation zones
-                    val rotateStep = scrollAreaHitTest(x, y)
-                    if (rotateStep.x != 0 || rotateStep.y != 0) // Border click, need to rotate field
-                        scrollField(rotateStep)
+                if (c.x < 0 || c.y < 0) { // Not a valid move cell clicked, check for the rotation zones
+                    val scrollStep = scrollAreaHitTest(x, y)
+                    if (scrollStep.x != 0 || scrollStep.y != 0) // Border click, need to rotate field
+                        scrollField(scrollStep)
                 }
             }
             else -> {} // do nothing
@@ -164,10 +161,32 @@ abstract class BaseGameboard(
     }
 
     /**
+     * If we are scrolling the board by dragging
+     */
+    private var inDrag = false
+
+    /**
+     * Process the sustem touch-up / mouse-up events.
+     * Here we either finish the dragging or drop the tile to cell.
+     */
+    fun touchUp(x: Float, y: Float) {
+        if (inDrag) {
+            dragEnd(x, y)
+            return
+        }
+        if (ctrl.pressedArea(x, y) != PressedArea.Board || ctx.tweenAnimationRunning())
+            return
+        val c = coordToValidMoveCell(x, y)
+        if (c.x >= 0 && c.y >= 0) // Valid cell clicked
+            doNextTileDrop(c)
+    }
+
+    /**
      * Process end-of-drag event. If the nextTile was dragged, drop it to valid target cell or return back
      * to its place below the board
      */
-    fun dragEnd(x: Float, y: Float) {
+    private fun dragEnd(x: Float, y: Float) {
+        inDrag = false
         fieldScrollBase.x = -1
         fieldScrollBase.y = -1
         if (dragStartedFrom != PressedArea.NextTile) {
@@ -184,6 +203,7 @@ abstract class BaseGameboard(
      * Process 'dragging-in-progress' event
      */
     fun dragTo(x: Float, y: Float) {
+        inDrag = true
         if (dragStartedFrom == PressedArea.None)
             dragStartedFrom = lastPressedArea // We not always get the press event before the drag.
         // So it's more reliable to determine what is been dragging, when we get the first dragTo event for it.
@@ -194,12 +214,14 @@ abstract class BaseGameboard(
                 val c = coordToScreenCell(x, y)
                 if (c.x == -1 && c.y == -1)
                     return
+                println("fieldScrollBase ${fieldScrollBase.x} ${fieldScrollBase.y} scrollOffset ${scrollOffset.x} ${scrollOffset.y}")
                 if (fieldScrollBase.x == -1 && fieldScrollBase.y == -1) {
                     fieldScrollBase = c
                     return
                 }
                 val scrollStep = Coord(c.x - fieldScrollBase.x, (c.y - fieldScrollBase.y) / scrollYstepMultiplier)
                 if (scrollStep.x != 0 || scrollStep.y != 0) {
+                    println("scrollStep ${scrollStep.x} ${scrollStep.y}")
                     fieldScrollBase.x += scrollStep.x
                     fieldScrollBase.y += scrollStep.y * scrollYstepMultiplier
                     scrollField(scrollStep)
