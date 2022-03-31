@@ -60,7 +60,7 @@ class SquareGameboard(ctx: Context) :
         super.render()
         renderBoardBackground(coordX[0], coordY[0], coordX.last(), coordY.last())
         with(ctx.drw.sd) {
-            setColor(Color.DARK_GRAY)
+            setColor(ctx.drw.theme.screenBackground)
             for (i in coordX.indices) {
                 line(coordX[i], coordY.first(), coordX[i], coordY.last(), lineWidth)
                 line(coordX.first(), coordY[i], coordX.last(), coordY[i], lineWidth)

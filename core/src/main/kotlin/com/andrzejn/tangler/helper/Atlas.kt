@@ -71,4 +71,6 @@ class Atlas {
     val iconfacebook: TextureRegion get() = texture("iconfacebook")
     val icongithub: TextureRegion get() = texture("icongithub")
 
+    val darktheme: TextureRegion get() = texture("darktheme")
+    val lighttheme: TextureRegion get() = texture("lighttheme")
 }

@@ -208,8 +208,8 @@ class Controls(
         sRotateRight.draw(ctx.batch, 0.8f)
 
         with(ctx.drw.sd) {
-            filledCircle(centerX, circleY, tileHeight * 0.7f, Color.BLACK)
-            setColor(if (noMoreMoves) Color.RED else Color.LIGHT_GRAY)
+            filledCircle(centerX, circleY, tileHeight * 0.7f, ctx.drw.theme.gameboardBackground)
+            setColor(if (noMoreMoves) ctx.drw.theme.nextTileCircleNoMoves else ctx.drw.theme.nextTileCircleOK)
             circle(
                 centerX,
                 circleY,
@@ -217,7 +217,7 @@ class Controls(
                 if (noMoreMoves) lineWidth * 2 else lineWidth
             )
             if (noMoreMoves) {
-                setColor(Color.CHARTREUSE)
+                setColor(ctx.drw.theme.nextGamePrompt)
                 filledCircle(
                     sPlay.x + sPlay.width / 2,
                     sPlay.y + sPlay.height / 2,

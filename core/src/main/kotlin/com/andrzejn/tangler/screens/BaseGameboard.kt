@@ -441,7 +441,7 @@ abstract class BaseGameboard(
      * overload.
      */
     open fun render() {
-        ctx.drw.sd.filledRectangle(0f, 0f, ctx.viewportWidth, ctx.viewportHeight, Color.DARK_GRAY)
+        ctx.drw.sd.filledRectangle(0f, 0f, ctx.viewportWidth, ctx.viewportHeight, ctx.drw.theme.screenBackground)
         ctrl.render(noMoreMoves)
         ctx.score.draw(ctx.batch)
         if (ctx.fader.inFade)
@@ -465,17 +465,13 @@ abstract class BaseGameboard(
         with(ctx.drw.sd) {
             filledRectangle(
                 leftX - indent, bottomY - indent,
-                rightX - leftX + 2 * indent, topY - bottomY + 2 * indent, Color.BLACK
+                rightX - leftX + 2 * indent, topY - bottomY + 2 * indent, ctx.drw.theme.gameboardBackground
             )
             if (higlightedCell.x > -1 && higlightedCell.y > -1) {
-                setColor(Color.WHITE)
+                setColor(ctx.drw.theme.polygonHighlight)
                 filledPolygon(cellPolygon(higlightedCell))
             }
-            if (higlightedCell.x > -1 && higlightedCell.y > -1) {
-                setColor(Color.WHITE)
-                filledPolygon(cellPolygon(higlightedCell))
-            }
-            setColor(Color.DARK_GRAY)
+            setColor(ctx.drw.theme.screenBackground)
             filledTriangle(
                 leftX - indent, middleY, leftX - thickWidth, middleY - halfHeight,
                 leftX - thickWidth, middleY + halfHeight

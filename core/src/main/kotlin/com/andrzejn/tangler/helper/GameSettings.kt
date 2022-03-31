@@ -11,11 +11,13 @@ class GameSettings {
     private val sCOLORSCOUNT = "colorsCount"
     private val sALLOWDUPLICATECOLORS = "allowDuplicateColors"
     private val sSAVEDGAME = "savedGame"
+    private val sDARKTHEME = "darkTheme"
     private val pref by lazy { Gdx.app.getPreferences("com.andrzejn.tangler") }
     private var iBoardSize: Int = 6
     private var iSidesCount: Int = 4
     private var iSolorsCount: Int = 3
     private var iAllowDuplicateColors: Boolean = false
+    private var iDarkTheme: Boolean = true
 
     /**
      * Reset game settings to default values
@@ -33,6 +35,7 @@ class GameSettings {
         colorsCount = iSolorsCount
         iAllowDuplicateColors = pref.getBoolean(sALLOWDUPLICATECOLORS, false)
         allowDuplicateColors = iAllowDuplicateColors
+        iDarkTheme = pref.getBoolean(sDARKTHEME, true)
     }
 
     /**
@@ -76,6 +79,17 @@ class GameSettings {
         set(value) {
             iAllowDuplicateColors = value
             pref.putBoolean(sALLOWDUPLICATECOLORS, value)
+            pref.flush()
+        }
+
+    /**
+     * Dark/Light color theme selector
+     */
+    var isDarkTheme: Boolean
+        get() = iDarkTheme
+        set(value) {
+            iDarkTheme = value
+            pref.putBoolean(sDARKTHEME, value)
             pref.flush()
         }
 

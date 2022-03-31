@@ -117,7 +117,7 @@ class Score(
         closedLoopPoints += points
         setPointsText()
         fcFloatUp.setText(points.toString(), x, y, floatTextWidth, Align.left, false)
-        fcFloatUp.setColors(Color.CHARTREUSE)
+        fcFloatUp.setColors(ctx.drw.theme.scorePoints)
     }
 
     /**
@@ -133,7 +133,7 @@ class Score(
      */
     private fun setMovesText() {
         fcMoves.setText(moves.toString(), textMovesX, textY, textWidth, Align.right, false)
-        fcMoves.setColors(Color.GOLD)
+        fcMoves.setColors(ctx.drw.theme.scoreMoves)
     }
 
     /**
@@ -141,7 +141,7 @@ class Score(
      */
     private fun setPointsText() {
         fcPoints.setText(closedLoopPoints.toString(), textPointsX, textY, textWidth, Align.left, false)
-        fcPoints.setColors(Color.CHARTREUSE)
+        fcPoints.setColors(ctx.drw.theme.scorePoints)
     }
 
     /**

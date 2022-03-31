@@ -104,7 +104,7 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
         super.render()
         renderBoardBackground(coordX[0], coordY[0], coordX.last(), coordY.last())
         with(ctx.drw.sd) {
-            setColor(Color.DARK_GRAY)
+            setColor(ctx.drw.theme.screenBackground)
             horizontalBorder.forEach { v -> path(v, lineWidth, JoinType.POINTY, true) }
             verticalBorder.forEach { a -> line(a[0], a[1], a[2], a[3], lineWidth) }
         }

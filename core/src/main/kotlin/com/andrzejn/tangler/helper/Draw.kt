@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import space.earlygrey.shapedrawer.ShapeDrawer
+import java.awt.im.InputMethodHighlight
 
 
 /**
@@ -63,6 +64,60 @@ class Draw(
         Color(0xb45f06ff.toInt()),
         Color(0x85200cff.toInt())
     )
+
+    data class Theme(
+        val screenBackground: Color,
+        val nextTileCircleOK: Color,
+        val nextTileCircleNoMoves: Color,
+        val settingSelection: Color,
+        val settingItem: Color,
+        val settingSeparator: Color,
+        val gameboardBackground: Color,
+        val polygonHighlight: Color,
+        val creditsText: Color,
+        val nextGamePrompt: Color,
+        val scorePoints: Color,
+        val scoreMoves: Color
+    )
+
+    private val lt: Theme = Theme(
+        screenBackground = Color.GRAY,
+        nextTileCircleOK = Color.DARK_GRAY,
+        nextTileCircleNoMoves = Color.FIREBRICK,
+        settingSelection = Color.LIGHT_GRAY,
+        settingItem = Color.DARK_GRAY,
+        settingSeparator = Color.DARK_GRAY,
+        gameboardBackground = Color.LIGHT_GRAY,
+        polygonHighlight = Color.BLACK,
+        creditsText = Color.NAVY,
+        nextGamePrompt = Color.CHARTREUSE,
+        scorePoints = Color.CHARTREUSE,
+        scoreMoves = Color.GOLD
+    )
+
+    private val dk: Theme = Theme(
+        screenBackground = Color.DARK_GRAY,
+        nextTileCircleOK = Color.LIGHT_GRAY,
+        nextTileCircleNoMoves = Color.RED,
+        settingSelection = Color.GRAY,
+        settingItem = Color.LIGHT_GRAY,
+        settingSeparator = Color.LIGHT_GRAY,
+        gameboardBackground = Color.BLACK,
+        polygonHighlight = Color.WHITE,
+        creditsText = Color.WHITE,
+        nextGamePrompt = Color.CHARTREUSE,
+        scorePoints = Color.CHARTREUSE,
+        scoreMoves = Color.GOLD
+    )
+
+    lateinit var theme: Theme
+
+    /**
+     * Set color theme according to current game setting value
+     */
+    fun setTheme() {
+        theme = if (ctx.gs.isDarkTheme) dk else lt
+    }
 
     /**
      * Convert the UI screen coordinates (mouse clicks or touches, for example) to the OpenGL scene coordinates

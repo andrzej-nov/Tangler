@@ -25,6 +25,7 @@ class Main : KtxGame<KtxScreen>() {
         graphics.isContinuousRendering = false // This game does not require continuous screen rendering as it is
         // mostly static. So let's switch to rendering on demand, to save CPU resources.
         ctx.gs.reset()
+        ctx.drw.setTheme()
         ctx.a.reloadAtlas()
         ctx.initBatches() // OpegGL batch objects are heavy. Usually you just need to create one or few of them
         // on the app start and retain them until the end

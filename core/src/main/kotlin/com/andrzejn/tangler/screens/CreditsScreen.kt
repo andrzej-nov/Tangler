@@ -97,7 +97,7 @@ class CreditsScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
         fcText.addText("fb.com/andrzej.novosiolov", gridX * 1.7f, gridY * 4.5f, gridX * 5f, Align.left, false)
         fcText.addText("t.me/Andrzejn", gridX * 1.7f, gridY * 3.5f, gridX * 5f, Align.left, false)
         fcText.addText("github.com/andrzej-nov", gridX * 1.7f, gridY * 2.5f, gridX * 5f, Align.left, false)
-        fcText.setColors(Color.WHITE)
+        fcText.setColors(ctx.drw.theme.creditsText)
     }
 
     /**
@@ -107,7 +107,7 @@ class CreditsScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
     override fun render(delta: Float) {
         super<BaseScreen>.render(delta)
         ctx.batch.begin()
-        ctx.drw.sd.filledRectangle(0f, 0f, ctx.viewportWidth, ctx.viewportHeight, Color.DARK_GRAY)
+        ctx.drw.sd.filledRectangle(0f, 0f, ctx.viewportWidth, ctx.viewportHeight, ctx.drw.theme.screenBackground)
         logo.draw(ctx.batch)
         icongmail.draw(ctx.batch)
         iconfacebook.draw(ctx.batch)

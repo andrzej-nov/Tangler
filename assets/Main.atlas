@@ -189,3 +189,13 @@ icondonate
   xy: 570, 515
   size: 150, 150
   index: -1
+darktheme
+  rotate: false
+  xy: 570, 665
+  size: 150, 150
+  index: -1
+lighttheme
+  rotate: false
+  xy: 570, 815
+  size: 150, 150
+  index: -1

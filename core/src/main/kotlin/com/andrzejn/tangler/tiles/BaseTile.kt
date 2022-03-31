@@ -87,7 +87,7 @@ abstract class BaseTile(
         ctx.tileBatch.begin() // tileBatch has dedicated camera with the viewport adjusted to the current tile size.
         // Note: only one batch may be active at the time, so the tile sprites must be generated outside of the
         // main screen render method
-        ctx.drw.tsd.setColor(Color.DARK_GRAY)
+        ctx.drw.tsd.setColor(ctx.drw.theme.screenBackground)
         ctx.drw.tsd.filledPolygon(tilePolygon)
         t.segment.forEach {
             drawSegment(it)
