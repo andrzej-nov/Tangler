@@ -15,6 +15,7 @@ hs_err_pid*
 .attach_pid*
 
 ## Android:
+android/release/
 android/libs/armeabi-v7a/
 android/libs/arm64-v8a/
 android/libs/x86/
@@ -73,4 +74,3 @@ nb-configuration.xml
 *~
 *.*#
 *#*#
-/android/release/
