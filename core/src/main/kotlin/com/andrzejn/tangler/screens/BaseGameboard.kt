@@ -303,12 +303,9 @@ abstract class BaseGameboard(
     private var suggestedMove: PlayField.Move? = null
 
     private fun lookForGoodMove(): PlayField.Move? {
-        if (noMoreMoves)
-            return null
         if (suggestedMove == null)
             suggestedMove = playField.suggestBestMove(nextTile.t, allowDuplicateColors)
-        if (suggestedMove == null)
-            noMoreMoves = true
+        noMoreMoves = suggestedMove == null
         return suggestedMove
     }
 
@@ -425,6 +422,7 @@ abstract class BaseGameboard(
         if (pathsToClear.isEmpty()) return
         playField.clearPaths(pathsToClear)
         validMovesList = null
+        lookForGoodMove()
         invalidateSprites()
     }
 
