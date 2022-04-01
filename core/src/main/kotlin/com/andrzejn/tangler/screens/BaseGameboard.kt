@@ -14,7 +14,6 @@ import com.andrzejn.tangler.tiles.BaseTile
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Gdx.input
 import com.badlogic.gdx.Input
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.Vector2
@@ -185,7 +184,9 @@ abstract class BaseGameboard(
                     doNextTileDrop(c)
             }
             PressedArea.NextTile -> rotateNextTile(if (x < ctrl.centerX) -1 else 1)
-            else -> {}
+            else -> {
+                dragEnd(x, y)
+            }
         }
     }
 
@@ -195,11 +196,7 @@ abstract class BaseGameboard(
      */
     private fun dragEnd(x: Float, y: Float) {
         resetDragState()
-        if (dragStartedFrom != PressedArea.NextTile) {
-            dragStartedFrom = PressedArea.None
-            return
-        }
-        if (ctrl.pressedArea(x, y) == PressedArea.Board)
+        if (dragStartedFrom == PressedArea.NextTile && ctrl.pressedArea(x, y) == PressedArea.Board)
             doNextTileDrop(coordToValidMoveCell(x, y))
         else // tile dropped to wrong area
             cancelDrag()
