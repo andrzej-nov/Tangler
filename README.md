@@ -23,10 +23,10 @@ is recommended for best experience.
 
 The game is provided in two options:
 
-- **Desktop Java**. [Download Tangler.jar](https://github.com/andrzej-nov/Tangler/releases/download/v1.1/Tangler.jar). Run it with `java -jar Tangler.jar` command line, or in most cases just double-click
+- **Desktop Java**. [Download Tangler.jar](https://github.com/andrzej-nov/Tangler/releases/download/v1.2/Tangler.jar). Run it with `java -jar Tangler.jar` command line, or in most cases just double-click
 the Tangler.jar file. It has been tested with Java 18 Runtime, should also work with prior versions up to Java 8.
 
-- **Android**. [Get it on Google Play](https://play.google.com/store/apps/details?id=com.andrzejn.tangler) (recommended; but not available yet because the Google Play release is still in review) or [download the Tangler.apk](https://github.com/andrzej-nov/Tangler/releases/download/v1.1/Tangler.apk) here for manual install. It has been
+- **Android**. [Get it on Google Play](https://play.google.com/store/apps/details?id=com.andrzejn.tangler) (recommended; but not available yet because the Google Play release is still in review) or [download the Tangler.apk](https://github.com/andrzej-nov/Tangler/releases/download/v1.2/Tangler.apk) here for manual install. It has been
 tested on Android 8.0 and 10.0, should also work on any Android version starting from 4.4 and later.
 
 There is no iOS build because I do not have tools to build and test it. If somebody completes the iOS module (see below)
