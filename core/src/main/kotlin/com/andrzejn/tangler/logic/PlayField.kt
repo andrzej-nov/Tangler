@@ -374,9 +374,14 @@ class PlayField(
      * Copy tiles from another playfield. Used to save/restore last move.
      */
     fun cloneFrom(other: PlayField) {
-        cell.flatten().filter { it.tile != null }.forEach {
-            it.tile?.cell = null
-            it.tile = null
+        cell.flatten().forEach { c ->
+            c.tile?.cell = null
+            c.tile = null
+            c.border.onEach { b ->
+                b?.color = null
+                b?.neighbourSegment?.set(0, null)
+                b?.neighbourSegment?.set(1, null)
+            }
         }
         other.cell.flatten().filter { it.tile != null }.forEach { c ->
             putTileToCell(generateEmptyTile().also { t ->

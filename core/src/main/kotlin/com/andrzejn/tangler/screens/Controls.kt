@@ -98,6 +98,10 @@ class Controls(
             rightButtonsX = boardRightX + 0.4f * tileWidth
             bottomButtonsXOffset = 0f
             bottomButtonsYOffset = tileWidth + indent
+            with(sDown) {
+                setSize(rotateButtonSize * 0.65f, rotateButtonSize * 0.65f)
+                setPosition((7 * rotateLeftX + 5 * centerX) / 12, circleY - height * 1.3f)
+            }
         } else if (rotateButtonY > tileHeight + 2 * indent) {
             // Vertical viewport orientation. Draw buttons in horizontal groups below the rotate buttons
             lowerButtonSize = tileHeight.toFloat()
@@ -106,6 +110,10 @@ class Controls(
             rightButtonsX = boardRightX - tileHeight
             bottomButtonsXOffset = tileHeight + indent
             bottomButtonsYOffset = 0f
+            with(sDown) {
+                setSize(rotateButtonSize * 0.7f, rotateButtonSize * 0.7f)
+                setPosition(rotateLeftX - width * 0.9f, circleY - height * 1.1f)
+            }
         } else {
             // Viewport close to square. Draw buttons in vertical groups inside of the board width
             lowerButtonSize = (buttonsBaseY - rotateButtonY) / 2.3f
@@ -114,6 +122,10 @@ class Controls(
             lowerButtonY = buttonsBaseY - lowerButtonSize - indent
             bottomButtonsXOffset = 0f
             bottomButtonsYOffset = lowerButtonY - rotateButtonY + indent
+            with(sDown) {
+                setSize(rotateButtonSize * 0.65f, rotateButtonSize * 0.65f)
+                setPosition((7 * rotateLeftX + 5 * centerX) / 12, circleY - height * 1.3f)
+            }
         }
 
         var logoWidth = boardLeftX - 4 * indent
@@ -134,10 +146,6 @@ class Controls(
         with(sRotateRight) {
             setSize(rotateButtonSize, rotateButtonSize)
             setPosition(rotateRightX, rotateButtonY)
-        }
-        with(sDown) {
-            setSize(rotateButtonSize * 0.5f, rotateButtonSize * 0.5f)
-            setPosition((5 * rotateLeftX + 4 * centerX) / 9, circleY - circleRadius)
         }
         ctx.score.setCoords(
             tileHeight / 3, buttonsBaseY - indent - 2 * lineWidth,

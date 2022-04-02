@@ -388,6 +388,7 @@ abstract class BaseGameboard(
      * Put nextTile to the given place, updates all values, removes closed path loops if any
      */
     private fun putNextTileToBoard(place: Coord) {
+        ctx.sav.saveGame(this)
         lastMove.takeShapshot(playField, nextTile.t, ctx.score)
         nextTile.x = place.x
         nextTile.y = place.y
@@ -396,7 +397,6 @@ abstract class BaseGameboard(
         pathsToClear = playField.putTileToCell(nextTile.t, playField.cell[nextTile.x][nextTile.y])
         validMovesList = null
         ctx.score.incrementMoves()
-        ctx.sav.saveGame(this)
         if (pathsToClear.isNotEmpty()) { // We have some closed loops
             val points = ctx.score.pointsFor(pathsToClear)
             val f = cellCorner(place)
@@ -806,6 +806,12 @@ abstract class BaseGameboard(
     private fun undoLastMove() {
         if (lastMove.isEmpty)
             return
+        tile.indices.forEach { i ->
+            tile[i].indices.forEach { j ->
+                tile[i][j]?.disposeFrameBuffer()
+                tile[i][j] = null
+            }
+        }
         assignNextTile(playField.generateEmptyTile())
         lastMove.restoreSnapshot(playField, nextTile.t, ctx.score)
         refreshBoadAfterRestore()
