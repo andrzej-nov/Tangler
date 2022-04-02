@@ -13,7 +13,7 @@ class BoardShapshot(
      */
     val gs: GameSettings
 ) {
-    private val playField = PlayField(gs.boardSize, gs.sidesCount)
+    private val playField = PlayField(gs.boardSize, gs.sidesCount, gs.colorsCount, gs.allowDuplicateColors)
     private val nextTile = Tile(gs.sidesCount, gs.colorsCount, gs.allowDuplicateColors)
     private var scoreMoves = 0
     private var scorePoints = 0
@@ -27,7 +27,7 @@ class BoardShapshot(
      * Save provided position from given objects
      */
     fun takeShapshot(pf: PlayField, next: Tile, score: Score) {
-        playField.cloneFrom(pf, gs.colorsCount, gs.allowDuplicateColors)
+        playField.cloneFrom(pf)
         nextTile.cloneFrom(next)
         scoreMoves = score.moves
         scorePoints = score.points
@@ -38,7 +38,7 @@ class BoardShapshot(
      * Restore saved position into given parameter objects
      */
     fun restoreSnapshot(pf: PlayField, next: Tile, score: Score) {
-        pf.cloneFrom(playField, gs.colorsCount, gs.allowDuplicateColors)
+        pf.cloneFrom(playField)
         next.cloneFrom(nextTile)
         score.moves = scoreMoves
         score.points = scorePoints
@@ -57,10 +57,7 @@ class BoardShapshot(
      * Deserialize this state as part of game load
      */
     fun deserialize(s: String, i: Int): Boolean {
-        val j = playField.deserialize(
-            s, nextTile.deserialize(s, i), gs.colorsCount,
-            gs.allowDuplicateColors
-        )
+        val j = playField.deserialize(s, nextTile.deserialize(s, i))
         isEmpty = false
         return j > 0
     }

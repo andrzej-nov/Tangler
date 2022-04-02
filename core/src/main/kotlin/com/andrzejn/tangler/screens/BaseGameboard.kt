@@ -43,13 +43,13 @@ abstract class BaseGameboard(
     /**
      * The non-UI game logic
      */
-    private var playField = PlayField(ctx.gs.boardSize, ctx.gs.sidesCount)
+    private var playField =
+        PlayField(ctx.gs.boardSize, ctx.gs.sidesCount, ctx.gs.colorsCount, ctx.gs.allowDuplicateColors)
 
     /**
      * The UI tiles. Indexes match the playfield.cell array
      */
     protected val tile: Array<Array<BaseTile?>> = Array(ctx.gs.boardSize) { Array(ctx.gs.boardSize) { null } }
-    private val allowDuplicateColors = ctx.gs.allowDuplicateColors
 
     /**
      * The tile generated for next move. Displayed below the board.
@@ -308,7 +308,7 @@ abstract class BaseGameboard(
 
     private fun lookForGoodMove(): PlayField.Move? {
         if (suggestedMove == null)
-            suggestedMove = playField.suggestBestMove(nextTile.t, allowDuplicateColors)
+            suggestedMove = playField.suggestBestMove(nextTile.t)
         noMoreMoves = suggestedMove == null
         return suggestedMove
     }
@@ -652,7 +652,7 @@ abstract class BaseGameboard(
     private val validMoves: List<CoordAndSuggestion>
         get() {
             if (validMovesList != null) return validMovesList!!
-            validMovesList = playField.evaluateMoves(nextTile.t, allowDuplicateColors)
+            validMovesList = playField.evaluateMoves(nextTile.t)
                 .map { (cell, moveQuality) ->
                     CoordAndSuggestion(
                         Coord(cell.x, cell.y),
@@ -669,12 +669,7 @@ abstract class BaseGameboard(
     fun putFirstTile() {
         val boardCenter = ctx.gs.boardSize / 2
         tile[boardCenter][boardCenter
-        ] = newUITile(
-            playField.putFirstTile(
-                ctx.gs.colorsCount,
-                allowDuplicateColors, boardCenter
-            )
-        )
+        ] = newUITile(playField.putFirstTile(ctx.gs.colorsCount))
     }
 
     /**
@@ -695,12 +690,7 @@ abstract class BaseGameboard(
      * Create new tile and assign it to nextTile
      */
     fun createNextTile() {
-        assignNextTile(
-            playField.generateNextTile(
-                ctx.gs.colorsCount,
-                allowDuplicateColors
-            )
-        )
+        assignNextTile(playField.generateNextTile())
         lookForGoodMove()
     }
 
@@ -796,11 +786,8 @@ abstract class BaseGameboard(
                 return false
             scrollOffset.x = x
             scrollOffset.y = y
-            assignNextTile(playField.generateEmptyTile(ctx.gs.colorsCount, allowDuplicateColors))
-            val i = playField.deserialize(
-                s, nextTile.t.deserialize(s, 16), ctx.gs.colorsCount,
-                ctx.gs.allowDuplicateColors
-            )
+            assignNextTile(playField.generateEmptyTile())
+            val i = playField.deserialize(s, nextTile.t.deserialize(s, 16))
             if (i < 0)
                 return false
             if (i < s.length && s[i] == '-' && !lastMove.deserialize(s, i + 1))
@@ -819,7 +806,7 @@ abstract class BaseGameboard(
     private fun undoLastMove() {
         if (lastMove.isEmpty)
             return
-        assignNextTile(playField.generateEmptyTile(ctx.gs.colorsCount, allowDuplicateColors))
+        assignNextTile(playField.generateEmptyTile())
         lastMove.restoreSnapshot(playField, nextTile.t, ctx.score)
         refreshBoadAfterRestore()
         val width = ctrl.tileWidth.toFloat()

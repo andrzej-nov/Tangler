@@ -9,9 +9,14 @@ import kotlin.random.Random
  * The playfield is a torus (the top side connects to bottom, left to right), so there are no bord sides
  * where the paths could stuck.
  */
-class PlayField(private val fieldSize: Int, private val sidesCount: Int) {
+class PlayField(
+    private val fieldSize: Int,
+    private val sidesCount: Int,
+    private val colorsCount: Int,
+    private val allowDuplicateColors: Boolean
+) {
     private val halfSidesCount = sidesCount / 2
-    //TODO Refactor to store in playfield colorsCount: Int, allowDuplicateColors: Boolean
+
     /**
      * The grid cells. Generated on the beginning of new game, not deleted or rearranged to the end of the game.
      */
@@ -83,12 +88,8 @@ class PlayField(private val fieldSize: Int, private val sidesCount: Int) {
      * The game always starts with a single seeder tile at the board center. That tile is randomly generated, always
      * with maximum number of segments
      */
-    fun putFirstTile(
-        colorsCount: Int,
-        allowDuplicateColors: Boolean,
-        tilePosition: Int
-    ): Tile {
-        val t = generateEmptyTile(colorsCount, allowDuplicateColors)
+    fun putFirstTile(tilePosition: Int): Tile {
+        val t = generateEmptyTile()
         t.createRandomSegments(halfSidesCount)
         val startingCell = cell[tilePosition][tilePosition]
         putTileToCell(t, startingCell)
@@ -149,16 +150,13 @@ class PlayField(private val fieldSize: Int, private val sidesCount: Int) {
      * We resort to completely random next tile when there are either plenty of move possibilities on the field
      * or the last available cells are already too messed up.
      */
-    fun generateNextTile(
-        colorsCount: Int,
-        allowDuplicateColors: Boolean
-    ): Tile = generateEmptyTile(colorsCount, allowDuplicateColors).also {
+    fun generateNextTile(): Tile = generateEmptyTile().also {
         val candidateCell = mostCloggedCell()
         if (candidateCell != null) {
             it.createSegmentsForColors(candidateCell.borderColors.mapIndexed { i, color ->
                 BorderColor(
                     color,
-                    nonBlockingOptionsFor(candidateCell.neighbour[i]!!, color, colorsCount, allowDuplicateColors)
+                    nonBlockingOptionsFor(candidateCell.neighbour[i]!!, color)
                 )
             }.toTypedArray())
         }
@@ -170,18 +168,13 @@ class PlayField(private val fieldSize: Int, private val sidesCount: Int) {
      * Picks the list of available colors that could end on the cell border fith particular color
      * and the neighbour cell behind it
      */
-    private fun nonBlockingOptionsFor(
-        c: Cell,
-        color: Int,
-        colorsCount: Int,
-        allowDuplicateColors: Boolean
-    ): MutableSet<Int> =
+    private fun nonBlockingOptionsFor(c: Cell, color: Int): MutableSet<Int> =
         if (color != 0) mutableSetOf(color) else c.nonBlockingColors(colorsCount, allowDuplicateColors)
 
     /**
      * Returns new empty Tile, to initialize it with some segments
      */
-    fun generateEmptyTile(colorsCount: Int, allowDuplicateColors: Boolean): Tile =
+    fun generateEmptyTile(): Tile =
         Tile(sidesCount, colorsCount, allowDuplicateColors)
 
     /**
@@ -206,7 +199,7 @@ class PlayField(private val fieldSize: Int, private val sidesCount: Int) {
     /**
      * Adds evaluated MoveQuality to each of the available validMoves
      */
-    fun evaluateMoves(tile: Tile, allowDuplicateColors: Boolean): Map<Cell, MoveQuality> =
+    fun evaluateMoves(tile: Tile): Map<Cell, MoveQuality> =
         validMovesFor(tile).associateWith { c ->
             MoveQuality().also { mq ->
                 mq.pathsBlocked =
@@ -266,7 +259,7 @@ class PlayField(private val fieldSize: Int, private val sidesCount: Int) {
      *
      * Returns null when there are no more possible moves at all.
      */
-    fun suggestBestMove(tile: Tile, allowDuplicateColors: Boolean): Move? {
+    fun suggestBestMove(tile: Tile): Move? {
         val t = tile.clone()
         val moves = mutableListOf<Move>()
         val firstRotateBy = if (sidesCount == 4) -1 else -2
@@ -275,7 +268,7 @@ class PlayField(private val fieldSize: Int, private val sidesCount: Int) {
         var r = firstRotateBy
         repeat(if (sidesCount == 6) 6 else 4) {
             t.rotateBy(r)
-            moves.addAll(evaluateMoves(t, allowDuplicateColors).map { Move(rotationStepsOut, it.key, it.value) })
+            moves.addAll(evaluateMoves(t).map { Move(rotationStepsOut, it.key, it.value) })
             rotationStepsOut++
             r = thenRotateBy
         }
@@ -355,7 +348,7 @@ class PlayField(private val fieldSize: Int, private val sidesCount: Int) {
     /**
      * Deserialize the playfield tiles on game load
      */
-    fun deserialize(s: String, i: Int, colorsCount: Int, allowDuplicateColors: Boolean): Int {
+    fun deserialize(s: String, i: Int): Int {
         if (i < 0)
             return -1
         var j = i
@@ -365,7 +358,7 @@ class PlayField(private val fieldSize: Int, private val sidesCount: Int) {
             val y = s[j + 1].digitToInt()
             if (x >= fieldSize || y >= fieldSize)
                 return -1
-            val t = generateEmptyTile(colorsCount, allowDuplicateColors)
+            val t = generateEmptyTile()
             j = t.deserialize(s, j + 2)
             if (j < 0)
                 return -1
@@ -380,13 +373,13 @@ class PlayField(private val fieldSize: Int, private val sidesCount: Int) {
     /**
      * Copy tiles from another playfield. Used to save/restore last move.
      */
-    fun cloneFrom(other: PlayField, colorsCount: Int, allowDuplicateColors: Boolean) {
+    fun cloneFrom(other: PlayField) {
         cell.flatten().filter { it.tile != null }.forEach {
             it.tile?.cell = null
             it.tile = null
         }
         other.cell.flatten().filter { it.tile != null }.forEach { c ->
-            putTileToCell(generateEmptyTile(colorsCount, allowDuplicateColors).also { t ->
+            putTileToCell(generateEmptyTile().also { t ->
                 t.cloneFrom(c.tile ?: return@forEach)
             }, cell[c.x][c.y], false)
         }
