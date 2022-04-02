@@ -37,18 +37,6 @@ class Main : KtxGame<KtxScreen>() {
     }
 
     /**
-     * Invoked by the system both on Android and desktop, right before the window is closed or the user switches
-     * to another application. It is a good place to save the game to resume on next startup.
-     */
-    override fun pause() {
-        if (currentScreen is GameboardScreen)
-            ctx.sav.saveGame((currentScreen as GameboardScreen).gameboard)
-        else
-            ctx.sav.clearSavedGame()
-        super.pause()
-    }
-
-    /**
      * Invoked by the system on Android when application goes back from background. The create() method might be
      * invoked before resume(), but not always, if the application was not unloaded from memory yet.
      */

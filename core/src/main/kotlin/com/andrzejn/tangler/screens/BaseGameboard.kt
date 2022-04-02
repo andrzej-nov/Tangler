@@ -388,6 +388,7 @@ abstract class BaseGameboard(
         pathsToClear = playField.putTileToCell(nextTile.t, playField.cell[nextTile.x][nextTile.y])
         validMovesList = null
         ctx.score.incrementMoves()
+        ctx.sav.saveGame(this)
         if (pathsToClear.isNotEmpty()) { // We have some closed loops
             val points = ctx.score.pointsFor(pathsToClear)
             val f = cellCorner(place)
@@ -421,6 +422,7 @@ abstract class BaseGameboard(
         validMovesList = null
         lookForGoodMove()
         invalidateSprites()
+        ctx.sav.saveGame(this)
     }
 
     /**
