@@ -53,5 +53,5 @@ The game has been implemented using following tools and libraries:
 - [ShapeDrawer 2.5.0](https://github.com/earlygrey/shapedrawer#shape-drawer)
 - [Universal Tween Engine 6.3.3](https://github.com/AurelienRibon/universal-tween-engine)
 
-The `ios` module is present in the project, but I did not try to compile and test it because I do not have Apple
+The `ios` module is present in the project and compiling, but I did not tested it because I do not have Apple
 devices and tools for that. If you make it work, I would gratefully accept the pull request.
