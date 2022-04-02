@@ -57,6 +57,7 @@ class Atlas {
     val poweroff: TextureRegion get() = texture("poweroff")
     val help: TextureRegion get() = texture("help")
     val options: TextureRegion get() = texture("options")
+    val movedown: TextureRegion get() = texture("movedown")
 
     val tile4: TextureRegion get() = texture("tile4")
     val tile6: TextureRegion get() = texture("tile6")

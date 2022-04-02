@@ -11,7 +11,7 @@ import kotlin.random.Random
  */
 class PlayField(private val fieldSize: Int, private val sidesCount: Int) {
     private val halfSidesCount = sidesCount / 2
-
+    //TODO Refactor to store in playfield colorsCount: Int, allowDuplicateColors: Boolean
     /**
      * The grid cells. Generated on the beginning of new game, not deleted or rearranged to the end of the game.
      */
@@ -355,21 +355,42 @@ class PlayField(private val fieldSize: Int, private val sidesCount: Int) {
     /**
      * Deserialize the playfield tiles on game load
      */
-    fun deserialize(s: String, i: Int, colorsCount: Int, allowDuplicateColors: Boolean): Boolean {
+    fun deserialize(s: String, i: Int, colorsCount: Int, allowDuplicateColors: Boolean): Int {
+        if (i < 0)
+            return -1
         var j = i
-        while (j < s.length) {
+        val length = s.length
+        while (j < length) {
             val x = s[j].digitToInt()
             val y = s[j + 1].digitToInt()
             if (x >= fieldSize || y >= fieldSize)
-                return false
+                return -1
             val t = generateEmptyTile(colorsCount, allowDuplicateColors)
             j = t.deserialize(s, j + 2)
             if (j < 0)
-                return false
+                return -1
             putTileToCell(t, cell[x][y], false)
+            if (j < length && s[j] == '-') // Last move data for undo is following
+                break
         }
         setFreeLines()
-        return true
+        return j
+    }
+
+    /**
+     * Copy tiles from another playfield. Used to save/restore last move.
+     */
+    fun cloneFrom(other: PlayField, colorsCount: Int, allowDuplicateColors: Boolean) {
+        cell.flatten().filter { it.tile != null }.forEach {
+            it.tile?.cell = null
+            it.tile = null
+        }
+        other.cell.flatten().filter { it.tile != null }.forEach { c ->
+            putTileToCell(generateEmptyTile(colorsCount, allowDuplicateColors).also { t ->
+                t.cloneFrom(c.tile ?: return@forEach)
+            }, cell[c.x][c.y], false)
+        }
+        setFreeLines()
     }
 
 }

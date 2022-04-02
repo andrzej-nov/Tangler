@@ -1,7 +1,6 @@
 package com.andrzejn.tangler.screens
 
 import com.andrzejn.tangler.Context
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.Sprite
 
 /**
@@ -73,6 +72,7 @@ class Controls(
     private val sHome: Sprite = Sprite(ctx.a.home)
     private val sExit: Sprite = Sprite(ctx.a.poweroff)
     private val sLogo: Sprite = Sprite(ctx.a.logo)
+    private val sDown: Sprite = Sprite(ctx.a.movedown)
 
     /**
      * Calculate and set all control coordinates, based on the provided board rectangle coordinates
@@ -135,6 +135,10 @@ class Controls(
             setSize(rotateButtonSize, rotateButtonSize)
             setPosition(rotateRightX, rotateButtonY)
         }
+        with(sDown) {
+            setSize(rotateButtonSize * 0.5f, rotateButtonSize * 0.5f)
+            setPosition((5 * rotateLeftX + 4 * centerX) / 9, circleY - circleRadius)
+        }
         ctx.score.setCoords(
             tileHeight / 3, buttonsBaseY - indent - 2 * lineWidth,
             sRotateLeft.x + sRotateLeft.width - 3 * tileWidth, sRotateRight.x, tileWidth * 3f
@@ -166,22 +170,15 @@ class Controls(
         if (x > centerX - halfWidth && x < centerX + halfWidth && y < circleY + halfHeight && y > circleY - halfHeight)
             return PressedArea.NextTile
 
-        if (x > leftButtonsX && x < leftButtonsX + lowerButtonSize
-            && y < lowerButtonY + lowerButtonSize && y > lowerButtonY
-        )
+        if (x > sDown.x && x < sDown.x + sDown.width && y < sDown.y + sDown.height && y > sDown.y)
+            return PressedArea.UndoMove
+        if (x > sPlay.x && x < sPlay.x + sPlay.width && y < sPlay.y + sPlay.height && y > sPlay.y)
             return PressedArea.Play
-        if (x > rightButtonsX && x < rightButtonsX + lowerButtonSize
-            && y < lowerButtonY + lowerButtonSize && y > lowerButtonY
-        )
+        if (x > sHome.x && x < sHome.x + sHome.width && y < sHome.y + sHome.height && y > sHome.y)
             return PressedArea.Home
-        if (x > leftButtonsX + bottomButtonsXOffset && x < leftButtonsX + bottomButtonsXOffset + lowerButtonSize
-            && y < lowerButtonY - bottomButtonsYOffset + lowerButtonSize && y > lowerButtonY - bottomButtonsYOffset
-        )
+        if (x > sHelp.x && x < sHelp.x + sHelp.width && y < sHelp.y + sHelp.height && y > sHelp.y)
             return PressedArea.Help
-        if (x > rightButtonsX - bottomButtonsXOffset - lowerButtonSize
-            && x < rightButtonsX - bottomButtonsXOffset + lowerButtonSize
-            && y < lowerButtonY - bottomButtonsYOffset + lowerButtonSize && y > lowerButtonY - bottomButtonsYOffset
-        )
+        if (x > sExit.x && x < sExit.x + sDown.width && y < sExit.y + sExit.height && y > sExit.y)
             return PressedArea.Exit
 
         if (x > rotateLeftX && x < centerX && y < circleY + halfHeight * 1.4 && y > circleY - halfHeight * 1.4)
@@ -192,15 +189,13 @@ class Controls(
             return PressedArea.RotateRight
         if (y >= circleY + halfHeight)
             return PressedArea.Board
-        if (y >= circleY + halfHeight)
-            return PressedArea.Board
         return PressedArea.None
     }
 
     /**
      * Render controls area. Render is called very often, so do not create any object here and precalculate everything.
      */
-    fun render(noMoreMoves: Boolean) {
+    fun render(noMoreMoves: Boolean, noLastMove: Boolean) {
         if (sLogo.width >= 2 * tileWidth || sLogo.height >= tileHeight)
             sLogo.draw(ctx.batch, 0.5f)
 
@@ -230,5 +225,6 @@ class Controls(
         sHelp.draw(ctx.batch, 0.8f)
         sHome.draw(ctx.batch, 0.8f)
         sExit.draw(ctx.batch, 0.8f)
+        sDown.draw(ctx.batch, if (noLastMove) 0.4f else 0.8f)
     }
 }

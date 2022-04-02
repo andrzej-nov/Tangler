@@ -137,6 +137,7 @@ class Tile(private val sidesCount: Int, private val colorsCount: Int, private va
         val cnt = s[i].digitToInt()
         if (cnt == 0 || cnt > halfSidesCount)
             return -1
+        segment.clear()
         var j = i + 1
         repeat(cnt) {
             segment.add(Segment(s[j].digitToInt(), s[j + 1].digitToInt(), s[j + 2].digitToInt(), this))
@@ -195,4 +196,15 @@ class Tile(private val sidesCount: Int, private val colorsCount: Int, private va
         filterBy: (Pair<PlayField.BorderColor, Int>) -> Boolean
     ) =
         borderColors.mapIndexed { i, bc -> bc to i }.filter(filterBy).randomOrNull()?.second
+
+    /**
+     * Copies segments from other tile. Used to save/restore last move.
+     */
+    fun cloneFrom(other: Tile) {
+        segment.clear()
+        other.segment.forEach {
+            segment.add(Segment(it.color, it.endsAtSide[0], it.endsAtSide[1], this))
+        }
+        rebuildTileColors()
+    }
 }

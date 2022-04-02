@@ -110,6 +110,7 @@ class GameboardScreen(ctx: Context) :
         gameboard.putFirstTile()
         gameboard.createNextTile()
         ctx.score.reset()
+        ctx.sav.saveGame(gameboard)
         gameboard.resize()
     }
 

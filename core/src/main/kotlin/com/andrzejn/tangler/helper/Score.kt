@@ -17,8 +17,8 @@ class Score(
     val ctx: Context
 ) {
     // Score counters
-    private var moves: Int = 0
-    private var closedLoopPoints: Int = 0
+    var moves: Int = 0
+    var points: Int = 0
 
     private var recordMoves: Int = 0
     private var recordPoints: Int = 0
@@ -40,7 +40,7 @@ class Score(
      * Serialize the current score for the save game
      */
     fun serialize(sb: com.badlogic.gdx.utils.StringBuilder) {
-        sb.append(moves, 5).append(closedLoopPoints, 5)
+        sb.append(moves, 5).append(points, 5)
     }
 
     /**
@@ -58,7 +58,7 @@ class Score(
             return false
         }
         moves = m
-        closedLoopPoints = p
+        points = p
         // By this moment the game settings have been deserialized already, so we may rely on them
         loadRecords()
         return true
@@ -78,7 +78,7 @@ class Score(
     fun reset() {
         saveRecords()
         moves = 0
-        closedLoopPoints = 0
+        points = 0
         loadRecords()
         if (fontHeight > 0)
             setTexts()
@@ -128,7 +128,7 @@ class Score(
      * Add score points, update the text object that displays floating-up and fading score numbers
      */
     fun addPoints(points: Int, x: Float, y: Float) {
-        closedLoopPoints += points
+        this.points += points
         setPointsText()
         fcFloatUp.setText(points.toString(), x, y, floatTextWidth, Align.left, false)
         fcFloatUp.setColors(ctx.drw.theme.scorePoints)
@@ -162,7 +162,7 @@ class Score(
      */
     private fun setPointsText() {
         fcPoints.setText(
-            closedLoopPoints.toString() + if (closedLoopPoints > recordPoints) " !" else "",
+            points.toString() + if (points > recordPoints) " !" else "",
             textPointsX,
             textY,
             textWidth,
@@ -209,9 +209,9 @@ class Score(
             ctx.gs.recordMoves = moves
             recordMoves = moves
         }
-        if (closedLoopPoints > recordPoints) {
-            ctx.gs.recordPoints = closedLoopPoints
-            recordPoints = closedLoopPoints
+        if (points > recordPoints) {
+            ctx.gs.recordPoints = points
+            recordPoints = points
         }
     }
 }

@@ -3,6 +3,7 @@ package com.andrzejn.tangler.screens
 import aurelienribon.tweenengine.Timeline
 import aurelienribon.tweenengine.Tween
 import com.andrzejn.tangler.Context
+import com.andrzejn.tangler.helper.BoardShapshot
 import com.andrzejn.tangler.helper.TW_ALPHA
 import com.andrzejn.tangler.helper.TW_ANGLE
 import com.andrzejn.tangler.helper.TW_POS_XY
@@ -55,6 +56,11 @@ abstract class BaseGameboard(
      * Actually it is not a BaseTile but the specific subclass depending on current cell sides count.
      */
     private lateinit var nextTile: BaseTile
+
+    /**
+     * Keeps the last position to undo last move.
+     */
+    private val lastMove = BoardShapshot(ctx.gs)
 
     /**
      * The UI board can be scrolled. The only vaue that changes during the scroll is this X,Y offset
@@ -136,6 +142,7 @@ abstract class BaseGameboard(
             PressedArea.Exit -> Gdx.app.exit()
             PressedArea.Play -> return true // And the Gameboard Screen will start new game
             PressedArea.Home -> ctx.game.setScreen<HomeScreen>()
+            PressedArea.UndoMove -> undoLastMove()
             PressedArea.NextTile -> { // Prepare for possible tile drag
                 tileDragDelta.x = nextTile.sprite.x - x
                 tileDragDelta.y = nextTile.sprite.y - y
@@ -381,6 +388,7 @@ abstract class BaseGameboard(
      * Put nextTile to the given place, updates all values, removes closed path loops if any
      */
     private fun putNextTileToBoard(place: Coord) {
+        lastMove.takeShapshot(playField, nextTile.t, ctx.score)
         nextTile.x = place.x
         nextTile.y = place.y
         tile[nextTile.x][nextTile.y] = nextTile
@@ -439,7 +447,7 @@ abstract class BaseGameboard(
      */
     open fun render() {
         ctx.drw.sd.filledRectangle(0f, 0f, ctx.viewportWidth, ctx.viewportHeight, ctx.drw.theme.screenBackground)
-        ctrl.render(noMoreMoves)
+        ctrl.render(noMoreMoves, lastMove.isEmpty)
         ctx.score.draw(ctx.batch)
         if (ctx.fader.inFade)
             invalidateSprites()
@@ -771,6 +779,10 @@ abstract class BaseGameboard(
         sb.append(scrollOffset.x).append(scrollOffset.y)
         nextTile.t.serialize(sb)
         playField.serialize(sb)
+        if (lastMove.isEmpty)
+            return
+        sb.append('-')
+        lastMove.serialize(sb)
     }
 
     /**
@@ -785,23 +797,50 @@ abstract class BaseGameboard(
             scrollOffset.x = x
             scrollOffset.y = y
             assignNextTile(playField.generateEmptyTile(ctx.gs.colorsCount, allowDuplicateColors))
-            if (!playField.deserialize(
-                    s, nextTile.t.deserialize(s, 16), ctx.gs.colorsCount,
-                    ctx.gs.allowDuplicateColors
-                )
+            val i = playField.deserialize(
+                s, nextTile.t.deserialize(s, 16), ctx.gs.colorsCount,
+                ctx.gs.allowDuplicateColors
             )
+            if (i < 0)
+                return false
+            if (i < s.length && s[i] == '-' && !lastMove.deserialize(s, i + 1))
                 return false
         } catch (ex: Exception) {
             // Do not go into details. Any exception during deserialization means it has failed.
             return false
         }
+        refreshBoadAfterRestore()
+        return true
+    }
+
+    /**
+     *  Undo last move
+     */
+    private fun undoLastMove() {
+        if (lastMove.isEmpty)
+            return
+        assignNextTile(playField.generateEmptyTile(ctx.gs.colorsCount, allowDuplicateColors))
+        lastMove.restoreSnapshot(playField, nextTile.t, ctx.score)
+        refreshBoadAfterRestore()
+        val width = ctrl.tileWidth.toFloat()
+        val height = ctrl.tileHeight.toFloat()
+        ctrl.tileWidth = 0
+        ctrl.tileHeight = 0
+        resetSpriteSize(width, height)
+        repositionSprites()
+        resetDragState()
+        ctx.sav.saveGame(this)
+    }
+
+    /**
+     * Update everything after deserialize or undo last move
+     */
+    private fun refreshBoadAfterRestore() {
         playField.cell.flatten().filter { it.tile != null }.forEach {
             tile[it.x][it.y] = newUITile(it.tile ?: return@forEach)
         }
-        noMoreMoves = false
         lookForGoodMove()
         resize()
-        return true
     }
 
     /**
@@ -812,4 +851,5 @@ abstract class BaseGameboard(
             it.disposeFrameBuffer()
         }
     }
+
 }

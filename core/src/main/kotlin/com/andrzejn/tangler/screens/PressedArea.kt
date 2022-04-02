@@ -48,5 +48,10 @@ enum class PressedArea {
     /**
      * "Next tile" area (used to start dragging)
      */
-    NextTile
+    NextTile,
+
+    /**
+     * "Undo Last Move" button
+     */
+    UndoMove
 }
