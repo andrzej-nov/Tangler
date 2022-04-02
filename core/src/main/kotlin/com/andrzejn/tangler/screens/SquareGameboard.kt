@@ -4,7 +4,6 @@ import com.andrzejn.tangler.Context
 import com.andrzejn.tangler.logic.Cell
 import com.andrzejn.tangler.logic.Tile
 import com.andrzejn.tangler.tiles.*
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.math.Vector2
 
@@ -28,14 +27,14 @@ class SquareGameboard(ctx: Context) :
      */
     override fun resize() {
         var cellSize = (ctx.viewportWidth - 2 * indent) / boardSize
-        if (ctx.viewportHeight < cellSize * (boardSize + 2) + 2 * indent)
-            cellSize = (ctx.viewportHeight - 2 * indent) / (boardSize + 2)
+        if (ctx.viewportHeight < cellSize * (boardSize + 3) + 2 * indent)
+            cellSize = (ctx.viewportHeight - 2 * indent) / (boardSize + 3)
         cell.setLength(cellSize)
         resetSpriteSize(cellSize, cellSize)
 
         var x = (ctx.viewportWidth - cellSize * boardSize) / 2
         var y = ctx.viewportHeight - indent - cellSize * boardSize
-        y -= (y - 2 * cellSize) / 2
+        y -= (y - 3 * cellSize) / 2
 
         coordX.indices.forEach { i ->
             coordX[i] = x
