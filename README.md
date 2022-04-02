@@ -46,7 +46,7 @@ The game has been implemented using following tools and libraries:
 
 - [IntelliJ IDEA 2021.3.3 (Community Edition)](https://www.jetbrains.com/idea/download/)
 - [Android Studio 2021.1.1 Patch 2](https://developer.android.com/studio) (for the Android emulator) 
-- [Gradle 7.0.2](https://gradle.org/)
+- [Gradle 7.0.4](https://gradle.org/)
 - [Kotlin 1.6.10](https://kotlinlang.org/)
 - [libGDX 1.10.0](https://libgdx.com/)
 - [libKTX 1.10.0-rc1](https://libktx.github.io/)

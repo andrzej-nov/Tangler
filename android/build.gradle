@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 //apply plugin: 'kotlin-android'
 
 android {
+    buildToolsVersion "30.0.3"
 	compileSdkVersion 30
 	sourceSets {
 		main {
@@ -49,31 +50,6 @@ android {
 			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
 		}
 	}
-
-}
-
-repositories {
-	// needed for AAPT2, may be needed for other tools
-	google()
-}
-
-configurations { natives }
-
-dependencies {
-	coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
-	implementation project(':core')
-	implementation "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
-	implementation "space.earlygrey:shapedrawer:$shapedrawerVersion"
-	implementation "org.mini2Dx:universal-tween-engine:$tweenEngineVersion"
-
-	natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a"
-	natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-arm64-v8a"
-	natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86"
-	natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"
-	natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-armeabi-v7a"
-	natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-arm64-v8a"
-	natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86"
-	natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86_64"
 
 }
 
