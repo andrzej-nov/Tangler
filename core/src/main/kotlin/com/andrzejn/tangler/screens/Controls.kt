@@ -2,6 +2,8 @@ package com.andrzejn.tangler.screens
 
 import com.andrzejn.tangler.Context
 import com.badlogic.gdx.graphics.g2d.Sprite
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Renders board controls and provides reference coordinates and sizes
@@ -83,50 +85,38 @@ class Controls(
         boardRightX = rightX
         boardBottomY = bottomY
         centerX = ctx.viewportWidth / 2
-        circleY = buttonsBaseY - tileHeight - indent * 1.28f
-        circleRadius = tileHeight * 0.7f
-        rotateButtonY = circleY - tileHeight / 2
-        rotateLeftX = centerX - tileHeight * 2.3f
-        rotateRightX = centerX + tileHeight * 1.1f
-        rotateButtonSize = tileHeight.toFloat() * 1.2f
-
-        if (boardLeftX > tileWidth * 1.4f) {
-            // Horizontal viewport orientation. Draw buttons in vertical groups outside of the board width
-            lowerButtonSize = tileWidth.toFloat()
-            lowerButtonY = circleY + tileWidth * 0.2f
-            leftButtonsX = boardLeftX - 0.4f * tileWidth - tileWidth
-            rightButtonsX = boardRightX + 0.4f * tileWidth
-            bottomButtonsXOffset = 0f
-            bottomButtonsYOffset = tileWidth + indent
-            with(sDown) {
-                setSize(rotateButtonSize * 0.65f, rotateButtonSize * 0.65f)
-                setPosition((7 * rotateLeftX + 5 * centerX) / 12, circleY - height * 1.3f)
-            }
-        } else if (rotateButtonY > tileHeight + 2 * indent) {
-            // Vertical viewport orientation. Draw buttons in horizontal groups below the rotate buttons
-            lowerButtonSize = tileHeight.toFloat()
-            lowerButtonY = rotateButtonY - indent - tileHeight
-            leftButtonsX = boardLeftX
-            rightButtonsX = boardRightX - tileHeight
-            bottomButtonsXOffset = tileHeight + indent
-            bottomButtonsYOffset = 0f
-            with(sDown) {
-                setSize(rotateButtonSize * 0.7f, rotateButtonSize * 0.7f)
-                setPosition(rotateLeftX - width * 0.9f, circleY - height * 1.1f)
-            }
-        } else {
-            // Viewport close to square. Draw buttons in vertical groups inside of the board width
-            lowerButtonSize = (buttonsBaseY - rotateButtonY) / 2.3f
-            leftButtonsX = boardLeftX - tileWidth * 0.7f
-            rightButtonsX = boardRightX + tileWidth * 0.7f - lowerButtonSize
-            lowerButtonY = buttonsBaseY - lowerButtonSize - indent
-            bottomButtonsXOffset = 0f
-            bottomButtonsYOffset = lowerButtonY - rotateButtonY + indent
-            with(sDown) {
-                setSize(rotateButtonSize * 0.65f, rotateButtonSize * 0.65f)
-                setPosition((7 * rotateLeftX + 5 * centerX) / 12, circleY - height * 1.3f)
-            }
+        val baseWidth = (boardRightX - boardLeftX) / when (ctx.gs.boardSize) {
+            6 -> 6
+            8 -> 7
+            else -> 8
         }
+        circleRadius = baseWidth * 0.9f
+        circleY = buttonsBaseY - baseWidth - indent * 1.28f
+        rotateButtonY = circleY - baseWidth * 0.4f
+        rotateLeftX = centerX - baseWidth * 2.1f
+        rotateRightX = centerX + baseWidth * 1.05f
+        rotateButtonSize = baseWidth * 1f
+
+        lowerButtonSize = baseWidth
+        lowerButtonY = rotateButtonY + baseWidth / 2
+        leftButtonsX = max(0f, boardLeftX - baseWidth * 2)
+        rightButtonsX = min(boardRightX + baseWidth, ctx.viewportWidth - baseWidth)
+        bottomButtonsXOffset = 0f
+        bottomButtonsYOffset = baseWidth * 1.1f
+
+        if (ctx.gs.boardSize == 10)
+            with(sDown) {
+                setSize(lowerButtonSize, lowerButtonSize)
+                setPosition(centerX - width * 1.8f, circleY - height * 1.5f)
+            }
+        else
+            with(sDown) {
+                setSize(lowerButtonSize * 0.9f, lowerButtonSize * 0.9f)
+                setPosition(
+                    leftButtonsX + lowerButtonSize * 1.1f,
+                    lowerButtonY - bottomButtonsYOffset * (if (ctx.gs.sidesCount == 6) 1f else 1.2f)
+                )
+            }
 
         var logoWidth = boardLeftX - 4 * indent
         if (logoWidth < 0f)
@@ -149,7 +139,7 @@ class Controls(
         }
         ctx.score.setCoords(
             tileHeight / 3, buttonsBaseY - indent - 2 * lineWidth,
-            sRotateLeft.x + sRotateLeft.width - 3 * tileWidth, sRotateRight.x, tileWidth * 3f
+            sRotateLeft.x + sRotateLeft.width - 3 * baseWidth, sRotateRight.x, baseWidth * 3f
         )
         with(sPlay) {
             setSize(lowerButtonSize, lowerButtonSize)
@@ -173,9 +163,9 @@ class Controls(
      * Hit test. Determines which of the screen areas has been pressed/clicked
      */
     fun pressedArea(x: Float, y: Float): PressedArea {
-        val halfWidth = tileWidth / 2
-        val halfHeight = tileHeight / 2
-        if (x > centerX - halfWidth && x < centerX + halfWidth && y < circleY + halfHeight && y > circleY - halfHeight)
+        if (x > centerX - circleRadius && x < centerX + circleRadius && y < circleY + circleRadius
+            && y > circleY - circleRadius
+        )
             return PressedArea.NextTile
 
         if (x > sDown.x && x < sDown.x + sDown.width && y < sDown.y + sDown.height && y > sDown.y)
@@ -189,13 +179,13 @@ class Controls(
         if (x > sExit.x && x < sExit.x + sDown.width && y < sExit.y + sExit.height && y > sExit.y)
             return PressedArea.Exit
 
-        if (x > rotateLeftX && x < centerX && y < circleY + halfHeight * 1.4 && y > circleY - halfHeight * 1.4)
+        if (x > sRotateLeft.x && x < centerX && y < sRotateLeft.y + sRotateLeft.height && y > sRotateLeft.y)
             return PressedArea.RotateLeft
-        if (x > centerX && x < rotateRightX + tileHeight
-            && y < circleY + halfHeight * 1.4 && y > circleY - halfHeight * 1.4
+        if (x > centerX && x < sRotateRight.x + sRotateRight.width && y < sRotateRight.y + sRotateRight.height
+            && y > sRotateRight.y
         )
             return PressedArea.RotateRight
-        if (y >= circleY + halfHeight)
+        if (y >= circleY + circleRadius)
             return PressedArea.Board
         return PressedArea.None
     }
@@ -211,7 +201,7 @@ class Controls(
         sRotateRight.draw(ctx.batch, 0.8f)
 
         with(ctx.drw.sd) {
-            filledCircle(centerX, circleY, tileHeight * 0.7f, ctx.drw.theme.gameboardBackground)
+            filledCircle(centerX, circleY, circleRadius, ctx.drw.theme.gameboardBackground)
             setColor(if (noMoreMoves) ctx.drw.theme.nextTileCircleNoMoves else ctx.drw.theme.nextTileCircleOK)
             circle(
                 centerX,
