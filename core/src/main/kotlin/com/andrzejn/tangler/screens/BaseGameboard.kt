@@ -176,25 +176,27 @@ abstract class BaseGameboard(
      */
     fun touchUp(x: Float, y: Float) {
         if (dragStartedAt.x > 0 && dragStartedAt.y > 0
-            && abs(x - dragStartedAt.x) > 3 && abs(y - dragStartedAt.y) > 3
-        ) { // filter out erroneous drags when pointer shofts on clich by a couple of pixels
+            && abs(x - dragStartedAt.x) > 5 && abs(y - dragStartedAt.y) > 5
+        ) { // filter out erroneous drags when pointer shifts on clich by several pixels
             dragEnd(x, y)
             return
         }
         resetDragState()
-        if (ctx.tweenAnimationRunning())
-            return
-        when (ctrl.pressedArea(x, y)) {
-            PressedArea.Board -> {
-                val c = coordToValidMoveCell(x, y)
-                if (c.x >= 0 && c.y >= 0) // Valid cell clicked
-                    doNextTileDrop(c)
+        if (!ctx.tweenAnimationRunning())
+            when (ctrl.pressedArea(x, y)) {
+                PressedArea.Board -> {
+                    val c = coordToValidMoveCell(x, y)
+                    if (c.x >= 0 && c.y >= 0) { // Valid cell clicked
+                        doNextTileDrop(c)
+                        return
+                    }
+                }
+                PressedArea.NextTile -> {
+                    rotateNextTile(if (x < ctrl.centerX) -1 else 1)
+                }
+                else -> {}
             }
-            PressedArea.NextTile -> rotateNextTile(if (x < ctrl.centerX) -1 else 1)
-            else -> {
-                dragEnd(x, y)
-            }
-        }
+        dragEnd(x, y)
     }
 
     /**

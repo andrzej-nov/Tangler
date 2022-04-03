@@ -134,7 +134,8 @@ class GameboardScreen(ctx: Context) :
                 gameboard.safeRotateNextTile(1)
             else {
                 val v = ctx.drw.pointerPosition(input.x, input.y)
-                if (gameboard.dispatchClick(v.x, v.y)) { // hitTest does a lot of actions based on the clicked area
+                if (gameboard.dispatchClick(v.x, v.y)) {
+                    // dispatchClick does a lot of actions based on the clicked area
                     // It returns true when the player clicks "New game" button. Here we start that new game.
                     gameboard.dispose()
                     newGame()
