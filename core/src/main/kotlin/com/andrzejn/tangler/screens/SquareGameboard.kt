@@ -26,15 +26,14 @@ class SquareGameboard(ctx: Context) :
      * Resize everything on the board grid and sprites when the screen size changes
      */
     override fun resize() {
-        var cellSize = (ctx.viewportWidth - 2 * indent) / boardSize
-        if (ctx.viewportHeight < cellSize * (boardSize + 3) + 2 * indent)
-            cellSize = (ctx.viewportHeight - 2 * indent) / (boardSize + 3)
+        val squareSize = boardSquareSize
+        val cellSize = (squareSize - 2 * indent) / boardSize
         cell.setLength(cellSize)
         resetSpriteSize(cellSize, cellSize)
 
-        var x = (ctx.viewportWidth - cellSize * boardSize) / 2
-        var y = ctx.viewportHeight - indent - cellSize * boardSize
-        y -= (y - 3 * cellSize) / 2
+        var x = (ctx.viewportWidth - squareSize) / 2 + indent
+        var y = ctx.viewportHeight - (ctx.viewportHeight - squareSize * (1 + minControlsHeightProportion)) / 2
+        +indent - squareSize
 
         coordX.indices.forEach { i ->
             coordX[i] = x
@@ -42,7 +41,13 @@ class SquareGameboard(ctx: Context) :
             x += cellSize
             y += cellSize
         }
-        ctrl.setCoords(coordX[0], coordY.last(), coordX.last(), coordY[0], coordY[0])
+        ctrl.setCoords(
+            coordX[0],
+            coordY.last(),
+            coordX.last(),
+            coordY[0],
+            boardSquareSize * minControlsHeightProportion
+        )
         repositionSprites()
     }
 

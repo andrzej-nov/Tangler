@@ -33,18 +33,16 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
      * Resize everything on the board grid and sprites when the screen size changes
      */
     override fun resize() {
-        var stepX = (ctx.viewportWidth - indent * 2) / (boardSize * 2 + 1)
-        var stepY = (ctx.viewportHeight - indent * 2) / ((boardSize + 2) * 3 + 3)
-
-        if (stepX * 23 > stepY * 40) stepX = stepY * 40 / 23
-        else if (stepX * 23 < stepY * 40) stepY = stepX * 23 / 40
+        val squareSize = boardSquareSize
+        val stepX = (squareSize - 2 * indent) / (boardSize * 2 + 1)
+        val stepY = stepX * 23 / 40
 
         cell.setLength(stepY * 2)
         resetSpriteSize(stepX * 2, stepY * 4)
 
-        var x = (ctx.viewportWidth - stepX * (boardSize * 2 + 1)) / 2
-        var y = ctx.viewportHeight - indent - stepY * (boardSize * 3 + 1)
-        y -= (y - 9 * stepY) / 2
+        var x = (ctx.viewportWidth - squareSize) / 2 + indent
+        var y = ctx.viewportHeight - squareSize + (squareSize - stepY * (boardSize * 3 + 1)) * 0.7f
+        -(ctx.viewportHeight - squareSize * (1 + minControlsHeightProportion)) / 2
 
         for (i in coordX.indices) {
             coordX[i] = x
@@ -86,7 +84,10 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
                 ky += 2
             }
         }
-        ctrl.setCoords(coordX[1], coordY[coordY.lastIndex - 1], coordX[coordX.lastIndex - 1], coordY[1], coordY[0])
+
+        ctrl.setCoords(
+            coordX[0], coordY.last(), coordX.last(), coordY[0], boardSquareSize * minControlsHeightProportion
+        )
         repositionSprites()
     }
 
@@ -109,8 +110,7 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
         }
         renderTiles()
         renderBorderMarkers()
-        if (ctx.fader.inFade)
-            ctx.score.drawFloatUpPoints(ctx.batch)
+        if (ctx.fader.inFade) ctx.score.drawFloatUpPoints(ctx.batch)
     }
 
     /**
@@ -207,10 +207,8 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
      * Ensures that the rotation is in correct range. If it is not, wraps it over and returns corrected value.
      */
     override fun clipWrapRotation(rotation: Int): Int {
-        if (rotation > 3)
-            return rotation - 6
-        if (rotation < -2)
-            return rotation + 6
+        if (rotation > 3) return rotation - 6
+        if (rotation < -2) return rotation + 6
         return rotation
     }
 

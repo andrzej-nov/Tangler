@@ -19,6 +19,7 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.Vector2
 import kotlin.math.abs
+import kotlin.math.min
 
 /**
  * Grid lines width. Used in some other places to draw lines.
@@ -127,6 +128,17 @@ abstract class BaseGameboard(
      * Rotation angle values are in degrees, positive angles are counterclockwise.
      */
     protected abstract fun rotateDegrees(steps: Int): Float
+
+    /**
+     * Controls area minimum heingt, in proportion to board height
+     */
+    protected val minControlsHeightProportion: Float = 0.3f
+
+    /**
+     * Board square size for the current viewport size
+     */
+    protected val boardSquareSize: Float
+        get() = min(ctx.viewportWidth, ctx.viewportHeight / (1 + minControlsHeightProportion))
 
     /**
      * Gets the pressed/clicked coordinates, determines which element has been clicked and invokes respective actions

@@ -79,49 +79,36 @@ class Controls(
     /**
      * Calculate and set all control coordinates, based on the provided board rectangle coordinates
      */
-    fun setCoords(leftX: Float, topY: Float, rightX: Float, bottomY: Float, buttonsBaseY: Float) {
+    fun setCoords(leftX: Float, topY: Float, rightX: Float, bottomY: Float, reservedForControls: Float) {
         boardLeftX = leftX
         boardTopY = topY
         boardRightX = rightX
         boardBottomY = bottomY
         centerX = ctx.viewportWidth / 2
-        val baseWidth = (boardRightX - boardLeftX) / when (ctx.gs.boardSize) {
-            6 -> 6
-            8 -> 7
-            else -> 8
+        circleRadius = reservedForControls * 0.45f
+        circleY = boardBottomY - reservedForControls * 0.6f
+        rotateButtonSize = circleRadius
+        rotateButtonY = circleY - rotateButtonSize * 0.5f
+        rotateLeftX = centerX - circleRadius - rotateButtonSize * 1.1f
+        rotateRightX = centerX + circleRadius + rotateButtonSize * 0.1f
+
+        lowerButtonSize = reservedForControls * 0.4f
+        lowerButtonY = boardBottomY - reservedForControls * 0.5f
+        leftButtonsX = max(0f, boardLeftX - lowerButtonSize * 2)
+        rightButtonsX = min(boardRightX + lowerButtonSize, ctx.viewportWidth - lowerButtonSize)
+        bottomButtonsYOffset = lowerButtonSize * 1.1f
+
+        with(sDown) {
+            setSize(lowerButtonSize, lowerButtonSize)
+            setPosition(
+                leftButtonsX + lowerButtonSize * 1.1f,
+                max(lowerButtonSize * 0.1f, boardBottomY - lowerButtonSize * 3f)
+            )
         }
-        circleRadius = baseWidth * 0.9f
-        circleY = buttonsBaseY - baseWidth - indent * 1.28f
-        rotateButtonY = circleY - baseWidth * 0.4f
-        rotateLeftX = centerX - baseWidth * 2.1f
-        rotateRightX = centerX + baseWidth * 1.05f
-        rotateButtonSize = baseWidth * 1f
-
-        lowerButtonSize = baseWidth
-        lowerButtonY = rotateButtonY + baseWidth / 2
-        leftButtonsX = max(0f, boardLeftX - baseWidth * 2)
-        rightButtonsX = min(boardRightX + baseWidth, ctx.viewportWidth - baseWidth)
-        bottomButtonsXOffset = 0f
-        bottomButtonsYOffset = baseWidth * 1.1f
-
-        if (ctx.gs.boardSize == 10)
-            with(sDown) {
-                setSize(lowerButtonSize, lowerButtonSize)
-                setPosition(centerX - width * 1.8f, circleY - height * 1.5f)
-            }
-        else
-            with(sDown) {
-                setSize(lowerButtonSize * 0.9f, lowerButtonSize * 0.9f)
-                setPosition(
-                    leftButtonsX + lowerButtonSize * 1.1f,
-                    lowerButtonY - bottomButtonsYOffset * (if (ctx.gs.sidesCount == 6) 1f else 1.25f)
-                )
-            }
-
-        var logoWidth = boardLeftX - 4 * indent
+        var logoWidth = boardLeftX - 2 * indent
         if (logoWidth < 0f)
             logoWidth = 0f
-        var logoHeight = ctx.viewportHeight - boardTopY - 3 * indent
+        var logoHeight = ctx.viewportHeight - boardTopY - 2 * indent
         if (logoHeight < 0f)
             logoHeight = 0f
         if (logoWidth > logoHeight)
@@ -129,6 +116,7 @@ class Controls(
         else
             ctx.fitToRect(sLogo, ctx.viewportWidth, logoHeight)
         sLogo.setPosition(0f, ctx.viewportHeight - sLogo.height)
+
         with(sRotateLeft) {
             setSize(rotateButtonSize, rotateButtonSize)
             setPosition(rotateLeftX, rotateButtonY)
@@ -138,8 +126,8 @@ class Controls(
             setPosition(rotateRightX, rotateButtonY)
         }
         ctx.score.setCoords(
-            tileHeight / 3, buttonsBaseY - indent - 2 * lineWidth,
-            sRotateLeft.x + sRotateLeft.width - 3 * baseWidth, sRotateRight.x, baseWidth * 3f
+            (reservedForControls * 0.2f).toInt(), boardBottomY - reservedForControls * 0.2f,
+            sRotateLeft.x + sRotateLeft.width - circleRadius, sRotateRight.x, circleRadius
         )
         with(sPlay) {
             setSize(lowerButtonSize, lowerButtonSize)
