@@ -32,8 +32,8 @@ class SquareGameboard(ctx: Context) :
         resetSpriteSize(cellSize, cellSize)
 
         var x = (ctx.viewportWidth - squareSize) / 2 + indent
-        var y = ctx.viewportHeight + indent - squareSize
-        -(ctx.viewportHeight - squareSize * (1 + minControlsHeightProportion)) / 2
+        var y =
+            ctx.viewportHeight + indent - squareSize - (ctx.viewportHeight - squareSize * (1 + minControlsHeightProportion)) / 2
 
         coordX.indices.forEach { i ->
             coordX[i] = x

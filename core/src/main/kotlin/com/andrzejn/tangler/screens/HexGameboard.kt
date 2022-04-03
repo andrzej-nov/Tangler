@@ -41,8 +41,9 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
         resetSpriteSize(stepX * 2, stepY * 4)
 
         var x = (ctx.viewportWidth - squareSize) / 2 + indent
-        var y = ctx.viewportHeight - squareSize + (squareSize - stepY * (boardSize * 3 + 1)) * 0.7f
-        -(ctx.viewportHeight - squareSize * (1 + minControlsHeightProportion)) / 2
+        val boardYSize = stepY * (boardSize * 3 + 1)
+        var y =
+            ctx.viewportHeight - boardYSize - indent - (ctx.viewportHeight - squareSize * (1 + minControlsHeightProportion)) / 2 - (squareSize - boardYSize) / 3
 
         for (i in coordX.indices) {
             coordX[i] = x
