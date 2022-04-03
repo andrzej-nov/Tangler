@@ -11,7 +11,6 @@ buildscript {
         classpath "com.android.tools.build:gradle:$gradleVersion"
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "org.wisepersist:gwt-gradle-plugin:$gwtPluginVersion"
-//		classpath "com.android.tools.build:gradle:$androidPluginVersion"
         classpath "com.mobidevelop.robovm:robovm-gradle-plugin:$roboVMVersion"
         classpath "space.earlygrey:shapedrawer:$shapedrawerVersion"
         classpath "org.mini2Dx:universal-tween-engine:$tweenEngineVersion"

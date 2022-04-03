@@ -1,5 +1,6 @@
 ## Gradle
-.gradle
+.gradle/
+gradle/
 gradle-app.setting
 build/
 
@@ -16,6 +17,7 @@ hs_err_pid*
 
 ## Android:
 android/release/
+android/debug/
 android/libs/armeabi-v7a/
 android/libs/arm64-v8a/
 android/libs/x86/
