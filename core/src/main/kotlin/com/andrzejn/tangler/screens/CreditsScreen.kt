@@ -65,20 +65,15 @@ class CreditsScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
             gridX - icongmail.width / 2,
             gridY * 5 + (gridY - icongmail.height) / 2
         )
-        ctx.fitToRect(iconfacebook, gridX * 0.9f, gridY * 0.9f)
-        iconfacebook.setPosition(
-            gridX - iconfacebook.width / 2,
-            gridY * 4 + (gridY - iconfacebook.height) / 2
-        )
         ctx.fitToRect(icontelegram, gridX * 0.9f, gridY * 0.9f)
         icontelegram.setPosition(
             gridX - icontelegram.width / 2,
-            gridY * 3 + (gridY - icontelegram.height) / 2
+            gridY * 4 + (gridY - icontelegram.height) / 2
         )
         ctx.fitToRect(icongithub, gridX * 0.9f, gridY * 0.9f)
         icongithub.setPosition(
             gridX - icongithub.width / 2,
-            gridY * 2 + (gridY - icongithub.height) / 2
+            gridY * 3 + (gridY - icongithub.height) / 2
         )
         ctx.fitToRect(poweroff, gridX * 0.9f, gridY * 0.9f)
         poweroff.setPosition(
@@ -94,9 +89,8 @@ class CreditsScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
         font = ctx.a.createFont((icongmail.height * 0.5).toInt())
         fcText = BitmapFontCache(font)
         fcText.setText("andrzej.novosiolov@gmail.com", gridX * 1.7f, gridY * 5.5f, gridX * 5f, Align.left, false)
-        fcText.addText("fb.com/andrzej.novosiolov", gridX * 1.7f, gridY * 4.5f, gridX * 5f, Align.left, false)
-        fcText.addText("t.me/Andrzejn", gridX * 1.7f, gridY * 3.5f, gridX * 5f, Align.left, false)
-        fcText.addText("github.com/andrzej-nov", gridX * 1.7f, gridY * 2.5f, gridX * 5f, Align.left, false)
+        fcText.addText("t.me/Andrzejn", gridX * 1.7f, gridY * 4.5f, gridX * 5f, Align.left, false)
+        fcText.addText("github.com/andrzej-nov", gridX * 1.7f, gridY * 3.5f, gridX * 5f, Align.left, false)
         fcText.setColors(ctx.drw.theme.creditsText)
         fcTime = BitmapFontCache(font)
         fcTime.setText(millisToTimeString(ctx.gs.inGameDuration), gridX * 1.5f, gridY, gridX * 5f, Align.center, false)
@@ -127,7 +121,6 @@ class CreditsScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
         ctx.drw.sd.filledRectangle(0f, 0f, ctx.viewportWidth, ctx.viewportHeight, ctx.drw.theme.screenBackground)
         logo.draw(ctx.batch)
         icongmail.draw(ctx.batch)
-        iconfacebook.draw(ctx.batch)
         icontelegram.draw(ctx.batch)
         icongithub.draw(ctx.batch)
         home.draw(ctx.batch)
@@ -150,10 +143,8 @@ class CreditsScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
             if (5f * gridY < v.y && v.y < 6f * gridY)
                 Gdx.net.openURI("mailto:andrzej.novosiolov@gmail.com?subject=The%20Tangler%20game")
             else if (4f * gridY < v.y && v.y < 5f * gridY)
-                Gdx.net.openURI("https://www.facebook.com/andrzej.novosiolov/")
-            else if (3f * gridY < v.y && v.y < 4f * gridY)
                 Gdx.net.openURI("https://t.me/AndrzejN")
-            else if (2f * gridY < v.y && v.y < 3f * gridY)
+            else if (3f * gridY < v.y && v.y < 4f * gridY)
                 Gdx.net.openURI("https://github.com/andrzej-nov/Tangler")
             else if (v.y < gridY) {
                 if (v.x < gridX * 2)
