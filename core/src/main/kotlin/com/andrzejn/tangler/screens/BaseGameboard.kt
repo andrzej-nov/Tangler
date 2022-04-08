@@ -402,13 +402,15 @@ abstract class BaseGameboard(
      * Put nextTile to the given place, updates all values, removes closed path loops if any
      */
     private fun putNextTileToBoard(place: Coord) {
+        if (place.x < 0 || place.y < 0)
+            return // (-1, -1) should not come here, but somehow sometimes does. Let's add a safeguard.
         ctx.sav.saveGame(this)
         lastMove.takeShapshot(playField, nextTile.t, ctx.score)
         nextTile.x = place.x
         nextTile.y = place.y
-        tile[nextTile.x][nextTile.y] = nextTile
+        tile[place.x][place.y] = nextTile
         nextTile.isSpriteValid = false
-        pathsToClear = playField.putTileToCell(nextTile.t, playField.cell[nextTile.x][nextTile.y])
+        pathsToClear = playField.putTileToCell(nextTile.t, playField.cell[place.x][place.y])
         validMovesList = null
         ctx.score.incrementMoves()
         if (pathsToClear.isNotEmpty()) { // We have some closed loops
