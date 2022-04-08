@@ -32,7 +32,7 @@ The game is provided in two options:
       .
 
 - **Android**. [Get it on Google Play](https://play.google.com/store/apps/details?id=com.andrzejn.tangler) (recommended)
-  or [download the Tangler.apk](https://github.com/andrzej-nov/Tangler/releases/download/v1.3/Tangler.apk) here for
+  or [download the Tangler.apk](https://github.com/andrzej-nov/Tangler/releases/download/v1.4/Tangler.apk) here for
   manual install (it might be sometimes also a newer version due to the Google Play approval lag). It has been tested on Android
   8.0 and 10.0, should also work on any Android version starting from 4.4 and later.
     - **Known issues on Xiaomi smartphones:** Last move might be lost when you switch from Tangler to another app and
