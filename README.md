@@ -31,10 +31,9 @@ The game is provided in two options:
       Launchpad, [as explained here](https://www.bemidjistate.edu/offices/its/knowledge-base/how-to-open-an-app-from-an-unidentified-developer-and-exempt-it-from-gatekeeper/)
       .
 
-- **Android**. [Get it on Google Play](https://play.google.com/store/apps/details?id=com.andrzejn.tangler) (recommended;
-  but not available yet because the Google Play release is still in review for approval)
+- **Android**. [Get it on Google Play](https://play.google.com/store/apps/details?id=com.andrzejn.tangler) (recommended)
   or [download the Tangler.apk](https://github.com/andrzej-nov/Tangler/releases/download/v1.3/Tangler.apk) here for
-  manual install (it might be also a newer version due to the Google Play approval lag). It has been tested on Android
+  manual install (it might be sometimes also a newer version due to the Google Play approval lag). It has been tested on Android
   8.0 and 10.0, should also work on any Android version starting from 4.4 and later.
     - **Known issues on Xiaomi smartphones:** Last move might be lost when you switch from Tangler to another app and
       back again. Graphics might be a bit garbled sometimes. Those are the Xiaomi issues, I do not know a workaround
