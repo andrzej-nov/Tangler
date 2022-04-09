@@ -684,8 +684,7 @@ abstract class BaseGameboard(
      */
     fun putFirstTile() {
         val boardCenter = ctx.gs.boardSize / 2
-        tile[boardCenter][boardCenter
-        ] = newUITile(playField.putFirstTile(ctx.gs.colorsCount))
+        tile[boardCenter][boardCenter] = newUITile(playField.putFirstTile(boardCenter))
     }
 
     /**
