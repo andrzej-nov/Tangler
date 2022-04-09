@@ -3,10 +3,12 @@ package com.andrzejn.tangler.helper
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.BitmapFont
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator.setMaxTextureSize
 import ktx.assets.Asset
 import ktx.assets.loadOnDemand
 
@@ -36,9 +38,14 @@ class Atlas {
      */
     fun createFont(height: Int): BitmapFont {
         with(FreeTypeFontGenerator(Gdx.files.internal("ADYS-Bold_V5.ttf"))) {
+            setMaxTextureSize(2048)
             val font = generateFont(FreeTypeFontGenerator.FreeTypeFontParameter().also {
                 it.size = height
                 it.color = Color.WHITE
+                it.minFilter = Texture.TextureFilter.Linear
+                it.magFilter = Texture.TextureFilter.Linear
+                it.characters =
+                    "\u0000ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz1234567890\"!`?'.,;:()[]{}<>|/@\\^$€-%+=#_&~*"
             })
             dispose()
             return font
