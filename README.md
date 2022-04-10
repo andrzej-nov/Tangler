@@ -36,8 +36,7 @@ The game is provided in two options:
   manual install (it might be sometimes also a newer version due to the Google Play approval lag). It has been tested on Android
   8.0 and 10.0, should also work on any Android version starting from 4.4 and later.
     - **Known issues on Xiaomi smartphones:** Last move might be lost when you switch from Tangler to another app and
-      back again. Graphics might be a bit garbled sometimes. Those are the Xiaomi issues, I do not know a workaround
-      yet.
+      back again. That is the Xiaomi issue, I do not know a workaround yet.
 
 There is no iOS build because I do not have tools to test and deploy it to the AppStore. If somebody completes the iOS
 module (see below), I will add it here.
