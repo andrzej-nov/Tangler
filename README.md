@@ -23,7 +23,7 @@ for best experience.
 
 The game is provided in two options:
 
-- **Desktop Java**. [Download Tangler.jar](https://github.com/andrzej-nov/Tangler/releases/download/v1.6/Tangler.jar).
+- **Desktop Java**. [Download Tangler.jar](https://github.com/andrzej-nov/Tangler/releases/download/v1.7/Tangler.jar).
   Run it with `java -jar Tangler.jar` command line, or in most cases just double-click the Tangler.jar file. It has been
   tested with Java 18 Runtime, should also work with prior versions up to Java 8.
     - **On MacOS** you will get a warning about unidentified developer. Start the Tangler.jar using Finder context menu
@@ -32,7 +32,7 @@ The game is provided in two options:
       .
 
 - **Android**. [Get it on Google Play](https://play.google.com/store/apps/details?id=com.andrzejn.tangler) (recommended)
-  or [download the Tangler.apk](https://github.com/andrzej-nov/Tangler/releases/download/v1.6/Tangler.apk) here for
+  or [download the Tangler.apk](https://github.com/andrzej-nov/Tangler/releases/download/v1.7/Tangler.apk) here for
   manual install (it might be sometimes also a newer version due to the Google Play approval lag). It has been tested on Android
   8.0 and 10.0, should also work on any Android version starting from 4.4 and later.
     - **Known issues on Xiaomi smartphones:** Last move might be lost when you switch from Tangler to another app and
