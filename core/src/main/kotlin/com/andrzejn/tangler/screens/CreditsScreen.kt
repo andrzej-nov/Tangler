@@ -140,11 +140,11 @@ class CreditsScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
         override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
             val v = ctx.drw.pointerPosition(Gdx.input.x, Gdx.input.y)
 
-            if (5f * gridY < v.y && v.y < 6f * gridY)
+            if (v.y in 5f * gridY..6f * gridY)
                 Gdx.net.openURI("mailto:andrzej.novosiolov@gmail.com?subject=The%20Tangler%20game")
-            else if (4f * gridY < v.y && v.y < 5f * gridY)
+            else if (v.y in 4f * gridY..5f * gridY)
                 Gdx.net.openURI("https://t.me/AndrzejN")
-            else if (3f * gridY < v.y && v.y < 4f * gridY)
+            else if (v.y in 3f * gridY..4f * gridY)
                 Gdx.net.openURI("https://github.com/andrzej-nov/Tangler")
             else if (v.y < gridY) {
                 if (v.x < gridX * 2)
@@ -165,6 +165,4 @@ class CreditsScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
             return super.keyDown(keycode)
         }
     }
-
-
 }

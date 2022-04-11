@@ -119,14 +119,16 @@ class Draw(
         theme = if (ctx.gs.isDarkTheme) dk else lt
     }
 
+    private val v3 = Vector3()
+
     /**
      * Convert the UI screen coordinates (mouse clicks or touches, for example) to the OpenGL scene coordinates
      * which are used for drawing
      */
     fun pointerPosition(screenX: Int, screenY: Int): Vector2 {
-        val v = Vector3(screenX.toFloat(), screenY.toFloat(), 0f)
-        camera.unproject(v)
-        return Vector2(v.x, v.y)
+        v3.set(screenX.toFloat(), screenY.toFloat(), 0f)
+        camera.unproject(v3)
+        return Vector2(v3.x, v3.y)
     }
 
     /**

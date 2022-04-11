@@ -38,7 +38,7 @@ class Atlas {
      */
     fun createFont(height: Int): BitmapFont {
         with(FreeTypeFontGenerator(Gdx.files.internal("ADYS-Bold_V5.ttf"))) {
-            setMaxTextureSize(2048)
+            setMaxTextureSize(2048) // Required for same devices like Xiaomi, where the default 1024 causes garbled fonts
             val font = generateFont(FreeTypeFontGenerator.FreeTypeFontParameter().also {
                 it.size = height
                 it.color = Color.WHITE

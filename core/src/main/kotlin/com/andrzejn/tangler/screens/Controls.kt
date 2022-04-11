@@ -151,27 +151,23 @@ class Controls(
      * Hit test. Determines which of the screen areas has been pressed/clicked
      */
     fun pressedArea(x: Float, y: Float): PressedArea {
-        if (x > centerX - circleRadius && x < centerX + circleRadius && y < circleY + circleRadius
-            && y > circleY - circleRadius
-        )
+        if (x in centerX - circleRadius..centerX + circleRadius && y in circleY - circleRadius..circleY + circleRadius)
             return PressedArea.NextTile
 
-        if (x > sDown.x && x < sDown.x + sDown.width && y < sDown.y + sDown.height && y > sDown.y)
+        if (x in sDown.x..sDown.x + sDown.width && y in sDown.y..sDown.y + sDown.height)
             return PressedArea.UndoMove
-        if (x > sPlay.x && x < sPlay.x + sPlay.width && y < sPlay.y + sPlay.height && y > sPlay.y)
+        if (x in sPlay.x..sPlay.x + sPlay.width && y in sPlay.y..sPlay.y + sPlay.height)
             return PressedArea.Play
-        if (x > sHome.x && x < sHome.x + sHome.width && y < sHome.y + sHome.height && y > sHome.y)
+        if (x in sHome.x..sHome.x + sHome.width && y in sHome.y..sHome.y + sHome.height)
             return PressedArea.Home
-        if (x > sHelp.x && x < sHelp.x + sHelp.width && y < sHelp.y + sHelp.height && y > sHelp.y)
+        if (x in sHelp.x..sHelp.x + sHelp.width && y in sHelp.y..sHelp.y + sHelp.height)
             return PressedArea.Help
-        if (x > sExit.x && x < sExit.x + sDown.width && y < sExit.y + sExit.height && y > sExit.y)
+        if (x in sExit.x..sExit.x + sDown.width && y in sExit.y..sExit.y + sExit.height)
             return PressedArea.Exit
 
-        if (x > sRotateLeft.x && x < centerX && y < sRotateLeft.y + sRotateLeft.height && y > sRotateLeft.y)
+        if (x in sRotateLeft.x..centerX && y in sRotateLeft.y..sRotateLeft.y + sRotateLeft.height)
             return PressedArea.RotateLeft
-        if (x > centerX && x < sRotateRight.x + sRotateRight.width && y < sRotateRight.y + sRotateRight.height
-            && y > sRotateRight.y
-        )
+        if (x in centerX..sRotateRight.x + sRotateRight.width && y in sRotateRight.y..sRotateRight.y + sRotateRight.height)
             return PressedArea.RotateRight
         if (y >= circleY + circleRadius)
             return PressedArea.Board

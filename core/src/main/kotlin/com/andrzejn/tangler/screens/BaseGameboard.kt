@@ -376,41 +376,48 @@ abstract class BaseGameboard(
      */
     private var tileDropTargetCell: Coord = Coord(-1, -1)
 
+    private var inTileDrop = false
+
     /**
      * Perform the move: animate nextTile movement, put it to the board and recalculate logical values,
      * generate next tile.
      */
-    private fun doNextTileDrop(targetCell: Coord): Boolean {
+    private fun doNextTileDrop(targetCell: Coord) {
+        if (inTileDrop)
+            return
+        inTileDrop = true
         tileDropTargetCell = targetCell
         if (targetCell.x <= -1 || targetCell.y <= -1) {
             cancelDrag()
-            return true
+            inTileDrop = false
+            return
         }
         clearNextTileDrag()
         val dropTo = cellCorner(targetCell)
         Tween.to(nextTile.sprite, TW_POS_XY, tileDropTweenDuration).target(dropTo.x, dropTo.y)
             .setCallback { _, _ ->
-                putNextTileToBoard(targetCell) // Closed paths loops cleanup, as needed, is done there
-                regenerateNextTile()
+                if (putNextTileToBoard(targetCell)) // Closed paths loops cleanup, as needed, is done there
+                    regenerateNextTile()
                 clearTileDrop()
+                inTileDrop = false
             }
             .start(ctx.tweenManager)
-        return false
     }
 
     /**
      * Put nextTile to the given place, updates all values, removes closed path loops if any
      */
-    private fun putNextTileToBoard(place: Coord) {
+    private fun putNextTileToBoard(place: Coord): Boolean {
         if (place.x < 0 || place.y < 0)
-            return // (-1, -1) should not come here, but somehow sometimes does. Let's add a safeguard.
+            return false // (-1, -1) should not come here, but somehow sometimes does. Let's add a safeguard.
+        val nTile = nextTile // Save reference in case nextTile changes in parallel thread
         ctx.sav.saveGame(this)
-        lastMove.takeShapshot(playField, nextTile.t, ctx.score)
-        nextTile.x = place.x
-        nextTile.y = place.y
-        tile[place.x][place.y] = nextTile
-        nextTile.isSpriteValid = false
-        pathsToClear = playField.putTileToCell(nextTile.t, playField.cell[place.x][place.y])
+        lastMove.takeShapshot(playField, nTile.t, ctx.score)
+        nTile.x = place.x
+        nTile.y = place.y
+        tile[place.x][place.y] = nTile
+        nTile.isSpriteValid = false
+        pathsToClear = playField.putTileToCell(nTile.t, playField.cell[place.x][place.y])
         validMovesList = null
         ctx.score.incrementMoves()
         if (pathsToClear.isNotEmpty()) { // We have some closed loops
@@ -420,19 +427,22 @@ abstract class BaseGameboard(
             invalidateSprites()
             ctx.fader.fadeDown(pathsToClear) { clearPaths() }
         }
+        return true
     }
 
     /**
      * Create new nextTile after putting previous one to board
      */
     private fun regenerateNextTile() {
-        val w = nextTile.sprite.width.toInt()
-        val h = nextTile.sprite.height.toInt()
+        var nTile = nextTile
+        val w = nTile.sprite.width.toInt()
+        val h = nTile.sprite.height.toInt()
         createNextTile()
-        nextTile.setSpriteSize(w, h)
-        nextTile.buildSprite()
+        nTile = nextTile
+        nTile.setSpriteSize(w, h)
+        nTile.buildSprite()
         updateShadowSprite()
-        with(nextTile.sprite) {
+        with(nTile.sprite) {
             setPosition(ctrl.centerX - width / 2, ctrl.circleY - height / 2)
         }
     }
@@ -668,11 +678,12 @@ abstract class BaseGameboard(
     private val validMoves: List<CoordAndSuggestion>
         get() {
             if (validMovesList != null) return validMovesList!!
-            validMovesList = playField.evaluateMoves(nextTile.t)
+            val tile = nextTile.t
+            validMovesList = playField.evaluateMoves(tile)
                 .map { (cell, moveQuality) ->
                     CoordAndSuggestion(
                         Coord(cell.x, cell.y),
-                        (moveQuality.pathsBlocked > 0 && moveQuality.loopsClosed < nextTile.t.segment.size)
+                        (moveQuality.pathsBlocked > 0 && moveQuality.loopsClosed < tile.segment.size)
                                 || moveQuality.cellsBlocked > 0
                     )
                 }

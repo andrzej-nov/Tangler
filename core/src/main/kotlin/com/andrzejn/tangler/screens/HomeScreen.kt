@@ -312,40 +312,40 @@ class HomeScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
             val v = ctx.drw.pointerPosition(Gdx.input.x, Gdx.input.y)
             v.x -= baseX
 
-            if (6 * gridY < v.y && v.y < 7 * gridY) {
-                if (3 * gridX < v.x && v.x < 4.5 * gridX)
+            if (v.y in 6 * gridY..7 * gridY) {
+                if (v.x in 3f * gridX..4.5f * gridX)
                     ctx.gs.sidesCount = 4
-                else if (5 * gridX < v.x && v.x < 6.5 * gridX)
+                else if (v.x in 5f * gridX..6.5f * gridX)
                     ctx.gs.sidesCount = 6
-                else if (7 * gridX < v.x && v.x < 8.5 * gridX)
+                else if (v.x in 7f * gridX..8.5f * gridX)
                     ctx.gs.sidesCount = 8
-            } else if (5 * gridY < v.y && v.y < 6 * gridY)
+            } else if (v.y in 5 * gridY..6 * gridY)
                 ctx.gs.colorsCount = ceil(v.x / (2f * gridX))
 
             if (ctx.gs.colorsCount < ctx.gs.sidesCount / 2)
                 ctx.gs.colorsCount = ctx.gs.sidesCount / 2
 
-            if (4 * gridY < v.y && v.y < 5 * gridY) {
-                if (3 * gridX < v.x && v.x < 5 * gridX)
+            if (v.y in 4 * gridY..5 * gridY) {
+                if (v.x in 3 * gridX..5 * gridX)
                     ctx.gs.allowDuplicateColors = false
-                else if (7 * gridX < v.x && v.x < 9 * gridX)
+                else if (v.x in 7 * gridX..9 * gridX)
                     ctx.gs.allowDuplicateColors = true
-            } else if (3 * gridY < v.y && v.y < 4 * gridY) {
-                if (2.5 * gridX < v.x && v.x < 5.5 * gridX)
+            } else if (v.y in 3 * gridY..4 * gridY) {
+                if (v.x in 2.5 * gridX..5.5 * gridX)
                     ctx.gs.boardSize = 6
-                else if (5.5 * gridX < v.x && v.x < 8.5 * gridX)
+                else if (v.x in 5.5 * gridX..8.5 * gridX)
                     ctx.gs.boardSize = 8
-                else if (8.5 * gridX < v.x && v.x < 11.5 * gridX)
+                else if (v.x in 8.5 * gridX..11.5 * gridX)
                     ctx.gs.boardSize = 10
-            } else if (2 * gridY < v.y && v.y < 3 * gridY) {
-                if (3 * gridX < v.x && v.x < 5 * gridX) {
+            } else if (v.y in 2 * gridY..3 * gridY) {
+                if (v.x in 3 * gridX..5 * gridX) {
                     ctx.gs.isDarkTheme = true
                     ctx.drw.setTheme()
-                } else if (7 * gridX < v.x && v.x < 9 * gridX) {
+                } else if (v.x in 7 * gridX..9 * gridX) {
                     ctx.gs.isDarkTheme = false
                     ctx.drw.setTheme()
                 }
-            } else if (v.y < 2 * gridY && 5 * gridX < v.x && v.x < 7 * gridX) {
+            } else if (v.y < 2 * gridY && v.x in 5 * gridX..7 * gridX) {
                 ctx.game.getScreen<GameboardScreen>().newGame()
                 ctx.game.setScreen<GameboardScreen>()
             } else if (v.y < gridY && v.x > 10 * gridX)

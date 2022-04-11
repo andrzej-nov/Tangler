@@ -34,8 +34,8 @@ android {
         applicationId 'com.andrzejn.tangler'
         minSdkVersion 19
         targetSdkVersion 30
-        versionCode 9
-        versionName '1.7'
+        versionCode 10
+        versionName '1.8'
         multiDexEnabled true
     }
     compileOptions {
