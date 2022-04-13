@@ -54,7 +54,7 @@ Andrzej Novosiolov, as the original author.
 
 The game has been implemented using following tools and libraries:
 
-- [IntelliJ IDEA 2021.3.3 (Community Edition)](https://www.jetbrains.com/idea/download/)
+- [IntelliJ IDEA 2022.1 (Community Edition)](https://www.jetbrains.com/idea/download/)
 - [Android Studio 2021.1.1 Patch 2](https://developer.android.com/studio) (for the Android emulator)
 - [Gradle 7.0.4](https://gradle.org/)
 - [Kotlin 1.6.20](https://kotlinlang.org/)
