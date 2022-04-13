@@ -44,7 +44,7 @@ module (see below), I will add it here.
 ## Donation
 
 If you like the game and want to support the author, you may donate arbitrary amount via following
-link: https://pay.fondy.eu/s/3DJ4BV1DmBgU (processed by the the [Fondy.eu](https://fondy.io/) payment system).
+link: https://pay.fondy.eu/s/3DJ4BV1DmBgU (processed by the [Fondy.eu](https://fondy.io/) payment system).
 
 ## Development
 
