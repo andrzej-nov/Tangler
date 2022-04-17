@@ -85,7 +85,7 @@ class GameboardScreen(ctx: Context) :
         super<BaseScreen>.render(delta)
 
         // Here the Tween Engine updates all our respective object fields when any tween animation is requested
-        ctx.tweenManager.update(if (graphics.isContinuousRendering) delta else 0.15f)
+        ctx.tweenManager.update(if (graphics.isContinuousRendering) delta else 0.01f)
         graphics.isContinuousRendering = ctx.tweenAnimationRunning()
 
         // First, draw the tile sprites as needed. The sprites are actually valid and ready most of the time,

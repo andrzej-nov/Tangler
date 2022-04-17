@@ -13,6 +13,7 @@ import com.andrzejn.tangler.logic.PlayField
 import com.andrzejn.tangler.logic.Tile
 import com.andrzejn.tangler.tiles.BaseTile
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Gdx.graphics
 import com.badlogic.gdx.Gdx.input
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
@@ -210,7 +211,8 @@ abstract class BaseGameboard(
                 }
                 else -> {}
             }
-        dragEnd(x, y)
+        if (lastPressedArea != PressedArea.Help)
+            dragEnd(x, y)
     }
 
     /**
@@ -339,13 +341,14 @@ abstract class BaseGameboard(
         val targetCell = Coord(suggested.move.x, suggested.move.y)
         if (suggested.rotation == 0)
             doNextTileDrop(targetCell)
-        else
+        else {
+            rotateNextTile(suggested.rotation)
             with(Timeline.createSequence()) {
-                push(Tween.call { _, _ -> rotateNextTile(suggested.rotation) })
-                    .pushPause(tileRotateTweenDuration + shadowSpritesShowTweenDuration + 0.1f)
+                pushPause(tileRotateTweenDuration + shadowSpritesShowTweenDuration)
                     .setCallback { _, _ -> doNextTileDrop(targetCell) }
                     .start(ctx.tweenManager)
             }
+        }
     }
 
     /**
@@ -402,6 +405,7 @@ abstract class BaseGameboard(
         val sprite = nextTile.sprite
         Timeline.createSequence()
             .push(Tween.to(sprite, TW_POS_XY, tileDropTweenDuration).target(dropTo.x, dropTo.y))
+            .pushPause(0.1f)
             .setCallback { _, _ ->
                 if (putNextTileToBoard(targetCell)) // Closed paths loops cleanup, as needed, is done there
                     regenerateNextTile()
@@ -716,9 +720,9 @@ abstract class BaseGameboard(
      * Create new UI Tile object for the given logic tile and assign it to nextTile
      */
     private fun assignNextTile(t: Tile) {
-        nextTile = newUITile(t)
         validMovesList = null
         suggestedMove = null
+        nextTile = newUITile(t)
     }
 
     /**
