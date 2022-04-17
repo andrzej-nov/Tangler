@@ -150,18 +150,18 @@ class PlayField(
      * We resort to completely random next tile when there are either plenty of move possibilities on the field
      * or the last available cells are already too messed up.
      */
-    fun generateNextTile(): Tile = generateEmptyTile().also {
+    fun generateNextTile(): Tile = generateEmptyTile().apply {
         val candidateCell = mostCloggedCell()
         if (candidateCell != null) {
-            it.createSegmentsForColors(candidateCell.borderColors.mapIndexed { i, color ->
+            createSegmentsForColors(candidateCell.borderColors.mapIndexed { i, color ->
                 BorderColor(
                     color,
                     nonBlockingOptionsFor(candidateCell.neighbour[i]!!, color)
                 )
             }.toTypedArray())
         }
-        if (it.segment.size == 0)
-            it.createRandomSegments() // Fallback to complete randomness
+        if (segment.size == 0)
+            createRandomSegments() // Fallback to complete randomness
     }
 
     /**
@@ -201,8 +201,8 @@ class PlayField(
      */
     fun evaluateMoves(tile: Tile): Map<Cell, MoveQuality> =
         validMovesFor(tile).associateWith { c ->
-            MoveQuality().also { mq ->
-                mq.pathsBlocked =
+            MoveQuality().apply {
+                pathsBlocked =
                     tile.segment.count { s ->
                         s.endsAtSide.any {
                             c.neighbourTile(it) != null && c.border[it]?.color != s.color
@@ -210,7 +210,7 @@ class PlayField(
                     } + c.borderColors.zip(tile.tileColors)
                         .count { (borderColor, tileColor) -> borderColor != 0 && borderColor != tileColor }
 
-                mq.cellsBlocked =
+                cellsBlocked =
                     tile.tileColors.filterIndexed { i, color ->
                         (c.neighbourTile(i) == null && c.borderColor(i) == 0
                                 && c.neighbour[i]!!.isBlockedBy(color, allowDuplicateColors))
@@ -225,12 +225,12 @@ class PlayField(
                     .filter { (p, _) -> p.first != 0 && p.first == p.second }
                     .mapNotNull { (_, i) -> c.pathAtSide(i) }.distinct()
 
-                mq.loopsClosed = closedLoops.size
-                mq.closedLoopsTotalLength = closedLoops.sumOf { it.segment.size } + mq.loopsClosed
+                loopsClosed = closedLoops.size
+                closedLoopsTotalLength = closedLoops.sumOf { it.segment.size } + loopsClosed
 
-                mq.pathsExtended = extendedPaths.size - mq.loopsClosed
-                mq.extendedPathTotalLength =
-                    extendedPaths.sumOf { it.segment.size } + extendedPaths.size - mq.closedLoopsTotalLength
+                pathsExtended = extendedPaths.size - loopsClosed
+                extendedPathTotalLength =
+                    extendedPaths.sumOf { it.segment.size } + extendedPaths.size - closedLoopsTotalLength
             }
         }
 
@@ -384,8 +384,8 @@ class PlayField(
             }
         }
         other.cell.flatten().filter { it.tile != null }.forEach { c ->
-            putTileToCell(generateEmptyTile().also { t ->
-                t.cloneFrom(c.tile ?: return@forEach)
+            putTileToCell(generateEmptyTile().apply {
+                cloneFrom(c.tile ?: return@forEach)
             }, cell[c.x][c.y], false)
         }
         setFreeLines()

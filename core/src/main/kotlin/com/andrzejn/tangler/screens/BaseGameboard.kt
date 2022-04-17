@@ -110,8 +110,8 @@ abstract class BaseGameboard(
     private var dragStartedFrom = PressedArea.None
 
     // Those sprites are overlayed over the shadow sprite to inducate possible moves quality
-    private val ok = Sprite(ctx.a.accept).also { it.setAlpha(0.5f) }
-    private val bad = Sprite(ctx.a.cancel).also { it.setAlpha(0.5f) }
+    private val ok = Sprite(ctx.a.accept).apply { setAlpha(0.5f) }
+    private val bad = Sprite(ctx.a.cancel).apply { setAlpha(0.5f) }
 
     /**
      * The list of closed path loops, if any, to fade out and clean up

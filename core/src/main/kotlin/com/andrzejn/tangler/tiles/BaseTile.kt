@@ -95,9 +95,9 @@ abstract class BaseTile(
         ctx.tileBatch.end()
         fbo.end()
         val (x, y) = sprite.x to sprite.y
-        sprite = Sprite(fbo.colorBufferTexture).also {
-            it.setOriginCenter()
-            it.setPosition(x, y)
+        sprite = Sprite(fbo.colorBufferTexture).apply {
+            setOriginCenter()
+            setPosition(x, y)
         }
         isSpriteValid = true
     }
