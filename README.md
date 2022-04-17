@@ -3,9 +3,9 @@
 **Tangler** is a small casual puzzle inspired by the [Tantrix board game](https://www.tantrix.com/) but with a different
 twist.
 
-https://user-images.githubusercontent.com/89737218/160915390-636eaa88-bae2-42ab-a674-eff22d36c676.mp4
+https://user-images.githubusercontent.com/89737218/163726697-ec323baf-37ad-4a84-b5b9-58ef3ddab5c1.mp4
 
-![Clipboard02!](https://user-images.githubusercontent.com/89737218/160927554-3c74f7ee-cf5b-40a5-854a-1f6a8e261fbc.jpg)
+![Clipboard05!](https://user-images.githubusercontent.com/89737218/163726702-18d27eb2-d283-48e1-809a-3014c10c7208.jpg)
 
 **Game objective:** put randomly generated tiles to the board, making up continuous color curves. When curves close to
 loops, they disappear, giving space for more moves.
