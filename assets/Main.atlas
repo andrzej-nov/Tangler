@@ -31,8 +31,8 @@ tilerepeat
   index: -1
 sidearrows
   rotate: false
-  xy: 579, 3
-  size: 129, 130
+  xy: 587, 3
+  size: 130, 130
   index: -1
 gear
   rotate: false
@@ -41,22 +41,22 @@ gear
   index: -1
 black
   rotate: false
-  xy: 20, 230
+  xy: 20, 150
   size: 1, 1
   index: -1
 darkgrey
   rotate: false
-  xy: 80, 230
+  xy: 80, 150
   size: 1, 1
   index: -1
 lightgrey
   rotate: false
-  xy: 140, 230
+  xy: 140, 150
   size: 1, 1
   index: -1
 white
   rotate: false
-  xy: 210, 230
+  xy: 210, 150
   size: 1, 1
   index: -1
 logo
@@ -64,105 +64,60 @@ logo
   xy: 30, 720
   size: 370, 225
   index: -1
-home
+playgreen
   rotate: false
-  xy: 5, 280
-  size: 76, 76
+  xy: 0, 170
+  size: 100, 100
   index: -1
-play
+playblue
   rotate: false
-  xy: 113, 280
-  size: 76, 76
-  index: -1
-pause
-  rotate: false
-  xy: 222, 280
-  size: 76, 76
-  index: -1
-options
-  rotate: false
-  xy: 330, 280
-  size: 76, 76
-  index: -1  
-accept
-  rotate: false
-  xy: 5, 370
-  size: 76, 76
-  index: -1
-cancel
-  rotate: false
-  xy: 113, 370
-  size: 76, 76
-  index: -1
-rotateleft
-  rotate: false
-  xy: 222, 370
-  size: 76, 76
-  index: -1
-poweroff
-  rotate: false
-  xy: 330, 370
-  size: 76, 76
-  index: -1
-nail
-  rotate: false
-  xy: 5, 460
-  size: 76, 76
-  index: -1
-leaderboard
-  rotate: false
-  xy: 113, 460
-  size: 76, 76
-  index: -1
-music
-  rotate: false
-  xy: 222, 460
-  size: 76, 76
-  index: -1
-rotateright
-  rotate: false
-  xy: 330, 460
-  size: 76, 76
-  index: -1
-movedown
-  rotate: false
-  xy: 5, 550
-  size: 76, 76
-  index: -1
-moveup
-  rotate: false
-  xy: 113, 550
-  size: 76, 76
-  index: -1
-moveright
-  rotate: false
-  xy: 222, 550
-  size: 76, 76
-  index: -1
-moveleft
-  rotate: false
-  xy: 330, 550
-  size: 76, 76
-  index: -1
-help
-  rotate: false
-  xy: 5, 640
-  size: 76, 76
-  index: -1
-sound
-  rotate: false
-  xy: 113, 640
-  size: 76, 76
-  index: -1
-lock
-  rotate: false
-  xy: 222, 640
-  size: 76, 76
+  xy: 110, 170
+  size: 100, 100
   index: -1
 settings
   rotate: false
-  xy: 330, 640
-  size: 76, 76
+  xy: 220, 170
+  size: 100, 100
+  index: -1
+left
+  rotate: false
+  xy: 330, 170
+  size: 100, 100
+  index: -1
+accept
+  rotate: false
+  xy: 0, 280
+  size: 100, 100
+  index: -1
+cancel
+  rotate: false
+  xy: 110, 280
+  size: 100, 100
+  index: -1
+rotateright
+  rotate: false
+  xy: 0, 390
+  size: 100, 100
+  index: -1
+rotateleft
+  rotate: false
+  xy: 110, 390
+  size: 100, 100
+  index: -1
+exit
+  rotate: false
+  xy: 0, 500
+  size: 100, 100
+  index: -1
+help
+  rotate: false
+  xy: 110, 500
+  size: 100, 100
+  index: -1
+credits
+  rotate: false
+  xy: 220, 500
+  size: 100, 100
   index: -1
 icongmail
   rotate: false
@@ -182,11 +137,6 @@ iconfacebook
 icongithub
   rotate: false
   xy: 420, 815
-  size: 150, 150
-  index: -1
-icondonate
-  rotate: false
-  xy: 570, 515
   size: 150, 150
   index: -1
 darktheme

@@ -41,9 +41,9 @@ class HomeScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
     private val tilerepeat = Sprite(ctx.a.tilerepeat)
     private val tilenorepeat = Sprite(ctx.a.tilenorepeat)
     private val sidearrows = Sprite(ctx.a.sidearrows)
-    private val play = Sprite(ctx.a.play)
-    private val poweroff = Sprite(ctx.a.poweroff)
-    private val options = Sprite(ctx.a.options)
+    private val playgreen = Sprite(ctx.a.playgreen)
+    private val exit = Sprite(ctx.a.exit)
+    private val credits = Sprite(ctx.a.credits)
     private val gear = Sprite(ctx.a.gear)
     private val darktheme = Sprite(ctx.a.darktheme)
     private val lighttheme = Sprite(ctx.a.lighttheme)
@@ -132,20 +132,20 @@ class HomeScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
         fcItems.setColors(ctx.drw.theme.settingItem)
 
         ctx.fitToRect(gear, 2 * gridX * 0.5f, gridY * 0.5f)
-        ctx.fitToRect(play, 4 * gridX * 0.8f, 2 * gridY * 0.8f)
-        play.setPosition(
-            6 * gridX - play.width / 2 + baseX,
-            (2 * gridY - play.height) / 2
+        ctx.fitToRect(playgreen, 4 * gridX * 0.8f, 2 * gridY * 0.8f)
+        playgreen.setPosition(
+            6 * gridX - playgreen.width / 2 + baseX,
+            (2 * gridY - playgreen.height) / 2
         )
-        ctx.fitToRect(poweroff, 2 * gridX * 0.8f, gridY * 0.8f)
-        poweroff.setPosition(
-            11 * gridX - poweroff.width / 2 + baseX,
-            (gridY - poweroff.height) / 2
+        ctx.fitToRect(exit, 2 * gridX * 0.8f, gridY * 0.8f)
+        exit.setPosition(
+            11 * gridX - exit.width / 2 + baseX,
+            (gridY - exit.height) / 2
         )
-        ctx.fitToRect(options, 2 * gridX * 0.8f, gridY * 0.8f)
-        options.setPosition(
-            gridX - options.width / 2 + baseX,
-            (gridY - options.height) / 2
+        ctx.fitToRect(credits, 2 * gridX * 0.8f, gridY * 0.8f)
+        credits.setPosition(
+            gridX - credits.width / 2 + baseX,
+            (gridY - credits.height) / 2
         )
     }
 
@@ -199,36 +199,28 @@ class HomeScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
             ctx.drw.theme.settingSeparator,
             lineWidth / 2
         )
-        ctx.drw.sd.line(
-            gridX + baseX,
-            7 * gridY,
-            11 * gridX + baseX,
-            7 * gridY,
-            ctx.drw.theme.settingSeparator,
-            lineWidth
-        )
-        ctx.drw.sd.line(
-            gridX + baseX,
+        ctx.drw.sd.rectangle(
+            baseX,
             1.9f * gridY,
-            11 * gridX + baseX,
-            1.9f * gridY,
+            12 * gridX,
+            5.1f * gridY,
             ctx.drw.theme.settingSeparator,
             lineWidth
         )
         with(ctx.drw.theme.polygonHighlight) {
             gear.setColor(r, g, b, a)
         }
-        gear.setPosition(gridX - gear.width / 2 + baseX, 7 * gridY - gear.height / 2)
+        gear.setPosition(-gear.width / 2 + baseX, 7 * gridY - gear.height / 2)
         gear.draw(ctx.batch)
-        gear.setPosition(11 * gridX - gear.width / 2 + baseX, 7 * gridY - gear.height / 2)
+        gear.setPosition(12 * gridX - gear.width / 2 + baseX, 7 * gridY - gear.height / 2)
         gear.draw(ctx.batch)
-        gear.setPosition(gridX - gear.width / 2 + baseX, 1.9f * gridY - gear.height / 2)
+        gear.setPosition(-gear.width / 2 + baseX, 1.9f * gridY - gear.height / 2)
         gear.draw(ctx.batch)
-        gear.setPosition(11 * gridX - gear.width / 2 + baseX, 1.9f * gridY - gear.height / 2)
+        gear.setPosition(12 * gridX - gear.width / 2 + baseX, 1.9f * gridY - gear.height / 2)
         gear.draw(ctx.batch)
-        play.draw(ctx.batch)
-        poweroff.draw(ctx.batch)
-        options.draw(ctx.batch)
+        playgreen.draw(ctx.batch)
+        exit.draw(ctx.batch)
+        credits.draw(ctx.batch)
         ctx.batch.end()
     }
 

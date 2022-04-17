@@ -84,6 +84,10 @@ class GameboardScreen(ctx: Context) :
     override fun render(delta: Float) {
         super<BaseScreen>.render(delta)
 
+        // Here the Tween Engine updates all our respective object fields when any tween animation is requested
+        ctx.tweenManager.update(if (graphics.isContinuousRendering) delta else 0.15f)
+        graphics.isContinuousRendering = ctx.tweenAnimationRunning()
+
         // First, draw the tile sprites as needed. The sprites are actually valid and ready most of the time,
         // except when screen is resized or a path loop is closed and removed. So most of the time that call passes
         // fast.
@@ -91,14 +95,10 @@ class GameboardScreen(ctx: Context) :
         // so we should not overlap them (only one batch may be active at a time)
         gameboard.prepareSprites()
 
-        // Here the Tween Engine updates all our respective object fields when any tween animation is requested
-        ctx.tweenManager.update(if (graphics.isContinuousRendering) delta else 0.01f)
-        // Hack: enable continuous rendering only when there are tween animations in progress
-        graphics.isContinuousRendering = ctx.tweenAnimationRunning()
-
         if (!ctx.batch.isDrawing) ctx.batch.begin()
         gameboard.render() // The main gameboard rendering
         if (ctx.batch.isDrawing) ctx.batch.end()
+        // Hack: enable continuous rendering only when there are tween animations in progress
     }
 
     /**

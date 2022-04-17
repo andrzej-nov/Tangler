@@ -144,6 +144,8 @@ abstract class BaseGameboard(
      * Gets the pressed/clicked coordinates, determines which element has been clicked and invokes respective actions
      */
     fun dispatchClick(x: Float, y: Float): Boolean {
+        if (ctx.tweenAnimationRunning())
+            return false
         if (input.isButtonPressed(Input.Buttons.RIGHT))
             return false
         val pressed = ctrl.pressedArea(x, y)
@@ -227,6 +229,8 @@ abstract class BaseGameboard(
      * Process 'dragging-in-progress' event
      */
     fun dragTo(x: Float, y: Float) {
+        if (ctx.tweenAnimationRunning())
+            return
         if (input.isButtonPressed(Input.Buttons.RIGHT))
             return
         if (dragStartedAt.x < 0 && dragStartedAt.y < 0) {
@@ -282,12 +286,10 @@ abstract class BaseGameboard(
      * Sets the current "in drag" markers to "not in drag"
      */
     private fun resetDragState() {
-        dragStartedAt.x = -1f
-        dragStartedAt.y = -1f
+        dragStartedAt.set(-1f, -1f)
         fieldScrollBase.x = -1
         fieldScrollBase.y = -1
-        tileDragDelta.x = 0f
-        tileDragDelta.y = 0f
+        tileDragDelta.set(0f, 0f)
     }
 
     /**
@@ -309,8 +311,8 @@ abstract class BaseGameboard(
     }
 
     // Durations of the tween animation phases
-    private val tileRotateTweenDuration = 0.1f
-    private val tileDropTweenDuration = 0.1f
+    private val tileRotateTweenDuration = 0.3f
+    private val tileDropTweenDuration = 0.2f
     private val shadowSpritesShowTweenDuration = 0.2f
 
 
@@ -334,13 +336,16 @@ abstract class BaseGameboard(
     private fun autoMove() {
         if (ctx.tweenAnimationRunning()) return // Previous animation not ended yet
         val suggested = lookForGoodMove() ?: return
-        with(Timeline.createSequence()) {
-            if (suggested.rotation != 0)
+        val targetCell = Coord(suggested.move.x, suggested.move.y)
+        if (suggested.rotation == 0)
+            doNextTileDrop(targetCell)
+        else
+            with(Timeline.createSequence()) {
                 push(Tween.call { _, _ -> rotateNextTile(suggested.rotation) })
                     .pushPause(tileRotateTweenDuration + shadowSpritesShowTweenDuration + 0.1f)
-            push(Tween.call { _, _ -> doNextTileDrop(Coord(suggested.move.x, suggested.move.y)) })
-                .start(ctx.tweenManager)
-        }
+                    .setCallback { _, _ -> doNextTileDrop(targetCell) }
+                    .start(ctx.tweenManager)
+            }
     }
 
     /**
@@ -394,12 +399,16 @@ abstract class BaseGameboard(
         }
         clearNextTileDrag()
         val dropTo = cellCorner(targetCell)
-        Tween.to(nextTile.sprite, TW_POS_XY, tileDropTweenDuration).target(dropTo.x, dropTo.y)
+        val sprite = nextTile.sprite
+        Timeline.createSequence()
+            .push(Tween.to(sprite, TW_POS_XY, tileDropTweenDuration).target(dropTo.x, dropTo.y))
             .setCallback { _, _ ->
                 if (putNextTileToBoard(targetCell)) // Closed paths loops cleanup, as needed, is done there
                     regenerateNextTile()
                 clearTileDrop()
                 inTileDrop = false
+                prepareSprites() // Hack. For some reason the usual call from GameboardScreen.render() is not enough
+                // sometimes. So let's add a safeguard and refresh the field sprites after each tile drop, too.
             }
             .start(ctx.tweenManager)
     }

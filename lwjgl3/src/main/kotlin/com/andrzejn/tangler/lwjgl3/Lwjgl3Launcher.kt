@@ -10,6 +10,7 @@ object Lwjgl3Launcher {
     fun main(args: Array<String>) {
         Lwjgl3Application(Main(), Lwjgl3ApplicationConfiguration().apply {
             setTitle("Tangler")
+            setForegroundFPS(60)
             setWindowedMode(960, 960)
             setWindowIcon("icon256.png", "icon128.png", "icon64.png", "icon32.png", "icon16.png")
         })

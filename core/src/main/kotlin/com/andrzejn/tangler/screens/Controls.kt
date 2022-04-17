@@ -69,12 +69,13 @@ class Controls(
 
     private val sRotateLeft: Sprite = Sprite(ctx.a.rotateleft)
     private val sRotateRight: Sprite = Sprite(ctx.a.rotateright)
-    private val sPlay: Sprite = Sprite(ctx.a.play)
+    private val sPlayGreen: Sprite = Sprite(ctx.a.playgreen)
+    private val sPlayBlue: Sprite = Sprite(ctx.a.playblue)
     private val sHelp: Sprite = Sprite(ctx.a.help)
-    private val sHome: Sprite = Sprite(ctx.a.home)
-    private val sExit: Sprite = Sprite(ctx.a.poweroff)
+    private val sSettings: Sprite = Sprite(ctx.a.settings)
+    private val sExit: Sprite = Sprite(ctx.a.exit)
     private val sLogo: Sprite = Sprite(ctx.a.logo)
-    private val sDown: Sprite = Sprite(ctx.a.movedown)
+    private val sUndo: Sprite = Sprite(ctx.a.left)
 
     /**
      * Calculate and set all control coordinates, based on the provided board rectangle coordinates
@@ -98,7 +99,7 @@ class Controls(
         rightButtonsX = min(boardRightX + lowerButtonSize, ctx.viewportWidth - lowerButtonSize)
         bottomButtonsYOffset = lowerButtonSize * 1.1f
 
-        with(sDown) {
+        with(sUndo) {
             setSize(lowerButtonSize, lowerButtonSize)
             setPosition(
                 leftButtonsX + lowerButtonSize * 1.1f,
@@ -129,11 +130,15 @@ class Controls(
             (reservedForControls * 0.2f).toInt(), boardBottomY - reservedForControls * 0.2f,
             sRotateLeft.x + sRotateLeft.width - circleRadius, sRotateRight.x, circleRadius
         )
-        with(sPlay) {
+        with(sPlayBlue) {
             setSize(lowerButtonSize, lowerButtonSize)
             setPosition(leftButtonsX, lowerButtonY)
         }
-        with(sHome) {
+        with(sPlayGreen) {
+            setSize(lowerButtonSize, lowerButtonSize)
+            setPosition(leftButtonsX, lowerButtonY)
+        }
+        with(sSettings) {
             setSize(lowerButtonSize, lowerButtonSize)
             setPosition(rightButtonsX, lowerButtonY)
         }
@@ -154,20 +159,22 @@ class Controls(
         if (x in centerX - circleRadius..centerX + circleRadius && y in circleY - circleRadius..circleY + circleRadius)
             return PressedArea.NextTile
 
-        if (x in sDown.x..sDown.x + sDown.width && y in sDown.y..sDown.y + sDown.height)
+        if (x in sUndo.x..sUndo.x + sUndo.width && y in sUndo.y..sUndo.y + sUndo.height)
             return PressedArea.UndoMove
-        if (x in sPlay.x..sPlay.x + sPlay.width && y in sPlay.y..sPlay.y + sPlay.height)
+        if (x in sPlayBlue.x..sPlayBlue.x + sPlayBlue.width && y in sPlayBlue.y..sPlayBlue.y + sPlayBlue.height)
             return PressedArea.Play
-        if (x in sHome.x..sHome.x + sHome.width && y in sHome.y..sHome.y + sHome.height)
+        if (x in sSettings.x..sSettings.x + sSettings.width && y in sSettings.y..sSettings.y + sSettings.height)
             return PressedArea.Home
         if (x in sHelp.x..sHelp.x + sHelp.width && y in sHelp.y..sHelp.y + sHelp.height)
             return PressedArea.Help
-        if (x in sExit.x..sExit.x + sDown.width && y in sExit.y..sExit.y + sExit.height)
+        if (x in sExit.x..sExit.x + sUndo.width && y in sExit.y..sExit.y + sExit.height)
             return PressedArea.Exit
 
         if (x in sRotateLeft.x..centerX && y in sRotateLeft.y..sRotateLeft.y + sRotateLeft.height)
             return PressedArea.RotateLeft
-        if (x in centerX..sRotateRight.x + sRotateRight.width && y in sRotateRight.y..sRotateRight.y + sRotateRight.height)
+        if (x in centerX..sRotateRight.x + sRotateRight.width
+            && y in sRotateRight.y..sRotateRight.y + sRotateRight.height
+        )
             return PressedArea.RotateRight
         if (y >= circleY + circleRadius)
             return PressedArea.Board
@@ -181,8 +188,8 @@ class Controls(
         if (sLogo.width >= 2 * tileWidth || sLogo.height >= tileHeight)
             sLogo.draw(ctx.batch, 0.5f)
 
-        sRotateLeft.draw(ctx.batch, 0.8f)
-        sRotateRight.draw(ctx.batch, 0.8f)
+        sRotateLeft.draw(ctx.batch, 0.7f)
+        sRotateRight.draw(ctx.batch, 0.7f)
 
         with(ctx.drw.sd) {
             filledCircle(centerX, circleY, circleRadius, ctx.drw.theme.gameboardBackground)
@@ -193,20 +200,15 @@ class Controls(
                 circleRadius,
                 if (noMoreMoves) lineWidth * 2 else lineWidth
             )
-            if (noMoreMoves) {
-                setColor(ctx.drw.theme.nextGamePrompt)
-                filledCircle(
-                    sPlay.x + sPlay.width / 2,
-                    sPlay.y + sPlay.height / 2,
-                    sPlay.height * 0.6f
-                )
-            }
+            if (noMoreMoves)
+                sPlayGreen.draw(ctx.batch)
+            else
+                sPlayBlue.draw(ctx.batch, 0.7f)
         }
 
-        sPlay.draw(ctx.batch, 0.8f)
-        sHelp.draw(ctx.batch, 0.8f)
-        sHome.draw(ctx.batch, 0.8f)
-        sExit.draw(ctx.batch, 0.8f)
-        sDown.draw(ctx.batch, if (noLastMove) 0.4f else 0.8f)
+        sHelp.draw(ctx.batch, 0.7f)
+        sSettings.draw(ctx.batch, 0.7f)
+        sExit.draw(ctx.batch, 0.7f)
+        sUndo.draw(ctx.batch, if (noLastMove) 0.3f else 0.7f)
     }
 }

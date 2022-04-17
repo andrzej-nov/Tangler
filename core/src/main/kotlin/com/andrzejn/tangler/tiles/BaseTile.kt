@@ -76,11 +76,16 @@ abstract class BaseTile(
      */
     protected abstract val tilePolygon: FloatArray
 
+    private var inBuildSprite = false
+
     /**
      * Generate the tile sprite by drawing segments on the framebuffer. Then the sprite is just rendered on screen
      * as needed without all that complicated drawing.
      */
     fun buildSprite() {
+        if (inBuildSprite)
+            return
+        inBuildSprite = true
         fbo.begin()
         Gdx.gl.glClearColor(0f, 0f, 0f, 0f) // Set whole rectangle to fully transparent black
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
@@ -100,6 +105,7 @@ abstract class BaseTile(
             setPosition(x, y)
         }
         isSpriteValid = true
+        inBuildSprite = false
     }
 
     /**

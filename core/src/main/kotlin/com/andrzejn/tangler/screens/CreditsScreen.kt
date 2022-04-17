@@ -41,11 +41,10 @@ class CreditsScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
     private var gridY = 0f
     private val logo = Sprite(ctx.a.logo)
     private val icongmail = Sprite(ctx.a.icongmail)
-    private val iconfacebook = Sprite(ctx.a.iconfacebook)
     private val icontelegram = Sprite(ctx.a.icontelegram)
     private val icongithub = Sprite(ctx.a.icongithub)
-    private val poweroff = Sprite(ctx.a.poweroff)
-    private val home = Sprite(ctx.a.home)
+    private val exit = Sprite(ctx.a.exit)
+    private val settings = Sprite(ctx.a.settings)
 
     /**
      * Invoked on each screen resize
@@ -75,15 +74,15 @@ class CreditsScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
             gridX - icongithub.width / 2,
             gridY * 3 + (gridY - icongithub.height) / 2
         )
-        ctx.fitToRect(poweroff, gridX * 0.9f, gridY * 0.9f)
-        poweroff.setPosition(
-            7 * gridX - poweroff.width / 2,
-            (gridY - poweroff.height) / 2
+        ctx.fitToRect(exit, gridX * 0.9f, gridY * 0.9f)
+        exit.setPosition(
+            7 * gridX - exit.width / 2,
+            (gridY - exit.height) / 2
         )
-        ctx.fitToRect(home, gridX * 0.9f, gridY * 0.9f)
-        home.setPosition(
-            gridX - home.width / 2,
-            (gridY - home.height) / 2
+        ctx.fitToRect(settings, gridX * 0.9f, gridY * 0.9f)
+        settings.setPosition(
+            gridX - settings.width / 2,
+            (gridY - settings.height) / 2
         )
         font.dispose()
         font = ctx.a.createFont((icongmail.height * 0.5).toInt())
@@ -123,8 +122,8 @@ class CreditsScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
         icongmail.draw(ctx.batch)
         icontelegram.draw(ctx.batch)
         icongithub.draw(ctx.batch)
-        home.draw(ctx.batch)
-        poweroff.draw(ctx.batch)
+        settings.draw(ctx.batch)
+        exit.draw(ctx.batch)
         fcText.draw(ctx.batch)
         fcTime.draw(ctx.batch)
         ctx.batch.end()

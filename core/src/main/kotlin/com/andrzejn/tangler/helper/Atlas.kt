@@ -55,16 +55,18 @@ class Atlas {
     val logo: TextureRegion get() = texture("logo")
     val white: TextureRegion get() = texture("white")
 
-    val home: TextureRegion get() = texture("home")
-    val play: TextureRegion get() = texture("play")
+    val playgreen: TextureRegion get() = texture("playgreen")
+    val playblue: TextureRegion get() = texture("playblue")
+    val settings: TextureRegion get() = texture("settings")
+    val left: TextureRegion get() = texture("left")
     val accept: TextureRegion get() = texture("accept")
     val cancel: TextureRegion get() = texture("cancel")
-    val rotateleft: TextureRegion get() = texture("rotateleft")
     val rotateright: TextureRegion get() = texture("rotateright")
-    val poweroff: TextureRegion get() = texture("poweroff")
+    val rotateleft: TextureRegion get() = texture("rotateleft")
+    val exit: TextureRegion get() = texture("exit")
     val help: TextureRegion get() = texture("help")
-    val options: TextureRegion get() = texture("options")
-    val movedown: TextureRegion get() = texture("movedown")
+
+    val credits: TextureRegion get() = texture("credits")
 
     val tile4: TextureRegion get() = texture("tile4")
     val tile6: TextureRegion get() = texture("tile6")
@@ -76,7 +78,6 @@ class Atlas {
 
     val icongmail: TextureRegion get() = texture("icongmail")
     val icontelegram: TextureRegion get() = texture("icontelegram")
-    val iconfacebook: TextureRegion get() = texture("iconfacebook")
     val icongithub: TextureRegion get() = texture("icongithub")
 
     val darktheme: TextureRegion get() = texture("darktheme")
