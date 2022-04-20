@@ -165,7 +165,7 @@ class GameSettings {
         val sc = s[1].digitToIntOrNull()
         val cc = s[2].digitToIntOrNull()
         val adc = s[3].digitToIntOrNull()
-        if (bs == null || bs !in listOf(2, 3, 4)
+        if (bs == null || bs !in listOf(3, 4, 5)
             || sc == null || sc !in listOf(4, 6, 8)
             || cc == null || cc > 6 || cc < sc / 2
             || adc == null || adc !in listOf(0, 1)

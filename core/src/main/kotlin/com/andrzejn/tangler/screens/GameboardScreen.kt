@@ -15,6 +15,12 @@ class GameboardScreen(ctx: Context) :
     BaseScreen(ctx), KtxScreen {
 
     /**
+     * Was this screen displayed since the app start or not. Usd by the Home/Settings screen to decide how to process
+     * the Android Back button
+     */
+    var wasDisplayed: Boolean = false
+
+    /**
      * The main gameboard object with all the game UI logic. Depending on the game settings, it is initialized
      * either to Hex or Square gameboard
      */
@@ -46,6 +52,7 @@ class GameboardScreen(ctx: Context) :
         super<BaseScreen>.show()
         input.inputProcessor = ia
         timeStart = Calendar.getInstance().timeInMillis
+        wasDisplayed = true
     }
 
     override fun hide() {

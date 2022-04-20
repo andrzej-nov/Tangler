@@ -57,6 +57,7 @@ class Atlas {
 
     val playgreen: TextureRegion get() = texture("playgreen")
     val playblue: TextureRegion get() = texture("playblue")
+    val resume: TextureRegion get() = texture("resume")
     val settings: TextureRegion get() = texture("settings")
     val left: TextureRegion get() = texture("left")
     val accept: TextureRegion get() = texture("accept")
