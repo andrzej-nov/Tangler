@@ -51,6 +51,8 @@ class CreditsScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
      */
     override fun resize(width: Int, height: Int) {
         super<BaseScreen>.resize(width, height)
+        if (width == 0 || height == 0) // Window minimize on desktop works that way
+            return
         gridX = ctx.viewportWidth / 8
         gridY = ctx.viewportHeight / 9
 

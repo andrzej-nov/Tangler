@@ -13,7 +13,6 @@ import com.andrzejn.tangler.logic.PlayField
 import com.andrzejn.tangler.logic.Tile
 import com.andrzejn.tangler.tiles.BaseTile
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Gdx.graphics
 import com.badlogic.gdx.Gdx.input
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch

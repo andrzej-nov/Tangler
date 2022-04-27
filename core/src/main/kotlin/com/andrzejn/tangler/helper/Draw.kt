@@ -7,7 +7,6 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import space.earlygrey.shapedrawer.ShapeDrawer
-import java.awt.im.InputMethodHighlight
 
 
 /**
@@ -65,18 +64,57 @@ class Draw(
         Color(0x85200cff.toInt())
     )
 
+    /**
+     *
+     */
     data class Theme(
+        /**
+         *
+         */
         val screenBackground: Color,
+        /**
+         *
+         */
         val nextTileCircleOK: Color,
+        /**
+         *
+         */
         val nextTileCircleNoMoves: Color,
+        /**
+         *
+         */
         val settingSelection: Color,
+        /**
+         *
+         */
         val settingItem: Color,
+        /**
+         *
+         */
         val settingSeparator: Color,
+        /**
+         *
+         */
         val gameboardBackground: Color,
+        /**
+         *
+         */
         val polygonHighlight: Color,
+        /**
+         *
+         */
         val creditsText: Color,
+        /**
+         *
+         */
         val nextGamePrompt: Color,
+        /**
+         *
+         */
         val scorePoints: Color,
+        /**
+         *
+         */
         val scoreMoves: Color
     )
 
@@ -110,6 +148,9 @@ class Draw(
         scoreMoves = Color.GOLD
     )
 
+    /**
+     *
+     */
     lateinit var theme: Theme
 
     /**

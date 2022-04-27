@@ -16,8 +16,13 @@ class Score(
      */
     val ctx: Context
 ) {
-    // Score counters
+    /**
+     *
+     */// Score counters
     var moves: Int = 0
+    /**
+     *
+     */
     var points: Int = 0
 
     private var recordMoves: Int = 0

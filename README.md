@@ -59,7 +59,7 @@ The game has been implemented using following tools and libraries:
 - [Gradle 7.0.4](https://gradle.org/)
 - [Kotlin 1.6.20](https://kotlinlang.org/)
 - [libGDX 1.10.0](https://libgdx.com/)
-- [libKTX 1.10.0-rc1](https://libktx.github.io/)
+- [libKTX 1.10.0-rc2](https://libktx.github.io/)
 - [ShapeDrawer 2.5.0](https://github.com/earlygrey/shapedrawer#shape-drawer)
 - [Universal Tween Engine 6.3.3](https://github.com/AurelienRibon/universal-tween-engine)
 - Free icons from https://www.flaticon.com/

@@ -241,7 +241,7 @@ class OctoCell : BaseCell() {
 
     /**
      * Draw a color marker on a border touched/intersected by colored segment. Markers are small filled
-     * circles or rectangles (on square corners) that ensure visual seamless segment joins and also let the player 
+     * circles or rectangles (on square corners) that ensure visual seamless segment joins and also let the player
      * see the cell border colors that muct be matched by current tile.
      */
     override fun drawBorderMarker(

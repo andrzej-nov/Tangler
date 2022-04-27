@@ -52,35 +52,113 @@ class Atlas {
         } // don't forget to dispose the font later to avoid memory leaks!
     }
 
+    /**
+     *
+     */
     val logo: TextureRegion get() = texture("logo")
+    /**
+     *
+     */
     val white: TextureRegion get() = texture("white")
 
+    /**
+     *
+     */
     val playgreen: TextureRegion get() = texture("playgreen")
+    /**
+     *
+     */
     val playblue: TextureRegion get() = texture("playblue")
+    /**
+     *
+     */
     val resume: TextureRegion get() = texture("resume")
+    /**
+     *
+     */
     val settings: TextureRegion get() = texture("settings")
+    /**
+     *
+     */
     val left: TextureRegion get() = texture("left")
+    /**
+     *
+     */
     val accept: TextureRegion get() = texture("accept")
+    /**
+     *
+     */
     val cancel: TextureRegion get() = texture("cancel")
+    /**
+     *
+     */
     val rotateright: TextureRegion get() = texture("rotateright")
+    /**
+     *
+     */
     val rotateleft: TextureRegion get() = texture("rotateleft")
+    /**
+     *
+     */
     val exit: TextureRegion get() = texture("exit")
+    /**
+     *
+     */
     val help: TextureRegion get() = texture("help")
 
+    /**
+     *
+     */
     val credits: TextureRegion get() = texture("credits")
 
+    /**
+     *
+     */
     val tile4: TextureRegion get() = texture("tile4")
+    /**
+     *
+     */
     val tile6: TextureRegion get() = texture("tile6")
+    /**
+     *
+     */
     val tile8: TextureRegion get() = texture("tile8")
+    /**
+     *
+     */
     val tilerepeat: TextureRegion get() = texture("tilerepeat")
+    /**
+     *
+     */
     val tilenorepeat: TextureRegion get() = texture("tilenorepeat")
+    /**
+     *
+     */
     val sidearrows: TextureRegion get() = texture("sidearrows")
+    /**
+     *
+     */
     val gear: TextureRegion get() = texture("gear")
 
+    /**
+     *
+     */
     val icongmail: TextureRegion get() = texture("icongmail")
+    /**
+     *
+     */
     val icontelegram: TextureRegion get() = texture("icontelegram")
+    /**
+     *
+     */
     val icongithub: TextureRegion get() = texture("icongithub")
 
+    /**
+     *
+     */
     val darktheme: TextureRegion get() = texture("darktheme")
+    /**
+     *
+     */
     val lighttheme: TextureRegion get() = texture("lighttheme")
 }

@@ -6,6 +6,9 @@ import com.badlogic.gdx.backends.lwjgl3.Lwjgl3ApplicationConfiguration
 
 /** Launches the desktop (LWJGL3) application.  */
 object Lwjgl3Launcher {
+    /**
+     *
+     */
     @JvmStatic
     fun main(args: Array<String>) {
         Lwjgl3Application(Main(), Lwjgl3ApplicationConfiguration().apply {

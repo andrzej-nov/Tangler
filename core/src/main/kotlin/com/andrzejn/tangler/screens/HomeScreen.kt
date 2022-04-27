@@ -69,6 +69,8 @@ class HomeScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
      */
     override fun resize(width: Int, height: Int) {
         super<BaseScreen>.resize(width, height)
+        if (width == 0 || height == 0) // Window minimize on desktop works that way
+            return
         val baseHeight = ctx.viewportHeight
         val baseWidth = min(ctx.viewportWidth, baseHeight * 3 / 4)
         baseX = (ctx.viewportWidth - baseWidth) / 2
