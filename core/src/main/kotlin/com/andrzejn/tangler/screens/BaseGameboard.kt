@@ -53,10 +53,20 @@ abstract class BaseGameboard(
     protected val tile: Array<Array<BaseTile?>> = Array(ctx.gs.boardSize) { Array(ctx.gs.boardSize) { null } }
 
     /**
+     * Convenience shortcut method to get all available tiles
+     */
+    private fun flatTile() = tile.flatten().filterNotNull()
+
+    /**
      * The tile generated for next move. Displayed below the board.
      * Actually it is not a BaseTile but the specific subclass depending on current cell sides count.
      */
     private lateinit var nextTile: BaseTile
+
+    /**
+     * Convenience shortcut method to get all available tiles plus nextTile
+     */
+    private fun allTiles() = flatTile().plus(nextTile)
 
     /**
      * Keeps the last position to undo last move.
@@ -327,6 +337,10 @@ abstract class BaseGameboard(
         if (suggestedMove == null)
             suggestedMove = playField.suggestBestMove(nextTile.t)
         noMoreMoves = suggestedMove == null
+        if (noMoreMoves && flatTile().isEmpty()) {
+            putFirstTile()
+            return lookForGoodMove()
+        }
         return suggestedMove
     }
 
@@ -453,7 +467,8 @@ abstract class BaseGameboard(
         nTile = nextTile
         nTile.setSpriteSize(w, h)
         nTile.buildSprite()
-        updateShadowSprite()
+        if (ctx.gs.hints)
+            updateShadowSprite()
         with(nTile.sprite) {
             setPosition(ctrl.centerX - width / 2, ctrl.circleY - height / 2)
         }
@@ -538,21 +553,22 @@ abstract class BaseGameboard(
      * Render all the tile sprites.
      */
     protected fun renderTiles() {
-        tile.flatten().filterNotNull().forEach {
+        flatTile().forEach {
             it.sprite.draw(ctx.batch)
         }
         nextTile.sprite.draw(ctx.batch)
-        validMoves.forEach {
-            val v = cellCorner(it.c)
-            shadowSprite.setPosition(v.x, v.y)
-            shadowSprite.draw(ctx.batch)
-            val hint = if (it.badMove) bad else ok
-            hint.setPosition(
-                v.x + shadowSprite.width / 2 - hint.width / 2,
-                v.y + shadowSprite.height / 2 - hint.height / 2
-            )
-            hint.draw(ctx.batch)
-        }
+        if (ctx.gs.hints)
+            validMoves.forEach {
+                val v = cellCorner(it.c)
+                shadowSprite.setPosition(v.x, v.y)
+                shadowSprite.draw(ctx.batch)
+                val hint = if (it.badMove) bad else ok
+                hint.setPosition(
+                    v.x + shadowSprite.width / 2 - hint.width / 2,
+                    v.y + shadowSprite.height / 2 - hint.height / 2
+                )
+                hint.draw(ctx.batch)
+            }
     }
 
     /**
@@ -561,7 +577,7 @@ abstract class BaseGameboard(
      * but that is simpler and more consistent than eliminate uneeded duplicate draws.
      */
     protected fun renderBorderMarkers() {
-        playField.cell.flatten().forEach { cell ->
+        playField.allCells().forEach { cell ->
             val polygon = cellPolygon(Coord(cell.x, cell.y))
             cell.border.forEachIndexed { i, border ->
                 if (border?.color != null) drawBorderMarker(
@@ -609,7 +625,7 @@ abstract class BaseGameboard(
      */
     private fun invalidateSprites() {
         val tilesToRemove = mutableListOf<BaseTile>()
-        tile.flatten().filterNotNull().forEach {
+        flatTile().forEach {
             it.isSpriteValid = false
             if (it.t.cell == null)
                 tilesToRemove.add(it)
@@ -628,7 +644,7 @@ abstract class BaseGameboard(
         if (tWidth == ctrl.tileWidth && tHeight == ctrl.tileHeight)
             return
         ctx.drw.resizeTile(tileWidth, tileHeight, ctx.tileBatch)
-        tile.flatten().filterNotNull().plus(nextTile).forEach { it.setSpriteSize(tWidth, tHeight) }
+        allTiles().forEach { it.setSpriteSize(tWidth, tHeight) }
         ok.setSize(tileWidth / 2, tileWidth / 2)
         bad.setSize(tileWidth / 3, tileWidth / 3)
         ctrl.tileWidth = tWidth
@@ -640,10 +656,10 @@ abstract class BaseGameboard(
      */
     fun prepareSprites() {
         val resetShadowSprite = !nextTile.isSpriteValid
-        tile.flatten().filterNotNull().plus(nextTile).filterNot { it.isSpriteValid }.forEach {
+        allTiles().filterNot { it.isSpriteValid }.forEach {
             it.buildSprite()
         }
-        if (resetShadowSprite)
+        if (resetShadowSprite && ctx.gs.hints)
             updateShadowSprite()
     }
 
@@ -652,7 +668,7 @@ abstract class BaseGameboard(
      */
     protected fun repositionSprites() {
         prepareSprites()
-        tile.flatten().filterNotNull().forEach {
+        flatTile().forEach {
             val p = cellCorner(Coord(it.x, it.y))
             it.sprite.setPosition(p.x, p.y)
         }
@@ -818,14 +834,14 @@ abstract class BaseGameboard(
      */
     fun deserialize(s: String): Boolean {
         try {
-            val x = s[14].digitToIntOrNull()
-            val y = s[15].digitToIntOrNull()
+            val x = s[15].digitToIntOrNull()
+            val y = s[16].digitToIntOrNull()
             if (x == null || x >= ctx.gs.boardSize || y == null || y >= ctx.gs.boardSize)
                 return false
             scrollOffset.x = x
             scrollOffset.y = y
             assignNextTile(playField.generateEmptyTile())
-            val i = playField.deserialize(s, nextTile.t.deserialize(s, 16))
+            val i = playField.deserialize(s, nextTile.t.deserialize(s, 17))
             if (i < 0)
                 return false
             if (i < s.length && s[i] == '-' && !lastMove.deserialize(s, i + 1))
@@ -867,7 +883,7 @@ abstract class BaseGameboard(
      * Update everything after deserialize or undo last move
      */
     private fun refreshBoadAfterRestore() {
-        playField.cell.flatten().filter { it.tile != null }.forEach {
+        playField.allCellsWithTiles().forEach {
             tile[it.x][it.y] = newUITile(it.tile ?: return@forEach)
         }
         lookForGoodMove()
@@ -878,9 +894,8 @@ abstract class BaseGameboard(
      * Clean up
      */
     fun dispose() {
-        tile.flatten().filterNotNull().plus(nextTile).forEach {
+        allTiles().forEach {
             it.disposeFrameBuffer()
         }
     }
-
 }

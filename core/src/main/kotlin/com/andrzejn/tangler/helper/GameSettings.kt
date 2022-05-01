@@ -10,6 +10,7 @@ class GameSettings {
     private val sSIDESCOUNT = "sidesCount"
     private val sCOLORSCOUNT = "colorsCount"
     private val sALLOWDUPLICATECOLORS = "allowDuplicateColors"
+    private val sHINTS = "hints"
     private val sSAVEDGAME = "savedGame"
     private val sDARKTHEME = "darkTheme"
     private val sINGAMEDURATION = "inGameDuration"
@@ -20,6 +21,7 @@ class GameSettings {
     private var iSidesCount: Int = 4
     private var iColorsCount: Int = 3
     private var iAllowDuplicateColors: Boolean = false
+    private var iHints: Boolean = true
     private var iDarkTheme: Boolean = true
     private var iInGameDuration: Long = 0
 
@@ -39,6 +41,8 @@ class GameSettings {
         colorsCount = iColorsCount
         iAllowDuplicateColors = pref.getBoolean(sALLOWDUPLICATECOLORS, false)
         allowDuplicateColors = iAllowDuplicateColors
+        iHints = pref.getBoolean(sHINTS, true)
+        hints = iHints
         iDarkTheme = pref.getBoolean(sDARKTHEME, true)
         iInGameDuration = pref.getLong(sINGAMEDURATION, 0)
     }
@@ -88,6 +92,17 @@ class GameSettings {
         }
 
     /**
+     * Show move hints or not
+     */
+    var hints: Boolean
+        get() = iHints
+        set(value) {
+            iHints = value
+            pref.putBoolean(sHINTS, value)
+            pref.flush()
+        }
+
+    /**
      * Dark/Light color theme selector
      */
     var isDarkTheme: Boolean
@@ -123,7 +138,7 @@ class GameSettings {
      * Key name for storing the records for the current tile type - game size - colors
      */
     private fun keyName(prefix: String): String {
-        return "$prefix$iSidesCount$iColorsCount${if (allowDuplicateColors) 1 else 0}$iBoardSize"
+        return "$prefix$iSidesCount$iColorsCount${if (allowDuplicateColors) 1 else 0}$iBoardSize${if (hints) 1 else 0}"
     }
 
     /**
@@ -151,13 +166,14 @@ class GameSettings {
      */
     fun serialize(sb: com.badlogic.gdx.utils.StringBuilder) {
         sb.append(boardSize / 2).append(sidesCount).append(colorsCount).append(if (allowDuplicateColors) 1 else 0)
+            .append(if (hints) 1 else 0)
     }
 
     /**
      * Deserialize game settings from the saved game
      */
     fun deserialize(s: String): Boolean {
-        if (s.length != 4) {
+        if (s.length != 5) {
             reset()
             return false
         }
@@ -165,10 +181,12 @@ class GameSettings {
         val sc = s[1].digitToIntOrNull()
         val cc = s[2].digitToIntOrNull()
         val adc = s[3].digitToIntOrNull()
+        val h = s[4].digitToIntOrNull()
         if (bs == null || bs !in listOf(3, 4, 5)
             || sc == null || sc !in listOf(4, 6, 8)
             || cc == null || cc > 6 || cc < sc / 2
             || adc == null || adc !in listOf(0, 1)
+            || h == null || h !in listOf(0, 1)
         ) {
             reset()
             return false
@@ -177,6 +195,7 @@ class GameSettings {
         sidesCount = sc
         colorsCount = cc
         allowDuplicateColors = adc == 1
+        hints = h == 1
         return true
     }
 }

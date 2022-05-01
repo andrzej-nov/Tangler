@@ -280,8 +280,8 @@ class PlayField(
      */
     private fun setFreeLines() {
         firstFreeLine.clear()
-        firstFreeLine.addAll(cell.flatten().filter { it.tile != null }
-            .flatMap { it.neighbour.filter { c -> c?.tile == null }.asSequence() }.filterNotNull())
+        firstFreeLine.addAll(allCellsWithTiles().flatMap { it.neighbour.filter { c -> c?.tile == null }.asSequence() }
+            .filterNotNull())
         secondFreeLine.clear()
         secondFreeLine.addAll(firstFreeLine.flatMap { it.neighbour.filter { c -> c?.tile == null } }
             .subtract(firstFreeLine).filterNotNull())
@@ -339,11 +339,16 @@ class PlayField(
      * Serialize all the playfield tiles for save game
      */
     fun serialize(sb: com.badlogic.gdx.utils.StringBuilder) {
-        cell.flatten().filter { it.tile != null }.forEach {
+        allCellsWithTiles().forEach {
             sb.append(it.x).append(it.y)
             (it.tile ?: return@forEach).serialize(sb)
         }
     }
+
+    /**
+     * Convenience method to get the list of all cells with tiles
+     */
+    fun allCellsWithTiles(): List<Cell> = allCells().filter { it.tile != null }
 
     /**
      * Deserialize the playfield tiles on game load
@@ -374,7 +379,7 @@ class PlayField(
      * Copy tiles from another playfield. Used to save/restore last move.
      */
     fun cloneFrom(other: PlayField) {
-        cell.flatten().forEach { c ->
+        allCells().forEach { c ->
             c.tile?.cell = null
             c.tile = null
             c.border.onEach { b ->
@@ -390,5 +395,10 @@ class PlayField(
         }
         setFreeLines()
     }
+
+    /**
+     * Convenience shortcut method to get the list of all cells
+     */
+    fun allCells(): List<Cell> = cell.flatten()
 
 }

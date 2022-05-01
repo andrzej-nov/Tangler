@@ -25,8 +25,8 @@ class SaveGame(
     }
 
     private fun deserializeSettingsAndScore(s: String): Boolean {
-        if (!ctx.gs.deserialize(s.substring(0..3))) return false
-        if (!ctx.score.deserialize(s.substring(4..13))) return false
+        if (!ctx.gs.deserialize(s.substring(0..4))) return false
+        if (!ctx.score.deserialize(s.substring(5..14))) return false
         return true
     }
 
@@ -53,7 +53,7 @@ class SaveGame(
      * Deserialize and set the game settings and score from the saved game
      */
     fun loadSettingsAndScore(s: String): Boolean {
-        if (s.length < 26)
+        if (s.length < 27)
             return false
         return deserializeSettingsAndScore(s)
     }

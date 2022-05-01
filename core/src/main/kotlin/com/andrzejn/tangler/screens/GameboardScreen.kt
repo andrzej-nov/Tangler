@@ -128,7 +128,10 @@ class GameboardScreen(ctx: Context) :
      */
     fun loadSavedGame(s: String): Boolean {
         createNewGameboard()
-        return gameboard.deserialize(s)
+        if (gameboard.deserialize(s))
+            return true
+        ctx.gs.hints = true // For compatibility with saves from older versions
+        return false
     }
 
     /**

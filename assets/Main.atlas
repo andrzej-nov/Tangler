@@ -154,3 +154,13 @@ resume
   xy: 220, 280
   size: 100, 100
   index: -1
+hintson
+  rotate: false
+  xy: 0, 610
+  size: 100, 100
+  index: -1
+hintsoff
+  rotate: false
+  xy: 110, 610
+  size: 100, 100
+  index: -1
