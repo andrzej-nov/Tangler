@@ -141,12 +141,12 @@ icongithub
   index: -1
 darktheme
   rotate: false
-  xy: 570, 665
+  xy: 571, 665
   size: 150, 150
   index: -1
 lighttheme
   rotate: false
-  xy: 570, 815
+  xy: 571, 815
   size: 150, 150
   index: -1
 resume
@@ -163,4 +163,14 @@ hintsoff
   rotate: false
   xy: 110, 610
   size: 100, 100
+  index: -1
+ghost
+  rotate: false
+  xy: 570, 360
+  size: 150, 150
+  index: -1
+balloon
+  rotate: false
+  xy: 570, 510
+  size: 150, 150
   index: -1

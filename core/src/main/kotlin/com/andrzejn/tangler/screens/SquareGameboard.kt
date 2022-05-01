@@ -72,6 +72,7 @@ class SquareGameboard(ctx: Context) :
         }
         renderTiles()
         renderBorderMarkers()
+        drawGhostOrBalloon()
         if (ctx.fader.inFade)
             ctx.score.drawFloatUpPoints(ctx.batch)
     }

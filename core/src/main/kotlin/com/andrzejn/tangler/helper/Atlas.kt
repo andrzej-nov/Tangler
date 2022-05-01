@@ -80,4 +80,6 @@ class Atlas {
     val lighttheme: TextureRegion get() = texture("lighttheme")
     val hintson: TextureRegion get() = texture("hintson")
     val hintsoff: TextureRegion get() = texture("hintsoff")
+    val ghost: TextureRegion get() = texture("ghost")
+    val balloon: TextureRegion get() = texture("balloon")
 }

@@ -111,6 +111,7 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
         }
         renderTiles()
         renderBorderMarkers()
+        drawGhostOrBalloon()
         if (ctx.fader.inFade) ctx.score.drawFloatUpPoints(ctx.batch)
     }
 

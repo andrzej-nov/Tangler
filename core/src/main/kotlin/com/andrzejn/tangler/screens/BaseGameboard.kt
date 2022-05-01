@@ -13,6 +13,7 @@ import com.andrzejn.tangler.logic.PlayField
 import com.andrzejn.tangler.logic.Tile
 import com.andrzejn.tangler.tiles.BaseTile
 import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.Gdx.graphics
 import com.badlogic.gdx.Gdx.input
 import com.badlogic.gdx.Input
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
@@ -20,6 +21,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.math.Vector2
 import kotlin.math.abs
 import kotlin.math.min
+import kotlin.random.Random
 
 /**
  * Grid lines width. Used in some other places to draw lines.
@@ -41,6 +43,8 @@ abstract class BaseGameboard(
      */
     val ctx: Context
 ) {
+    private var drawGhost: Boolean = false
+
     /**
      * The non-UI game logic
      */
@@ -122,6 +126,14 @@ abstract class BaseGameboard(
     // Those sprites are overlayed over the shadow sprite to inducate possible moves quality
     private val ok = Sprite(ctx.a.accept).apply { setAlpha(0.5f) }
     private val bad = Sprite(ctx.a.cancel).apply { setAlpha(0.5f) }
+    private val ghost = Sprite(ctx.a.ghost).apply {
+        setAlpha(0.85f)
+        setPosition(-1000f, -1000f)
+    }
+    private val balloon = Sprite(ctx.a.balloon).apply {
+        setAlpha(0.85f)
+        setPosition(-1000f, -1000f)
+    }
 
     /**
      * The list of closed path loops, if any, to fade out and clean up
@@ -337,11 +349,33 @@ abstract class BaseGameboard(
         if (suggestedMove == null)
             suggestedMove = playField.suggestBestMove(nextTile.t)
         noMoreMoves = suggestedMove == null
-        if (noMoreMoves && flatTile().isEmpty()) {
-            putFirstTile()
-            return lookForGoodMove()
+        if (noMoreMoves) {
+            if (flatTile().isEmpty()) {
+                ghostAnimation(true)
+                putFirstTile()
+                return lookForGoodMove()
+            } else ghostAnimation(false)
         }
         return suggestedMove
+    }
+
+    /**
+     * Perform ghost/balloon animatio when where are no more moves left
+     */
+    private fun ghostAnimation(forceBalloon: Boolean) {
+        drawGhost = true
+        val sprite = (if (Random.nextFloat() < 0.5f) ghost else balloon).apply {
+            setSize(ctrl.tileWidth * 2f, ctrl.tileWidth * 2f)
+            setOriginCenter()
+            setPosition((graphics.width - width) / 2f, 0f)
+        }
+        Tween.to(sprite, TW_POS_XY, if (forceBalloon) 1.5f else 3f)
+            .target((graphics.width - sprite.width) / 2f, graphics.height.toFloat())
+            .setCallback { _, _ ->
+                drawGhost = false
+                sprite.setPosition(-1000f, -1000f)
+            }
+            .start(ctx.tweenManager)
     }
 
     /**
@@ -504,6 +538,14 @@ abstract class BaseGameboard(
         ctx.score.draw(ctx.batch)
         if (ctx.fader.inFade)
             invalidateSprites()
+    }
+
+    protected fun drawGhostOrBalloon() {
+        if (drawGhost) {
+            ghost.draw(ctx.batch)
+            balloon.draw(ctx.batch)
+        }
+
     }
 
     /**
