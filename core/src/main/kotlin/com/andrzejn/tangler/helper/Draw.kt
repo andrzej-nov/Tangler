@@ -6,6 +6,9 @@ import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.utils.Scaling
+import com.badlogic.gdx.utils.viewport.ScalingViewport
+import com.badlogic.gdx.utils.viewport.ScreenViewport
 import space.earlygrey.shapedrawer.ShapeDrawer
 
 
@@ -19,9 +22,19 @@ class Draw(
     val ctx: Context
 ) {
     /**
-     * Camera for drawing all screens. Simple unmoving orthographic camera for static 2D view.
+     * The main screen viewport
      */
-    lateinit var camera: OrthographicCamera
+    val screen: ScreenViewport = ScreenViewport()
+
+    /**
+     * Viewport for the game field
+     */
+    lateinit var board: ScalingViewport
+
+    /**
+     * A convenience shortcut
+     */
+    val boardCamPos: Vector3 get() = this.board.camera.position
 
     /**
      * Camera for drawing tile sprites. Simple unmoving orthographic camera for static 2D view.
@@ -68,53 +81,17 @@ class Draw(
      *
      */
     data class Theme(
-        /**
-         *
-         */
         val screenBackground: Color,
-        /**
-         *
-         */
         val nextTileCircleOK: Color,
-        /**
-         *
-         */
         val nextTileCircleNoMoves: Color,
-        /**
-         *
-         */
         val settingSelection: Color,
-        /**
-         *
-         */
         val settingItem: Color,
-        /**
-         *
-         */
         val settingSeparator: Color,
-        /**
-         *
-         */
         val gameboardBackground: Color,
-        /**
-         *
-         */
         val polygonHighlight: Color,
-        /**
-         *
-         */
         val creditsText: Color,
-        /**
-         *
-         */
         val nextGamePrompt: Color,
-        /**
-         *
-         */
         val scorePoints: Color,
-        /**
-         *
-         */
         val scoreMoves: Color
     )
 
@@ -161,15 +138,26 @@ class Draw(
     }
 
     private val v3 = Vector3()
+    private val v2 = Vector2()
 
     /**
      * Convert the UI screen coordinates (mouse clicks or touches, for example) to the OpenGL scene coordinates
-     * which are used for drawing
+     * which are used for drawing on screen
      */
-    fun pointerPosition(screenX: Int, screenY: Int): Vector2 {
+    fun pointerPositionScreen(screenX: Int, screenY: Int): Vector2 {
         v3.set(screenX.toFloat(), screenY.toFloat(), 0f)
-        camera.unproject(v3)
-        return Vector2(v3.x, v3.y)
+        screen.unproject(v3)
+        return v2.set(v3.x, v3.y)
+    }
+
+    /**
+     * Convert the UI screen coordinates (mouse clicks or touches, for example) to the OpenGL scene coordinates
+     * which are used for drawing on board
+     */
+    fun pointerPositionBoard(screenX: Int, screenY: Int): Vector2 {
+        v3.set(screenX.toFloat(), screenY.toFloat(), 0f)
+        board.unproject(v3)
+        return v2.set(v3.x, v3.y)
     }
 
     /**
@@ -177,10 +165,10 @@ class Draw(
      * In this program I do not use a fixed viewport with some standard screen-fitting options because the application
      * dynamically accomodates its layout to the screen dimensions.
      */
-    fun resizeScreen(screenWidth: Float, screenHeight: Float, batch: PolygonSpriteBatch) {
-        if (camera.viewportWidth == screenWidth && camera.viewportHeight == screenHeight)
+    fun setScreenSize(screenWidth: Int, screenHeight: Int, batch: PolygonSpriteBatch) {
+        if (screen.screenWidth == screenWidth && screen.screenHeight == screenHeight)
             return
-        camera.setToOrtho(false, screenWidth, screenHeight)
+        screen.update(screenWidth, screenHeight, true)
         initBatch(batch)
     }
 
@@ -188,10 +176,63 @@ class Draw(
      * Re(init) camera and batch that are drawing tiles to accomodate to the window resize, device rotation etc.
      * In this program I prefer fine-tuning the viewport boundaries to provide pixel-accurate drawing
      */
-    fun resizeTile(tileWidth: Float, tileHeight: Float, tileBatch: PolygonSpriteBatch) {
+    fun setTileSize(tileWidth: Float, tileHeight: Float, tileBatch: PolygonSpriteBatch) {
         if (tileCamera.viewportWidth == tileWidth && tileCamera.viewportHeight == tileHeight)
             return
         initTileBatch(tileBatch, tileWidth, tileHeight)
+    }
+
+    /**
+     * Deserialized value
+     */
+    private val savedCamPos = Vector2()
+
+    /**
+     * Sets the game field viewport size and position
+     */
+    fun setBoardSize(leftX: Float, bottomY: Float, boardSquareWidth: Float, boardSquareHeight: Float) {
+        val prevWorldWidth = if (this::board.isInitialized) board.worldWidth else -1f
+        val basePosChanged =
+            if (this::board.isInitialized) boardSquareWidth != prevWorldWidth || board.screenX != leftX.toInt() ||
+                    board.screenY != bottomY.toInt()
+            else true
+        if (basePosChanged) {
+            if (savedCamPos == Vector2.Zero && this::board.isInitialized && prevWorldWidth > 0) {
+                savedCamPos.set(boardCamPos.x, boardCamPos.y).scl(boardSquareWidth / prevWorldWidth)
+            }
+            board = ScalingViewport(Scaling.none, boardSquareWidth, boardSquareHeight)
+            board.setScreenBounds(
+                leftX.toInt(),
+                bottomY.toInt(),
+                boardSquareWidth.toInt(),
+                boardSquareHeight.toInt()
+            )
+        }
+        if (basePosChanged || savedCamPos != Vector2.Zero) {
+            if (savedCamPos != Vector2.Zero) {
+                boardCamPos.set(savedCamPos, 0f)
+                savedCamPos.set(Vector2.Zero)
+            } else
+                centerFieldCamera()
+        }
+    }
+
+    /**
+     * Center camera on the field viewport
+     */
+    fun centerFieldCamera() {
+        if (this::board.isInitialized) // Check if the lateinit property has been initialised already
+            board.camera.position.set(board.worldWidth / 2, board.worldHeight / 2, 0f)
+    }
+
+    fun drawToScreen() {
+        screen.apply()
+        ctx.batch.projectionMatrix = screen.camera.combined
+    }
+
+    fun drawToField() {
+        board.apply()
+        ctx.batch.projectionMatrix = board.camera.combined
     }
 
     /**
@@ -210,11 +251,8 @@ class Draw(
      * Initialize the camera, batch and drawer that draw screens
      */
     fun initBatch(batch: PolygonSpriteBatch) {
-        camera = OrthographicCamera()
-        camera.setToOrtho(false)
-        camera.update()
-        batch.projectionMatrix = camera.combined
         sd = ShapeDrawer(batch, ctx.a.white) // A single-pixel texture provides the base color.
+        batch.projectionMatrix = screen.camera.combined
         // Then actual colors are specified on the drawing methon calls.
     }
 

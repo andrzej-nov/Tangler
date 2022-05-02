@@ -139,7 +139,7 @@ class CreditsScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
          * Handle clicks/presses
          */
         override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-            val v = ctx.drw.pointerPosition(Gdx.input.x, Gdx.input.y)
+            val v = ctx.drw.pointerPositionScreen(Gdx.input.x, Gdx.input.y)
 
             if (v.y in 5f * gridY..6f * gridY)
                 Gdx.net.openURI("mailto:andrzej.novosiolov@gmail.com?subject=The%20Tangler%20game")

@@ -67,6 +67,8 @@ abstract class BaseTile(
         if (fbo.width == width && fbo.height == height)
             return
         isSpriteValid = false
+        if (width <= 0 || height <= 0)
+            return
         fbo.dispose()
         fbo = FrameBuffer(Pixmap.Format.RGBA8888, width, height, false, false)
     }

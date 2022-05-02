@@ -17,11 +17,12 @@ class Score(
     val ctx: Context
 ) {
     /**
-     *
-     */// Score counters
+     * Score counters
+     */
     var moves: Int = 0
+
     /**
-     *
+     * Point counters
      */
     var points: Int = 0
 
@@ -151,6 +152,8 @@ class Score(
      * Update text object with the current moves value (then that text will be siply rendered as needed)
      */
     private fun setMovesText() {
+        if (!this::fcMoves.isInitialized)
+            return
         fcMoves.setText(
             moves.toString() + if (moves > recordMoves) " !" else "",
             textMovesX,
@@ -166,6 +169,8 @@ class Score(
      * Update text object with the current score value (then that text will be siply rendered as needed)
      */
     private fun setPointsText() {
+        if (!this::fcPoints.isInitialized)
+            return
         fcPoints.setText(
             points.toString() + if (points > recordPoints) " !" else "",
             textPointsX,

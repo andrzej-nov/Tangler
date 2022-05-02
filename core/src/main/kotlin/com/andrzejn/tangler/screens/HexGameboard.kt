@@ -141,14 +141,14 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
      * Converts screen pointer coordinates to the screen cell coordinates.
      * Returns -1,-1 if no cell is pointed
      */
-    override fun coordToScreenCell(x: Float, y: Float): Coord {
-        if (x < coordX.first() || x >= coordX.last() || y < coordY.first() || y >= coordY.last()) return Coord(-1, -1)
+    override fun boardCoordToIndices(x: Float, y: Float): Coord {
+        if (x < coordX.first() || x >= coordX.last() || y < coordY.first() || y >= coordY.last()) boardIndices.unSet()
         val kx = coordX.indexOfLast { it < x }
         val ky = coordY.indexOfLast { it < y }
-        if (kx < 0 || ky < 0) return Coord(-1, -1)
+        if (kx < 0 || ky < 0) return boardIndices.unSet()
         var iy = (ky + 1) / 2 - 1
         var ix = if (iy % 2 == 0) kx / 2 else if (kx < 1) -1 else (kx - 1) / 2
-        if (ix >= boardSize) return Coord(-1, -1)
+        if (ix >= boardSize) return boardIndices.unSet()
 
         if (ky % 2 == 0) { // rectangle with diagonal side
             if ((ky + 2 * (kx % 2)) % 4 == 0) { // left-bottom to right-top diagonal
@@ -171,30 +171,30 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
                 }
             }
         }
-        if (ix < 0 || iy < 0) return Coord(-1, -1)
-        return Coord(ix, iy)
+        if (ix < 0 || iy < 0) boardIndices.unSet()
+        return boardIndices.set(ix, iy)
     }
+
+    private val arrayIndices = Coord()
 
     /**
      * Converts the cell X,Y coordinates to the cell bounding rectangle corner indexes in oordX,coordY arrays
      */
-    private fun cellIndexesToCoordIndexes(c: Coord): Coord {
-        return Coord(c.x * 2 + c.y % 2, c.y * 2 + 1)
-    }
+    private fun boardIndexesToCoordArrayIndexes(c: Coord): Coord = arrayIndices.set(c.x * 2 + c.y % 2, c.y * 2 + 1)
 
     /**
      * Converts logic cell coordinates to the screen coordinates of the cell bounding rectangle corner
      */
     override fun cellCorner(c: Coord): Vector2 {
-        val base = cellIndexesToCoordIndexes(coordFieldToScreen(c))
-        return Vector2(coordX[base.x], coordY[base.y - 1])
+        val base = boardIndexesToCoordArrayIndexes(fieldToBoardIndices(c))
+        return cCorner.set(coordX[base.x], coordY[base.y - 1])
     }
 
     /**
      * Converts logic cell coordinates to the screen coordinates array of the cell polygon
      */
     override fun cellPolygon(c: Coord): FloatArray {
-        val base = cellIndexesToCoordIndexes(coordFieldToScreen(c))
+        val base = boardIndexesToCoordArrayIndexes(fieldToBoardIndices(c))
         return floatArrayOf(
             coordX[base.x], coordY[base.y],
             coordX[base.x + 1], coordY[base.y - 1],

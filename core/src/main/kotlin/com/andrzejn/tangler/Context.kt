@@ -108,12 +108,12 @@ class Context(
     /**
      * Shortened accessor to the screen viewportWidth
      */
-    val viewportWidth: Float get() = drw.camera.viewportWidth
+    val viewportWidth: Float get() = drw.screen.worldWidth
 
     /**
      * Shortened accessor to the screen viewportHeight
      */
-    val viewportHeight: Float get() = drw.camera.viewportHeight
+    val viewportHeight: Float get() = drw.screen.worldHeight
 
     /**
      * Cleanup

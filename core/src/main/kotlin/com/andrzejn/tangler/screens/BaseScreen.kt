@@ -31,7 +31,7 @@ abstract class BaseScreen(
         super.resize(width, height)
         if (width == 0 || height == 0) // Window minimize on desktop works that way
             return
-        ctx.drw.resizeScreen(width.toFloat(), height.toFloat(), ctx.batch)
+        ctx.drw.setScreenSize(width, height, ctx.batch)
     }
 
 }

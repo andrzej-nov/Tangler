@@ -81,6 +81,7 @@ class Controls(
      * Calculate and set all control coordinates, based on the provided board rectangle coordinates
      */
     fun setCoords(leftX: Float, topY: Float, rightX: Float, bottomY: Float, reservedForControls: Float) {
+        ctx.drw.setBoardSize(leftX, bottomY, rightX - leftX, topY - bottomY)
         boardLeftX = leftX
         boardTopY = topY
         boardRightX = rightX

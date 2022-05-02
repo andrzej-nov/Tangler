@@ -105,25 +105,25 @@ class SquareGameboard(ctx: Context) :
      * Converts screen pointer coordinates to the screen cell coordinates.
      * Returns -1,-1 if no cell is pointed
      */
-    override fun coordToScreenCell(x: Float, y: Float): Coord {
+    override fun boardCoordToIndices(x: Float, y: Float): Coord {
         if (x < coordX.first() || x >= coordX.last() || y < coordY.first() || y >= coordY.last())
-            return Coord(-1, -1)
-        return Coord(coordX.indexOfLast { it < x }, coordY.indexOfLast { it < y })
+            return boardIndices.unSet()
+        return boardIndices.set(coordX.indexOfLast { it < x }, coordY.indexOfLast { it < y })
     }
 
     /**
      * Converts logic cell coordinates to the screen coordinates of the cell bounding rectangle corner
      */
     override fun cellCorner(c: Coord): Vector2 {
-        val cs = coordFieldToScreen(c)
-        return Vector2(coordX[cs.x], coordY[cs.y])
+        val cs = fieldToBoardIndices(c)
+        return cCorner.set(coordX[cs.x], coordY[cs.y])
     }
 
     /**
      * Converts logic cell coordinates to the screen coordinates array of the cell polygon
      */
     override fun cellPolygon(c: Coord): FloatArray {
-        val cs = coordFieldToScreen(c)
+        val cs = fieldToBoardIndices(c)
         return floatArrayOf(
             coordX[cs.x], coordY[cs.y + 1],
             coordX[cs.x + 1], coordY[cs.y + 1],

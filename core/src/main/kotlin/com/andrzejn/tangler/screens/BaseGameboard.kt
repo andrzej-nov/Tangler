@@ -103,20 +103,20 @@ abstract class BaseGameboard(
      * The clicked/pressed board cell, if any. Coordinates are for the logic and cell arrays (the UI scroll offset
      * is already subtracted)
      */
-    private var pressedCell = Coord(-1, -1)
+    private val pressedCell = Coord()
 
     /**
      * When nextTile is dragged to the board, this variable holds offset from the tile corner to the pointer position.
      * That way the tile is dragging smoothly and does not jump on drag start.
      */
-    private val tileDragDelta = Vector2(0f, 0f)
+    private val tileDragDelta = Vector2()
 
     /**
      * When scrolling the board by dragging, this variable holds the cell coordinates from where the dragging started.
      * That allows calculation where should we scroll the board. Cell coordinates are for the UI screen cells,
      * not for the logical tile/cell arrays.
      */
-    private var fieldScrollBase = Coord(-1, -1)
+    private val fieldScrollBase = Coord()
 
     /**
      * Used to determine if we are dragging the nextTile or scrolling the board.
@@ -179,21 +179,18 @@ abstract class BaseGameboard(
             PressedArea.Play -> return true // And the Gameboard Screen will start new game
             PressedArea.Home -> ctx.game.setScreen<HomeScreen>()
             PressedArea.UndoMove -> undoLastMove()
-            PressedArea.NextTile -> { // Prepare for possible tile drag
-                tileDragDelta.x = nextTile.sprite.x - x
-                tileDragDelta.y = nextTile.sprite.y - y
-            }
+            PressedArea.NextTile -> // Prepare for possible tile drag
+                tileDragDelta.set(nextTile.sprite.x - x, nextTile.sprite.y - y)
             PressedArea.RotateRight -> safeRotateNextTile(1)
             PressedArea.RotateLeft -> safeRotateNextTile(-1)
-            PressedArea.Board -> if (ctx.tweenAnimationRunning()) { // Animation not ended yet
-                pressedCell.x = -1
-                pressedCell.y = -1
-            } else { // Clicked on the board, try to put the nextTile
+            PressedArea.Board -> if (ctx.tweenAnimationRunning()) // Animation not ended yet
+                pressedCell.unSet()
+            else { // Clicked on the board, try to put the nextTile
                 val c = coordToValidMoveCell(x, y)
-                if (c.x < 0 || c.y < 0) { // Not a valid move cell clicked, check for the rotation zones
+                if (c.isNotSet()) { // Not a valid move cell clicked, check for the rotation zones
                     val scrollStep = scrollAreaHitTest(x, y)
-                    if (scrollStep.x != 0 || scrollStep.y != 0) // Border click, need to rotate field
-                        scrollField(scrollStep)
+                    if (scrollStep.isNotZero()) // Border click, need to rotate field
+                        scrollBoard(scrollStep)
                 }
             }
             else -> {} // do nothing
@@ -222,14 +219,12 @@ abstract class BaseGameboard(
             when (ctrl.pressedArea(x, y)) {
                 PressedArea.Board -> {
                     val c = coordToValidMoveCell(x, y)
-                    if (c.x >= 0 && c.y >= 0) { // Valid cell clicked
+                    if (c.isSet()) { // Valid cell clicked
                         doNextTileDrop(c)
                         return
                     }
                 }
-                PressedArea.NextTile -> {
-                    rotateNextTile(if (x < ctrl.centerX) -1 else 1)
-                }
+                PressedArea.NextTile -> rotateNextTile(if (x < ctrl.centerX) -1 else 1)
                 else -> {}
             }
         if (lastPressedArea != PressedArea.Help)
@@ -248,6 +243,8 @@ abstract class BaseGameboard(
             cancelDrag()
     }
 
+    private val scrollStep = Coord()
+
     /**
      * Process 'dragging-in-progress' event
      */
@@ -256,29 +253,26 @@ abstract class BaseGameboard(
             return
         if (input.isButtonPressed(Input.Buttons.RIGHT))
             return
-        if (dragStartedAt.x < 0 && dragStartedAt.y < 0) {
-            dragStartedAt.x = x
-            dragStartedAt.y = y
-        }
+        if (dragStartedAt.x < 0 && dragStartedAt.y < 0)
+            dragStartedAt.set(x, y)
         if (dragStartedFrom == PressedArea.None)
             dragStartedFrom = lastPressedArea // We not always get the press event before the drag.
         // So it's more reliable to determine what is been dragging, when we get the first dragTo event for it.
         when (dragStartedFrom) {
-            PressedArea.NextTile ->
-                nextTile.sprite.setPosition(x + tileDragDelta.x, y + tileDragDelta.y)
+            PressedArea.NextTile -> nextTile.sprite.setPosition(x + tileDragDelta.x, y + tileDragDelta.y)
             PressedArea.Board -> {
-                val c = coordToScreenCell(x, y)
-                if (c.x == -1 && c.y == -1)
+                val c = boardCoordToIndices(x, y)
+                if (c.isNotSet())
                     return
-                if (fieldScrollBase.x < 0 && fieldScrollBase.y < 0) {
-                    fieldScrollBase = c
+                if (fieldScrollBase.isNotSet()) {
+                    fieldScrollBase.set(c)
                     return
                 }
-                val scrollStep = Coord(c.x - fieldScrollBase.x, (c.y - fieldScrollBase.y) / scrollYstepMultiplier)
-                if (scrollStep.x != 0 || scrollStep.y != 0) {
+                scrollStep.set(c.x - fieldScrollBase.x, (c.y - fieldScrollBase.y) / scrollYstepMultiplier)
+                if (scrollStep.isNotZero()) {
                     fieldScrollBase.x += scrollStep.x
                     fieldScrollBase.y += scrollStep.y * scrollYstepMultiplier
-                    scrollField(scrollStep)
+                    scrollBoard(scrollStep)
                 }
             }
             else -> {}
@@ -310,8 +304,7 @@ abstract class BaseGameboard(
      */
     private fun resetDragState() {
         dragStartedAt.set(-1f, -1f)
-        fieldScrollBase.x = -1
-        fieldScrollBase.y = -1
+        fieldScrollBase.unSet()
         tileDragDelta.set(0f, 0f)
     }
 
@@ -319,7 +312,7 @@ abstract class BaseGameboard(
      * When scrolling by clicking/pressing board edges, returns the respective scroll step.
      */
     private fun scrollAreaHitTest(x: Float, y: Float): Coord {
-        val scrollStep = Coord(0, 0)
+        scrollStep.set(0, 0)
         if (x < ctrl.boardLeftX)
             scrollStep.x = -1
         else if (x > ctrl.boardRightX)
@@ -337,7 +330,6 @@ abstract class BaseGameboard(
     private val tileRotateTweenDuration = 0.3f
     private val tileDropTweenDuration = 0.2f
     private val shadowSpritesShowTweenDuration = 0.2f
-
 
     /**
      * Set by the "Hint next move" button click when there are no more moves available.
@@ -378,6 +370,8 @@ abstract class BaseGameboard(
             .start(ctx.tweenManager)
     }
 
+    private val targetCell = Coord()
+
     /**
      * Evaluate the suboptimal move for the current nextCell and board position,
      * and perform the move.
@@ -385,7 +379,7 @@ abstract class BaseGameboard(
     private fun autoMove() {
         if (ctx.tweenAnimationRunning()) return // Previous animation not ended yet
         val suggested = lookForGoodMove() ?: return
-        val targetCell = Coord(suggested.move.x, suggested.move.y)
+        targetCell.set(suggested.move)
         if (suggested.rotation == 0)
             doNextTileDrop(targetCell)
         else {
@@ -429,7 +423,7 @@ abstract class BaseGameboard(
     /**
      * Used to blink the target cell when droppint nextTile to it
      */
-    private var tileDropTargetCell: Coord = Coord(-1, -1)
+    private val tileDropTargetCell = Coord()
 
     private var inTileDrop = false
 
@@ -441,8 +435,8 @@ abstract class BaseGameboard(
         if (inTileDrop)
             return
         inTileDrop = true
-        tileDropTargetCell = targetCell
-        if (targetCell.x <= -1 || targetCell.y <= -1) {
+        tileDropTargetCell.set(targetCell)
+        if (targetCell.isNotSet()) {
             cancelDrag()
             inTileDrop = false
             return
@@ -450,11 +444,12 @@ abstract class BaseGameboard(
         clearNextTileDrag()
         val dropTo = cellCorner(targetCell)
         val sprite = nextTile.sprite
+        val tCell = Coord(targetCell)
         Timeline.createSequence()
             .push(Tween.to(sprite, TW_POS_XY, tileDropTweenDuration).target(dropTo.x, dropTo.y))
             .pushPause(0.1f)
             .setCallback { _, _ ->
-                if (putNextTileToBoard(targetCell)) // Closed paths loops cleanup, as needed, is done there
+                if (putNextTileToBoard(tCell)) // Closed paths loops cleanup, as needed, is done there
                     regenerateNextTile()
                 clearTileDrop()
                 inTileDrop = false
@@ -468,8 +463,8 @@ abstract class BaseGameboard(
      * Put nextTile to the given place, updates all values, removes closed path loops if any
      */
     private fun putNextTileToBoard(place: Coord): Boolean {
-        if (place.x < 0 || place.y < 0)
-            return false // (-1, -1) should not come here, but somehow sometimes does. Let's add a safeguard.
+        if (place.isNotSet())
+            return false // Unset indices should not come here, but somehow sometimes do. Let's add a safeguard.
         val nTile = nextTile // Save reference in case nextTile changes in parallel thread
         ctx.sav.saveGame(this)
         lastMove.takeShapshot(playField, nTile.t, ctx.score)
@@ -523,10 +518,7 @@ abstract class BaseGameboard(
     /**
      * Cleanup the tile drop target cell
      */
-    private fun clearTileDrop() {
-        tileDropTargetCell.x = -1
-        tileDropTargetCell.y = -1
-    }
+    private fun clearTileDrop() = tileDropTargetCell.unSet()
 
     /**
      * Render game screen controls and UI elements. The board grid and tiles are rendered by subclasses in this method
@@ -540,6 +532,9 @@ abstract class BaseGameboard(
             invalidateSprites()
     }
 
+    /**
+     * Draw the ghost/balloon sprites
+     */
     protected fun drawGhostOrBalloon() {
         if (drawGhost) {
             ghost.draw(ctx.batch)
@@ -557,8 +552,8 @@ abstract class BaseGameboard(
         val halfHeight = ctrl.tileHeight / 2
         val thickWidth = lineWidth * 2
         val higlightedCell = if (input.isTouched) {
-            val v = ctx.drw.pointerPosition(input.x, input.y)
-            coordToCell(v.x, v.y)
+            val v = ctx.drw.pointerPositionScreen(input.x, input.y)
+            boardCoordToFieldIndices(v.x, v.y)
         } else
             tileDropTargetCell
 
@@ -567,7 +562,7 @@ abstract class BaseGameboard(
                 leftX - indent, bottomY - indent,
                 rightX - leftX + 2 * indent, topY - bottomY + 2 * indent, ctx.drw.theme.gameboardBackground
             )
-            if (higlightedCell.x > -1 && higlightedCell.y > -1) {
+            if (higlightedCell.isSet()) {
                 setColor(ctx.drw.theme.polygonHighlight)
                 filledPolygon(cellPolygon(higlightedCell))
             }
@@ -595,23 +590,23 @@ abstract class BaseGameboard(
      * Render all the tile sprites.
      */
     protected fun renderTiles() {
-        flatTile().forEach {
-            it.sprite.draw(ctx.batch)
-        }
+        flatTile().forEach { it.sprite.draw(ctx.batch) }
         nextTile.sprite.draw(ctx.batch)
-        if (ctx.gs.hints)
-            validMoves.forEach {
-                val v = cellCorner(it.c)
-                shadowSprite.setPosition(v.x, v.y)
-                shadowSprite.draw(ctx.batch)
-                val hint = if (it.badMove) bad else ok
-                hint.setPosition(
-                    v.x + shadowSprite.width / 2 - hint.width / 2,
-                    v.y + shadowSprite.height / 2 - hint.height / 2
-                )
-                hint.draw(ctx.batch)
-            }
+        if (!ctx.gs.hints) return
+        validMoves.forEach {
+            val v = cellCorner(it.c)
+            shadowSprite.setPosition(v.x, v.y)
+            shadowSprite.draw(ctx.batch)
+            val hint = if (it.badMove) bad else ok
+            hint.setPosition(
+                v.x + shadowSprite.width / 2 - hint.width / 2,
+                v.y + shadowSprite.height / 2 - hint.height / 2
+            )
+            hint.draw(ctx.batch)
+        }
     }
+
+    private val renderCoord = Coord()
 
     /**
      * Render all cell border markers.
@@ -620,7 +615,7 @@ abstract class BaseGameboard(
      */
     protected fun renderBorderMarkers() {
         playField.allCells().forEach { cell ->
-            val polygon = cellPolygon(Coord(cell.x, cell.y))
+            val polygon = cellPolygon(renderCoord.set(cell))
             cell.border.forEachIndexed { i, border ->
                 if (border?.color != null) drawBorderMarker(
                     cell,
@@ -685,7 +680,7 @@ abstract class BaseGameboard(
         val (tWidth, tHeight) = tileWidth.toInt() to tileHeight.toInt()
         if (tWidth == ctrl.tileWidth && tHeight == ctrl.tileHeight)
             return
-        ctx.drw.resizeTile(tileWidth, tileHeight, ctx.tileBatch)
+        ctx.drw.setTileSize(tileWidth, tileHeight, ctx.tileBatch)
         allTiles().forEach { it.setSpriteSize(tWidth, tHeight) }
         ok.setSize(tileWidth / 2, tileWidth / 2)
         bad.setSize(tileWidth / 3, tileWidth / 3)
@@ -698,9 +693,7 @@ abstract class BaseGameboard(
      */
     fun prepareSprites() {
         val resetShadowSprite = !nextTile.isSpriteValid
-        allTiles().filterNot { it.isSpriteValid }.forEach {
-            it.buildSprite()
-        }
+        allTiles().filterNot { it.isSpriteValid }.forEach { it.buildSprite() }
         if (resetShadowSprite && ctx.gs.hints)
             updateShadowSprite()
     }
@@ -711,12 +704,10 @@ abstract class BaseGameboard(
     protected fun repositionSprites() {
         prepareSprites()
         flatTile().forEach {
-            val p = cellCorner(Coord(it.x, it.y))
+            val p = cellCorner(renderCoord.set(it))
             it.sprite.setPosition(p.x, p.y)
         }
-        with(nextTile.sprite) {
-            setPosition(ctrl.centerX - width / 2, ctrl.circleY - height / 2)
-        }
+        with(nextTile.sprite) { setPosition(ctrl.centerX - width / 2, ctrl.circleY - height / 2) }
     }
 
     /**
@@ -724,11 +715,10 @@ abstract class BaseGameboard(
      * it that is an empty cell with valid move to it. Otherwise returns -1,-1
      */
     private fun coordToValidMoveCell(x: Float, y: Float): Coord {
-        var c = coordToCell(x, y)
-        if (validMoves.none { (coord, _) -> coord.x == c.x && coord.y == c.y })
-            c = Coord(-1, -1)
-        pressedCell = c
-        return c
+        val c = boardCoordToFieldIndices(x, y)
+        if (validMoves.none { (coord, _) -> coord == c })
+            c.unSet()
+        return pressedCell.set(c)
     }
 
     /**
@@ -741,6 +731,8 @@ abstract class BaseGameboard(
      */
     private var validMovesList: List<CoordAndSuggestion>? = null
 
+    private val moveCoord = Coord()
+
     /**
      * The list of valid moves on the current position for the current nextTile in its present orientation.
      * Generated as needed, then returns cached copy of the list.
@@ -752,7 +744,7 @@ abstract class BaseGameboard(
             validMovesList = playField.evaluateMoves(tile)
                 .map { (cell, moveQuality) ->
                     CoordAndSuggestion(
-                        Coord(cell.x, cell.y),
+                        moveCoord.set(cell),
                         (moveQuality.pathsBlocked > 0 && moveQuality.loopsClosed < tile.segment.size)
                                 || moveQuality.cellsBlocked > 0
                     )
@@ -802,27 +794,29 @@ abstract class BaseGameboard(
         return c
     }
 
+    private val cwCoord = Coord()
+
     /**
      * Applies scroll offset to logic cell coordinates to get screen cell coordinates
      */
-    fun coordFieldToScreen(c: Coord): Coord =
-        Coord(clipWrapCoord(c.x + scrollOffset.x), clipWrapCoord(c.y + scrollOffset.y))
+    fun fieldToBoardIndices(c: Coord): Coord =
+        cwCoord.set(clipWrapCoord(c.x + scrollOffset.x), clipWrapCoord(c.y + scrollOffset.y))
 
     /**
      * Applies scroll offset to screen cell coordinates to get logic cell coordinates
      */
-    private fun coordScreenToField(c: Coord): Coord =
-        Coord(clipWrapCoord(c.x - scrollOffset.x), clipWrapCoord(c.y - scrollOffset.y))
+    private fun boardIndicesToFieldIndices(c: Coord): Coord =
+        cwCoord.set(clipWrapCoord(c.x - scrollOffset.x), clipWrapCoord(c.y - scrollOffset.y))
 
     /**
      * Converts screen pointer coordinates to the logic cell coordinates.
-     * Returns -1,-1 if no cell is pointed
+     * Returns unset Coord if no cell is pointed
      */
-    private fun coordToCell(x: Float, y: Float): Coord {
-        val c = coordToScreenCell(x, y)
-        if (c.x == -1 && c.y == -1)
+    private fun boardCoordToFieldIndices(x: Float, y: Float): Coord {
+        val c = boardCoordToIndices(x, y)
+        if (c.isNotSet())
             return c
-        return coordScreenToField(c)
+        return boardIndicesToFieldIndices(c)
     }
 
     /**
@@ -834,10 +828,20 @@ abstract class BaseGameboard(
     abstract val scrollYstepMultiplier: Int
 
     /**
+     * Variable for internal calculations to reduce GC load
+     */
+    protected val boardIndices: Coord = Coord()
+
+    /**
      * Converts screen pointer coordinates to the screen cell coordinates.
      * Returns -1,-1 if no cell is pointed
      */
-    abstract fun coordToScreenCell(x: Float, y: Float): Coord
+    abstract fun boardCoordToIndices(x: Float, y: Float): Coord
+
+    /**
+     * Variable for internal calculations, to reduce GC load
+     */
+    protected val cCorner: Vector2 = Vector2()
 
     /**
      * Converts logic cell coordinates to the screen coordinates of the cell bounding rectangle corner
@@ -852,9 +856,11 @@ abstract class BaseGameboard(
     /**
      * Scroll the screen board by scrollStep
      */
-    private fun scrollField(scrollStep: Coord) {
-        scrollOffset.x = clipWrapCoord(scrollOffset.x + scrollStep.x)
-        scrollOffset.y = clipWrapCoord(scrollOffset.y + scrollStep.y * scrollYstepMultiplier)
+    private fun scrollBoard(scrollStep: Coord) {
+        scrollOffset.set(
+            clipWrapCoord(scrollOffset.x + scrollStep.x),
+            clipWrapCoord(scrollOffset.y + scrollStep.y * scrollYstepMultiplier)
+        )
         repositionSprites()
     }
 
@@ -925,9 +931,7 @@ abstract class BaseGameboard(
      * Update everything after deserialize or undo last move
      */
     private fun refreshBoadAfterRestore() {
-        playField.allCellsWithTiles().forEach {
-            tile[it.x][it.y] = newUITile(it.tile ?: return@forEach)
-        }
+        playField.allCellsWithTiles().forEach { tile[it.x][it.y] = newUITile(it.tile ?: return@forEach) }
         lookForGoodMove()
         resize()
     }
@@ -936,8 +940,6 @@ abstract class BaseGameboard(
      * Clean up
      */
     fun dispose() {
-        allTiles().forEach {
-            it.disposeFrameBuffer()
-        }
+        allTiles().forEach { it.disposeFrameBuffer() }
     }
 }

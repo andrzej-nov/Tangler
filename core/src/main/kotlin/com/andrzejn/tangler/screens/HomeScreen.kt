@@ -351,7 +351,7 @@ class HomeScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
          * (at the end of the method)
          */
         override fun touchDown(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-            val v = ctx.drw.pointerPosition(Gdx.input.x, Gdx.input.y)
+            val v = ctx.drw.pointerPositionScreen(Gdx.input.x, Gdx.input.y)
             v.x -= baseX
 
             if (v.y in 7 * gridY..8 * gridY) {
