@@ -22,6 +22,7 @@ class Coord(
     var y: Int = unsetCoord,
 ) {
     constructor(c: Coord) : this(c.x, c.y)
+    constructor(cell: Cell) : this(cell.x, cell.y)
 
     /**
      * Set this coord equal to the one passed as the parameter. Returns this instance to allow chained calls.
@@ -65,15 +66,6 @@ class Coord(
     override fun equals(other: Any?): Boolean = (other is Coord) && this.x == other.x && this.y == other.y
 
     /**
-     * Adds another coord to this one. Returns this instance to allow chained calls.
-     */
-    fun add(other: Coord): Coord {
-        this.x += other.x
-        this.y += other.y
-        return this
-    }
-
-    /**
      * True if at least one of the coordinates is not 0
      */
     fun isNotZero(): Boolean {
@@ -94,10 +86,22 @@ class Coord(
         return x == unsetCoord && y == unsetCoord
     }
 
+    /**
+     * Unset this instance
+     */
     fun unSet(): Coord {
         x = unsetCoord
         y = unsetCoord
         return this
+    }
+
+    /**
+     * Class hashcode implementation
+     */
+    override fun hashCode(): Int {
+        var result = x
+        result = 31 * result + y
+        return result
     }
 
 }

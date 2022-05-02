@@ -138,7 +138,8 @@ class Draw(
     }
 
     private val v3 = Vector3()
-    private val v2 = Vector2()
+    private val v2s = Vector2()
+    private val v2b = Vector2()
 
     /**
      * Convert the UI screen coordinates (mouse clicks or touches, for example) to the OpenGL scene coordinates
@@ -147,7 +148,7 @@ class Draw(
     fun pointerPositionScreen(screenX: Int, screenY: Int): Vector2 {
         v3.set(screenX.toFloat(), screenY.toFloat(), 0f)
         screen.unproject(v3)
-        return v2.set(v3.x, v3.y)
+        return v2s.set(v3.x, v3.y)
     }
 
     /**
@@ -157,7 +158,7 @@ class Draw(
     fun pointerPositionBoard(screenX: Int, screenY: Int): Vector2 {
         v3.set(screenX.toFloat(), screenY.toFloat(), 0f)
         board.unproject(v3)
-        return v2.set(v3.x, v3.y)
+        return v2b.set(v3.x, v3.y)
     }
 
     /**
@@ -230,7 +231,7 @@ class Draw(
         ctx.batch.projectionMatrix = screen.camera.combined
     }
 
-    fun drawToField() {
+    fun drawToBoard() {
         board.apply()
         ctx.batch.projectionMatrix = board.camera.combined
     }

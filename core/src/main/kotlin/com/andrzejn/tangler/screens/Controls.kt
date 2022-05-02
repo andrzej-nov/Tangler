@@ -80,7 +80,13 @@ class Controls(
     /**
      * Calculate and set all control coordinates, based on the provided board rectangle coordinates
      */
-    fun setCoords(leftX: Float, topY: Float, rightX: Float, bottomY: Float, reservedForControls: Float) {
+    fun setCoords(
+        leftX: Float,
+        topY: Float,
+        rightX: Float,
+        bottomY: Float,
+        reservedForControls: Float
+    ) {
         ctx.drw.setBoardSize(leftX, bottomY, rightX - leftX, topY - bottomY)
         boardLeftX = leftX
         boardTopY = topY
@@ -88,29 +94,29 @@ class Controls(
         boardBottomY = bottomY
         centerX = ctx.viewportWidth / 2
         circleRadius = reservedForControls * 0.45f
-        circleY = boardBottomY - reservedForControls * 0.6f
+        circleY = bottomY - reservedForControls * 0.6f
         rotateButtonSize = circleRadius
         rotateButtonY = circleY - rotateButtonSize * 0.5f
         rotateLeftX = centerX - circleRadius - rotateButtonSize * 1.1f
         rotateRightX = centerX + circleRadius + rotateButtonSize * 0.1f
 
         lowerButtonSize = reservedForControls * 0.4f
-        lowerButtonY = boardBottomY - reservedForControls * 0.5f
-        leftButtonsX = max(0f, boardLeftX - lowerButtonSize * 2)
-        rightButtonsX = min(boardRightX + lowerButtonSize, ctx.viewportWidth - lowerButtonSize)
+        lowerButtonY = bottomY - reservedForControls * 0.5f
+        leftButtonsX = max(0f, leftX - lowerButtonSize * 2)
+        rightButtonsX = min(rightX + lowerButtonSize, ctx.viewportWidth - lowerButtonSize)
         bottomButtonsYOffset = lowerButtonSize * 1.1f
 
         with(sUndo) {
             setSize(lowerButtonSize, lowerButtonSize)
             setPosition(
                 leftButtonsX + lowerButtonSize * 1.1f,
-                max(lowerButtonSize * 0.1f, boardBottomY - lowerButtonSize * 3f)
+                max(lowerButtonSize * 0.1f, bottomY - lowerButtonSize * 3f)
             )
         }
-        var logoWidth = boardLeftX - 2 * indent
+        var logoWidth = leftX - 2 * indent
         if (logoWidth < 0f)
             logoWidth = 0f
-        var logoHeight = ctx.viewportHeight - boardTopY - 2 * indent
+        var logoHeight = ctx.viewportHeight - topY - 2 * indent
         if (logoHeight < 0f)
             logoHeight = 0f
         if (logoWidth > logoHeight)
@@ -128,7 +134,7 @@ class Controls(
             setPosition(rotateRightX, rotateButtonY)
         }
         ctx.score.setCoords(
-            (reservedForControls * 0.2f).toInt(), boardBottomY - reservedForControls * 0.2f,
+            (reservedForControls * 0.2f).toInt(), bottomY - reservedForControls * 0.2f,
             sRotateLeft.x + sRotateLeft.width - circleRadius, sRotateRight.x, circleRadius
         )
         with(sPlayBlue) {
@@ -182,6 +188,27 @@ class Controls(
         return PressedArea.None
     }
 
+    private val scrollStep = Coord()
+
+    /**
+     * When scrolling by clicking/pressing board edges, returns the respective scroll step.
+     * Coordinates are in the screen viewport
+     */
+    fun scrollAreaHitTest(x: Float, y: Float): Coord {
+        scrollStep.set(0, 0)
+        if (x < boardLeftX)
+            scrollStep.x = -1
+        else if (x > boardRightX)
+            scrollStep.x = 1
+        if (y < boardBottomY && y > circleY + tileHeight / 4
+            && x > boardLeftX + tileWidth && x < boardRightX - tileWidth
+        )
+            scrollStep.y = -1
+        else if (y > boardTopY)
+            scrollStep.y = 1
+        return scrollStep
+    }
+
     /**
      * Render controls area. Render is called very often, so do not create any object here and precalculate everything.
      */
@@ -212,4 +239,43 @@ class Controls(
         sExit.draw(ctx.batch, 0.7f)
         sUndo.draw(ctx.batch, if (noLastMove) 0.3f else 0.7f)
     }
+
+    /**
+     * Render the board background and scroll edges.
+     */
+    fun renderBoardBackground() {
+        val middleY = (boardTopY + boardBottomY) / 2
+        val middleX = (boardRightX + boardLeftX) / 2
+        val halfHeight = tileHeight / 2
+        val thickWidth = lineWidth * 2
+
+        with(ctx.drw.sd) {
+            filledRectangle(
+                boardLeftX - indent,
+                boardBottomY - indent,
+                boardRightX - boardLeftX + 2 * indent,
+                boardTopY - boardBottomY + 2 * indent,
+                ctx.drw.theme.gameboardBackground
+            )
+            setColor(ctx.drw.theme.screenBackground)
+            filledTriangle(
+                boardLeftX - indent, middleY, boardLeftX - thickWidth, middleY - halfHeight,
+                boardLeftX - thickWidth, middleY + halfHeight
+            )
+            filledTriangle(
+                boardRightX + indent, middleY, boardRightX + thickWidth, middleY - halfHeight,
+                boardRightX + thickWidth, middleY + halfHeight
+            )
+            filledTriangle(
+                middleX, boardBottomY - indent, middleX - halfHeight, boardBottomY - thickWidth,
+                middleX + halfHeight, boardBottomY - thickWidth
+            )
+            filledTriangle(
+                middleX, boardTopY + indent, middleX - halfHeight, boardTopY + thickWidth,
+                middleX + halfHeight, boardTopY + thickWidth
+            )
+        }
+    }
+
+
 }

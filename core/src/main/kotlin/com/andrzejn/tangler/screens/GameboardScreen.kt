@@ -105,7 +105,6 @@ class GameboardScreen(ctx: Context) :
         gameboard.prepareSprites()
 
         if (!ctx.batch.isDrawing) ctx.batch.begin()
-        ctx.drw.drawToScreen()
         gameboard.render() // The main gameboard rendering
         if (ctx.batch.isDrawing) ctx.batch.end()
         // Hack: enable continuous rendering only when there are tween animations in progress
@@ -146,8 +145,7 @@ class GameboardScreen(ctx: Context) :
             if (button == Input.Buttons.RIGHT) // Right click (on desktop) provides convenient tile rotation access
                 gameboard.safeRotateNextTile(1)
             else {
-                val v = ctx.drw.pointerPositionScreen(input.x, input.y)
-                if (gameboard.dispatchClick(v.x, v.y)) {
+                if (gameboard.dispatchClick(screenX, screenY)) {
                     // dispatchClick does a lot of actions based on the clicked area
                     // It returns true when the player clicks "New game" button. Here we start that new game.
                     gameboard.dispose()
@@ -161,8 +159,7 @@ class GameboardScreen(ctx: Context) :
          * Called when screen is untouched (mouse button released). That's either a drag end or tile drop.
          */
         override fun touchUp(screenX: Int, screenY: Int, pointer: Int, button: Int): Boolean {
-            val v = ctx.drw.pointerPositionScreen(input.x, input.y)
-            gameboard.touchUp(v.x, v.y)
+            gameboard.touchUp(screenX, screenY)
             return super.touchUp(screenX, screenY, pointer, button)
         }
 
@@ -170,8 +167,7 @@ class GameboardScreen(ctx: Context) :
          * Invoked when the player drags something on the screen.
          */
         override fun touchDragged(screenX: Int, screenY: Int, pointer: Int): Boolean {
-            val v = ctx.drw.pointerPositionScreen(input.x, input.y)
-            gameboard.dragTo(v.x, v.y)
+            gameboard.dragTo(screenX, screenY)
             return super.touchDragged(screenX, screenY, pointer)
         }
     }

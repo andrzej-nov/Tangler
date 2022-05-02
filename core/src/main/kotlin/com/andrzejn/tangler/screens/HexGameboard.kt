@@ -40,12 +40,8 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
         cell.setLength(stepY * 2)
         resetSpriteSize(stepX * 2, stepY * 4)
 
-        var x = (ctx.viewportWidth - squareSize) / 2 + indent
-        val boardYSize = stepY * (boardSize * 3 + 1)
-        var y = ctx.viewportHeight - boardYSize - indent -
-                (ctx.viewportHeight - squareSize * (1 + minControlsHeightProportion)) / 2 -
-                (squareSize - boardYSize) / 3
-
+        var x = 0f
+        var y = 0f
         for (i in coordX.indices) {
             coordX[i] = x
             x += stepX
@@ -87,8 +83,17 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
             }
         }
 
+        val leftX = (ctx.viewportWidth - squareSize) / 2 + indent
+        val boardYSize = stepY * (boardSize * 3 + 1)
+        val bottomY = ctx.viewportHeight - boardYSize - indent -
+                (ctx.viewportHeight - squareSize * (1 + minControlsHeightProportion)) / 2 -
+                (squareSize - boardYSize) / 3
+
         ctrl.setCoords(
-            coordX[0], coordY.last(), coordX.last(), coordY[0], boardSquareSize * minControlsHeightProportion
+            leftX,
+            bottomY + coordY.last() - coordY[0],
+            leftX + coordX.last() - coordX[0],
+            bottomY, boardSquareSize * minControlsHeightProportion
         )
         repositionSprites()
     }
@@ -100,20 +105,14 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
     override fun rotateDegrees(steps: Int): Float = -60f * steps
 
     /**
-     * Render the board grid, tiles and animated score.
+     * Render the board grid.
      */
-    override fun render() {
-        super.render()
-        renderBoardBackground(coordX[0], coordY[0], coordX.last(), coordY.last())
+    override fun renderBoadGrid() {
         with(ctx.drw.sd) {
             setColor(ctx.drw.theme.screenBackground)
             horizontalBorder.forEach { v -> path(v, lineWidth, JoinType.POINTY, true) }
             verticalBorder.forEach { a -> line(a[0], a[1], a[2], a[3], lineWidth) }
         }
-        renderTiles()
-        renderBorderMarkers()
-        drawGhostOrBalloon()
-        if (ctx.fader.inFade) ctx.score.drawFloatUpPoints(ctx.batch)
     }
 
     /**
@@ -121,9 +120,7 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
      */
     override fun drawBorderMarker(
         cell: Cell, i: Int, color: Int, polygon: FloatArray, batch: PolygonSpriteBatch
-    ) {
-        this.cell.drawBorderMarker(cell, i, color, polygon, ctx)
-    }
+    ): Unit = this.cell.drawBorderMarker(cell, i, color, polygon, ctx)
 
     /**
      * Creates new UI Tile object for the given logic tile.
@@ -139,8 +136,8 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
     override val scrollYstepMultiplier: Int = 2
 
     /**
-     * Converts screen pointer coordinates to the screen cell coordinates.
-     * Returns -1,-1 if no cell is pointed
+     * Converts screen pointer coordinates (unprojected by the board viewport) to the screen cell indices.
+     * Returns unset coord if no cell is pointed
      */
     override fun boardCoordToIndices(x: Float, y: Float): Coord {
         if (x < coordX.first() || x >= coordX.last() || y < coordY.first() || y >= coordY.last()) boardIndices.unSet()
@@ -185,6 +182,7 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
 
     /**
      * Converts logic cell coordinates to the screen coordinates of the cell bounding rectangle corner
+     * (relative to the board viewport)
      */
     override fun cellCorner(c: Coord): Vector2 {
         val base = boardIndexesToCoordArrayIndexes(fieldToBoardIndices(c))

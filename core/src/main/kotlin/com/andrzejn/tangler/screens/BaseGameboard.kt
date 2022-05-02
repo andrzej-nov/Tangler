@@ -34,6 +34,11 @@ const val lineWidth: Float = 2f
 const val indent: Float = 20f
 
 /**
+ * Sprite coordinate that is surely out of screen
+ */
+const val farOutOfScreen: Float = -1000f
+
+/**
  * The main game UI logic class. Created once for each new game.
  * It is the largest class of the app because all UI logic is here, and I see no pretty way to decompose it.
  */
@@ -128,11 +133,11 @@ abstract class BaseGameboard(
     private val bad = Sprite(ctx.a.cancel).apply { setAlpha(0.5f) }
     private val ghost = Sprite(ctx.a.ghost).apply {
         setAlpha(0.85f)
-        setPosition(-1000f, -1000f)
+        setPosition(farOutOfScreen, farOutOfScreen)
     }
     private val balloon = Sprite(ctx.a.balloon).apply {
         setAlpha(0.85f)
-        setPosition(-1000f, -1000f)
+        setPosition(farOutOfScreen, farOutOfScreen)
     }
 
     /**
@@ -165,13 +170,13 @@ abstract class BaseGameboard(
     /**
      * Gets the pressed/clicked coordinates, determines which element has been clicked and invokes respective actions
      */
-    fun dispatchClick(x: Float, y: Float): Boolean {
+    fun dispatchClick(screenX: Int, screenY: Int): Boolean {
         if (ctx.tweenAnimationRunning())
             return false
         if (input.isButtonPressed(Input.Buttons.RIGHT))
             return false
-        val pressed = ctrl.pressedArea(x, y)
-
+        val v = ctx.drw.pointerPositionScreen(screenX, screenY)
+        val pressed = ctrl.pressedArea(v.x, v.y)
         lastPressedArea = pressed
         when (pressed) {
             PressedArea.Help -> autoMove()
@@ -180,15 +185,19 @@ abstract class BaseGameboard(
             PressedArea.Home -> ctx.game.setScreen<HomeScreen>()
             PressedArea.UndoMove -> undoLastMove()
             PressedArea.NextTile -> // Prepare for possible tile drag
-                tileDragDelta.set(nextTile.sprite.x - x, nextTile.sprite.y - y)
+                tileDragDelta.set(nextTile.sprite.x - v.x, nextTile.sprite.y - v.y)
             PressedArea.RotateRight -> safeRotateNextTile(1)
             PressedArea.RotateLeft -> safeRotateNextTile(-1)
             PressedArea.Board -> if (ctx.tweenAnimationRunning()) // Animation not ended yet
                 pressedCell.unSet()
-            else { // Clicked on the board, try to put the nextTile
-                val c = coordToValidMoveCell(x, y)
-                if (c.isNotSet()) { // Not a valid move cell clicked, check for the rotation zones
-                    val scrollStep = scrollAreaHitTest(x, y)
+            else { // Clicked on the board, handle rotation zones click
+                if (with(ctx.drw.pointerPositionBoard(screenX, screenY)) {
+                        boardCoordToValidMoveIndices(
+                            x,
+                            y
+                        )
+                    }.isNotSet()) { // Not a valid move cell clicked, check for the rotation zones
+                    scrollStep.set(ctrl.scrollAreaHitTest(v.x, v.y))
                     if (scrollStep.isNotZero()) // Border click, need to rotate field
                         scrollBoard(scrollStep)
                 }
@@ -199,7 +208,7 @@ abstract class BaseGameboard(
     }
 
     /**
-     * If we are scrolling the board by dragging, record starting point of the drag
+     * If we are scrolling the board by dragging, record starting point of the drag (screen coordinates)
      */
     private val dragStartedAt = Vector2(-1f, -1f)
 
@@ -207,38 +216,39 @@ abstract class BaseGameboard(
      * Process the sustem touch-up / mouse-up events.
      * Here we either finish the dragging or drop the tile to cell.
      */
-    fun touchUp(x: Float, y: Float) {
+    fun touchUp(screenX: Int, screenY: Int) {
+        val v = ctx.drw.pointerPositionScreen(screenX, screenY)
         if (dragStartedAt.x > 0 && dragStartedAt.y > 0
-            && abs(x - dragStartedAt.x) > 5 && abs(y - dragStartedAt.y) > 5
+            && abs(v.x - dragStartedAt.x) > 5 && abs(v.y - dragStartedAt.y) > 5
         ) { // filter out erroneous drags when pointer shifts on clich by several pixels
-            dragEnd(x, y)
+            dragEnd(v.x, v.y, screenX, screenY)
             return
         }
         resetDragState()
         if (!ctx.tweenAnimationRunning())
-            when (ctrl.pressedArea(x, y)) {
+            when (ctrl.pressedArea(v.x, v.y)) {
                 PressedArea.Board -> {
-                    val c = coordToValidMoveCell(x, y)
+                    val c = with(ctx.drw.pointerPositionBoard(screenX, screenY)) { boardCoordToValidMoveIndices(x, y) }
                     if (c.isSet()) { // Valid cell clicked
                         doNextTileDrop(c)
                         return
                     }
                 }
-                PressedArea.NextTile -> rotateNextTile(if (x < ctrl.centerX) -1 else 1)
+                PressedArea.NextTile -> rotateNextTile(if (v.x < ctrl.centerX) -1 else 1)
                 else -> {}
             }
         if (lastPressedArea != PressedArea.Help)
-            dragEnd(x, y)
+            dragEnd(v.x, v.y, screenX, screenY)
     }
 
     /**
      * Process end-of-drag event. If the nextTile was dragged, drop it to valid target cell or return back
      * to its place below the board
      */
-    private fun dragEnd(x: Float, y: Float) {
+    private fun dragEnd(xs: Float, ys: Float, screenX: Int, screenY: Int) {
         resetDragState()
-        if (dragStartedFrom == PressedArea.NextTile && ctrl.pressedArea(x, y) == PressedArea.Board)
-            doNextTileDrop(coordToValidMoveCell(x, y))
+        if (dragStartedFrom == PressedArea.NextTile && ctrl.pressedArea(xs, ys) == PressedArea.Board)
+            doNextTileDrop(with(ctx.drw.pointerPositionBoard(screenX, screenY)) { boardCoordToValidMoveIndices(x, y) })
         else // tile dropped to wrong area
             cancelDrag()
     }
@@ -248,20 +258,21 @@ abstract class BaseGameboard(
     /**
      * Process 'dragging-in-progress' event
      */
-    fun dragTo(x: Float, y: Float) {
+    fun dragTo(screenX: Int, screenY: Int) {
         if (ctx.tweenAnimationRunning())
             return
         if (input.isButtonPressed(Input.Buttons.RIGHT))
             return
+        val v = ctx.drw.pointerPositionScreen(screenX, screenY)
         if (dragStartedAt.x < 0 && dragStartedAt.y < 0)
-            dragStartedAt.set(x, y)
+            dragStartedAt.set(v.x, v.y)
         if (dragStartedFrom == PressedArea.None)
             dragStartedFrom = lastPressedArea // We not always get the press event before the drag.
         // So it's more reliable to determine what is been dragging, when we get the first dragTo event for it.
         when (dragStartedFrom) {
-            PressedArea.NextTile -> nextTile.sprite.setPosition(x + tileDragDelta.x, y + tileDragDelta.y)
+            PressedArea.NextTile -> nextTile.sprite.setPosition(v.x + tileDragDelta.x, v.y + tileDragDelta.y)
             PressedArea.Board -> {
-                val c = boardCoordToIndices(x, y)
+                val c = with(ctx.drw.pointerPositionBoard(screenX, screenY)) { boardCoordToIndices(x, y) }
                 if (c.isNotSet())
                     return
                 if (fieldScrollBase.isNotSet()) {
@@ -308,24 +319,6 @@ abstract class BaseGameboard(
         tileDragDelta.set(0f, 0f)
     }
 
-    /**
-     * When scrolling by clicking/pressing board edges, returns the respective scroll step.
-     */
-    private fun scrollAreaHitTest(x: Float, y: Float): Coord {
-        scrollStep.set(0, 0)
-        if (x < ctrl.boardLeftX)
-            scrollStep.x = -1
-        else if (x > ctrl.boardRightX)
-            scrollStep.x = 1
-        if (y < ctrl.boardBottomY && y > ctrl.circleY + ctrl.tileHeight / 4
-            && x > ctrl.boardLeftX + ctrl.tileWidth && x < ctrl.boardRightX - ctrl.tileWidth
-        )
-            scrollStep.y = -1
-        else if (y > ctrl.boardTopY)
-            scrollStep.y = 1
-        return scrollStep
-    }
-
     // Durations of the tween animation phases
     private val tileRotateTweenDuration = 0.3f
     private val tileDropTweenDuration = 0.2f
@@ -365,7 +358,7 @@ abstract class BaseGameboard(
             .target((graphics.width - sprite.width) / 2f, graphics.height.toFloat())
             .setCallback { _, _ ->
                 drawGhost = false
-                sprite.setPosition(-1000f, -1000f)
+                sprite.setPosition(farOutOfScreen, farOutOfScreen)
             }
             .start(ctx.tweenManager)
     }
@@ -442,7 +435,7 @@ abstract class BaseGameboard(
             return
         }
         clearNextTileDrag()
-        val dropTo = cellCorner(targetCell)
+        val dropTo = ctx.drw.board.project(cellCorner(targetCell))
         val sprite = nextTile.sprite
         val tCell = Coord(targetCell)
         Timeline.createSequence()
@@ -471,6 +464,8 @@ abstract class BaseGameboard(
         nTile.x = place.x
         nTile.y = place.y
         tile[place.x][place.y] = nTile
+        val p = cellCorner(renderCoord.set(nTile))
+        nTile.sprite.setPosition(p.x, p.y)
         nTile.isSpriteValid = false
         pathsToClear = playField.putTileToCell(nTile.t, playField.cell[place.x][place.y])
         validMovesList = null
@@ -525,73 +520,66 @@ abstract class BaseGameboard(
      * overload.
      */
     open fun render() {
+        ctx.drw.drawToScreen()
         ctx.drw.sd.filledRectangle(0f, 0f, ctx.viewportWidth, ctx.viewportHeight, ctx.drw.theme.screenBackground)
+        ctrl.renderBoardBackground()
+        ctx.batch.flush()
+        ctx.drw.drawToBoard()
+        renderCellHighlight()
+        ctx.batch.flush()
+        ctx.drw.drawToScreen()
         ctrl.render(noMoreMoves, lastMove.isEmpty)
+        renderNextTile()
         ctx.score.draw(ctx.batch)
         if (ctx.fader.inFade)
             invalidateSprites()
+        ctx.batch.flush()
+        ctx.drw.drawToBoard()
+        renderBoadGrid()
+        renderTiles()
+        renderBorderMarkers()
+        if (ctx.fader.inFade) ctx.score.drawFloatUpPoints(ctx.batch)
+        ctx.batch.flush()
+        ctx.drw.drawToScreen()
+        renderGhostOrBalloon()
     }
+
+    /**
+     * Render the grid lines
+     */
+    abstract fun renderBoadGrid()
 
     /**
      * Draw the ghost/balloon sprites
      */
-    protected fun drawGhostOrBalloon() {
+    private fun renderGhostOrBalloon() {
         if (drawGhost) {
             ghost.draw(ctx.batch)
             balloon.draw(ctx.batch)
         }
-
     }
 
     /**
-     * Render the board background, edges and the target cell highlight, if any.
+     * Render the target cell highlight, if any
      */
-    protected fun renderBoardBackground(leftX: Float, bottomY: Float, rightX: Float, topY: Float) {
-        val middleY = (topY + bottomY) / 2
-        val middleX = (rightX + leftX) / 2
-        val halfHeight = ctrl.tileHeight / 2
-        val thickWidth = lineWidth * 2
+    private fun renderCellHighlight() {
         val higlightedCell = if (input.isTouched) {
-            val v = ctx.drw.pointerPositionScreen(input.x, input.y)
+            val v = ctx.drw.pointerPositionBoard(input.x, input.y)
             boardCoordToFieldIndices(v.x, v.y)
         } else
             tileDropTargetCell
-
+        if (!higlightedCell.isSet()) return
         with(ctx.drw.sd) {
-            filledRectangle(
-                leftX - indent, bottomY - indent,
-                rightX - leftX + 2 * indent, topY - bottomY + 2 * indent, ctx.drw.theme.gameboardBackground
-            )
-            if (higlightedCell.isSet()) {
-                setColor(ctx.drw.theme.polygonHighlight)
-                filledPolygon(cellPolygon(higlightedCell))
-            }
-            setColor(ctx.drw.theme.screenBackground)
-            filledTriangle(
-                leftX - indent, middleY, leftX - thickWidth, middleY - halfHeight,
-                leftX - thickWidth, middleY + halfHeight
-            )
-            filledTriangle(
-                rightX + indent, middleY, rightX + thickWidth, middleY - halfHeight,
-                rightX + thickWidth, middleY + halfHeight
-            )
-            filledTriangle(
-                middleX, bottomY - indent, middleX - halfHeight, bottomY - thickWidth,
-                middleX + halfHeight, bottomY - thickWidth
-            )
-            filledTriangle(
-                middleX, topY + indent, middleX - halfHeight, topY + thickWidth,
-                middleX + halfHeight, topY + thickWidth
-            )
+            setColor(ctx.drw.theme.polygonHighlight)
+            filledPolygon(cellPolygon(higlightedCell))
         }
     }
 
     /**
      * Render all the tile sprites.
      */
-    protected fun renderTiles() {
+    private fun renderTiles() {
         flatTile().forEach { it.sprite.draw(ctx.batch) }
-        nextTile.sprite.draw(ctx.batch)
         if (!ctx.gs.hints) return
         validMoves.forEach {
             val v = cellCorner(it.c)
@@ -606,6 +594,10 @@ abstract class BaseGameboard(
         }
     }
 
+    private fun renderNextTile() {
+        nextTile.sprite.draw(ctx.batch)
+    }
+
     private val renderCoord = Coord()
 
     /**
@@ -613,7 +605,7 @@ abstract class BaseGameboard(
      * This way, most of the markers are drawn twice (because each inner border is drawn by the both neighbour cells),
      * but that is simpler and more consistent than eliminate uneeded duplicate draws.
      */
-    protected fun renderBorderMarkers() {
+    private fun renderBorderMarkers() {
         playField.allCells().forEach { cell ->
             val polygon = cellPolygon(renderCoord.set(cell))
             cell.border.forEachIndexed { i, border ->
@@ -712,9 +704,9 @@ abstract class BaseGameboard(
 
     /**
      * Returns logic coordinates (accounted for board scrolling) of the cell at x,y (screen coordinates),
-     * it that is an empty cell with valid move to it. Otherwise returns -1,-1
+     * it that is an empty cell with valid move to it. Otherwise returns unset coord
      */
-    private fun coordToValidMoveCell(x: Float, y: Float): Coord {
+    private fun boardCoordToValidMoveIndices(x: Float, y: Float): Coord {
         val c = boardCoordToFieldIndices(x, y)
         if (validMoves.none { (coord, _) -> coord == c })
             c.unSet()
@@ -731,8 +723,6 @@ abstract class BaseGameboard(
      */
     private var validMovesList: List<CoordAndSuggestion>? = null
 
-    private val moveCoord = Coord()
-
     /**
      * The list of valid moves on the current position for the current nextTile in its present orientation.
      * Generated as needed, then returns cached copy of the list.
@@ -744,7 +734,7 @@ abstract class BaseGameboard(
             validMovesList = playField.evaluateMoves(tile)
                 .map { (cell, moveQuality) ->
                     CoordAndSuggestion(
-                        moveCoord.set(cell),
+                        Coord(cell),
                         (moveQuality.pathsBlocked > 0 && moveQuality.loopsClosed < tile.segment.size)
                                 || moveQuality.cellsBlocked > 0
                     )
@@ -833,8 +823,8 @@ abstract class BaseGameboard(
     protected val boardIndices: Coord = Coord()
 
     /**
-     * Converts screen pointer coordinates to the screen cell coordinates.
-     * Returns -1,-1 if no cell is pointed
+     * Converts screen pointer coordinates (unprojected by the board viewport) to the screen cell indices.
+     * Returns unset coord if no cell is pointed
      */
     abstract fun boardCoordToIndices(x: Float, y: Float): Coord
 
@@ -845,6 +835,7 @@ abstract class BaseGameboard(
 
     /**
      * Converts logic cell coordinates to the screen coordinates of the cell bounding rectangle corner
+     * (relative to the board viewport)
      */
     abstract fun cellCorner(c: Coord): Vector2
 

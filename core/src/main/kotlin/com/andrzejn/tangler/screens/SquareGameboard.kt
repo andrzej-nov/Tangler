@@ -31,21 +31,23 @@ class SquareGameboard(ctx: Context) :
         cell.setLength(cellSize)
         resetSpriteSize(cellSize, cellSize)
 
-        var x = (ctx.viewportWidth - squareSize) / 2 + indent
-        var y = ctx.viewportHeight + indent - squareSize -
-                (ctx.viewportHeight - squareSize * (1 + minControlsHeightProportion)) / 2
-
+        var x = 0f
+        var y = 0f
         coordX.indices.forEach { i ->
             coordX[i] = x
             coordY[i] = y
             x += cellSize
             y += cellSize
         }
+
+        val leftX = (ctx.viewportWidth - squareSize) / 2 + indent
+        val bottomY = ctx.viewportHeight + indent - squareSize -
+                (ctx.viewportHeight - squareSize * (1 + minControlsHeightProportion)) / 2
         ctrl.setCoords(
-            coordX[0],
-            coordY.last(),
-            coordX.last(),
-            coordY[0],
+            leftX,
+            bottomY + coordY.last() - coordY[0],
+            leftX + coordX.last() - coordX[0],
+            bottomY,
             boardSquareSize * minControlsHeightProportion
         )
         repositionSprites()
@@ -58,11 +60,9 @@ class SquareGameboard(ctx: Context) :
     override fun rotateDegrees(steps: Int): Float = -90f * steps
 
     /**
-     * Render the board grid, tiles and animated score.
+     * Render the board grid.
      */
-    override fun render() {
-        super.render()
-        renderBoardBackground(coordX[0], coordY[0], coordX.last(), coordY.last())
+    override fun renderBoadGrid() {
         with(ctx.drw.sd) {
             setColor(ctx.drw.theme.screenBackground)
             for (i in coordX.indices) {
@@ -70,11 +70,6 @@ class SquareGameboard(ctx: Context) :
                 line(coordX.first(), coordY[i], coordX.last(), coordY[i], lineWidth)
             }
         }
-        renderTiles()
-        renderBorderMarkers()
-        drawGhostOrBalloon()
-        if (ctx.fader.inFade)
-            ctx.score.drawFloatUpPoints(ctx.batch)
     }
 
     /**
@@ -86,9 +81,7 @@ class SquareGameboard(ctx: Context) :
         color: Int,
         polygon: FloatArray,
         batch: PolygonSpriteBatch
-    ) {
-        this.cell.drawBorderMarker(cell, i, color, polygon, ctx)
-    }
+    ): Unit = this.cell.drawBorderMarker(cell, i, color, polygon, ctx)
 
     /**
      * Creates new UI Tile object for the given logic tile.
@@ -102,8 +95,8 @@ class SquareGameboard(ctx: Context) :
     override val scrollYstepMultiplier: Int = 1
 
     /**
-     * Converts screen pointer coordinates to the screen cell coordinates.
-     * Returns -1,-1 if no cell is pointed
+     * Converts screen pointer coordinates (unprojected by the board viewport) to the screen cell indices.
+     * Returns unset coord if no cell is pointed
      */
     override fun boardCoordToIndices(x: Float, y: Float): Coord {
         if (x < coordX.first() || x >= coordX.last() || y < coordY.first() || y >= coordY.last())
@@ -113,6 +106,7 @@ class SquareGameboard(ctx: Context) :
 
     /**
      * Converts logic cell coordinates to the screen coordinates of the cell bounding rectangle corner
+     * (relative to the board viewport)
      */
     override fun cellCorner(c: Coord): Vector2 {
         val cs = fieldToBoardIndices(c)
