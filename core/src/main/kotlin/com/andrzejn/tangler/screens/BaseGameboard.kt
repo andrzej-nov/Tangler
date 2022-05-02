@@ -939,7 +939,5 @@ abstract class BaseGameboard(
     /**
      * Clean up
      */
-    fun dispose() {
-        allTiles().forEach { it.disposeFrameBuffer() }
-    }
+    fun dispose(): Unit = allTiles().forEach { it.disposeFrameBuffer() }
 }

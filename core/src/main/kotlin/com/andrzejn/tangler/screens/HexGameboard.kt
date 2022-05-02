@@ -42,8 +42,9 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
 
         var x = (ctx.viewportWidth - squareSize) / 2 + indent
         val boardYSize = stepY * (boardSize * 3 + 1)
-        var y =
-            ctx.viewportHeight - boardYSize - indent - (ctx.viewportHeight - squareSize * (1 + minControlsHeightProportion)) / 2 - (squareSize - boardYSize) / 3
+        var y = ctx.viewportHeight - boardYSize - indent -
+                (ctx.viewportHeight - squareSize * (1 + minControlsHeightProportion)) / 2 -
+                (squareSize - boardYSize) / 3
 
         for (i in coordX.indices) {
             coordX[i] = x

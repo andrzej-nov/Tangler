@@ -138,7 +138,7 @@ class GameSettings {
      * Key name for storing the records for the current tile type - game size - colors
      */
     private fun keyName(prefix: String): String {
-        return "$prefix$iSidesCount$iColorsCount${if (allowDuplicateColors) 1 else 0}$iBoardSize${if (hints) 1 else 0}"
+        return "$prefix$iSidesCount$iColorsCount${if (allowDuplicateColors) 1 else 0}$iBoardSize${if (hints) "" else "0"}"
     }
 
     /**
