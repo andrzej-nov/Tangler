@@ -61,6 +61,15 @@ class Coord(
     }
 
     /**
+     * Add this coord to the given values. Returns this instance to allow chained calls.
+     */
+    fun add(x: Int, y: Int): Coord {
+        this.x += x
+        this.y += y
+        return this
+    }
+
+    /**
      * Standard equality check
      */
     override fun equals(other: Any?): Boolean = (other is Coord) && this.x == other.x && this.y == other.y

@@ -117,13 +117,6 @@ abstract class BaseGameboard(
     private val tileDragDelta = Vector2()
 
     /**
-     * When scrolling the board by dragging, this variable holds the cell coordinates from where the dragging started.
-     * That allows calculation where should we scroll the board. Cell coordinates are for the UI screen cells,
-     * not for the logical tile/cell arrays.
-     */
-    private val fieldScrollBase = Coord()
-
-    /**
      * Used to determine if we are dragging the nextTile or scrolling the board.
      */
     private var dragStartedFrom = PressedArea.None
@@ -199,7 +192,7 @@ abstract class BaseGameboard(
                     }.isNotSet()) { // Not a valid move cell clicked, check for the rotation zones
                     scrollStep.set(ctrl.scrollAreaHitTest(v.x, v.y))
                     if (scrollStep.isNotZero()) // Border click, need to rotate field
-                        scrollBoard(scrollStep)
+                        scrollBoard(scrollStep, false)
                 }
             }
             else -> {} // do nothing
@@ -253,7 +246,51 @@ abstract class BaseGameboard(
             cancelDrag()
     }
 
+    /**
+     * Which field shift by pixels should be converted to the cell indices remapping
+     */
+    protected var panStepY: Float = 0f
     private val scrollStep = Coord()
+
+    /**
+     * Smooth scroll field by field world coordinates
+     */
+    private fun panFieldBy(deltaX: Float, deltaY: Float) {
+        with(ctx.drw.boardCamPos) {
+            x -= deltaX
+            y -= deltaY
+        }
+        scrollStep.set(
+            ((ctx.drw.board.worldWidth / 2 - ctx.drw.boardCamPos.x) / ctrl.tileWidth).toInt(),
+            ((ctx.drw.board.worldHeight / 2 - ctx.drw.boardCamPos.y) / panStepY).toInt()
+        )
+        if (scrollStep.isNotZero())
+            scrollBoard(scrollStep, true)
+    }
+
+    /**
+     * Scroll the screen board by scrollStep
+     */
+    private fun scrollBoard(scrollStep: Coord, moveCamera: Boolean) {
+        scrollOffset.set(
+            clipWrapCoord(scrollOffset.x + scrollStep.x),
+            clipWrapCoord(scrollOffset.y + scrollStep.y * scrollYstepMultiplier)
+        )
+        if (moveCamera) {
+            val deltaX = scrollStep.x.toFloat() * ctrl.tileWidth
+            val deltaY = scrollStep.y.toFloat() * panStepY
+            with(ctx.drw.boardCamPos) {
+                x += deltaX
+                y += deltaY
+            }
+        }
+        repositionSprites()
+    }
+
+    private val dragPos = Vector2()
+    private val prevDragPos = Vector2()
+    private val v = Vector2()
+    private var inFieldDrag = false
 
     /**
      * Process 'dragging-in-progress' event
@@ -263,9 +300,10 @@ abstract class BaseGameboard(
             return
         if (input.isButtonPressed(Input.Buttons.RIGHT))
             return
-        val v = ctx.drw.pointerPositionScreen(screenX, screenY)
+        prevDragPos.set(dragPos)
+        dragPos.set(ctx.drw.pointerPositionScreen(screenX, screenY))
         if (dragStartedAt.x < 0 && dragStartedAt.y < 0)
-            dragStartedAt.set(v.x, v.y)
+            dragStartedAt.set(dragPos.x, dragPos.y)
         if (dragStartedFrom == PressedArea.None)
             dragStartedFrom = lastPressedArea // We not always get the press event before the drag.
         // So it's more reliable to determine what is been dragging, when we get the first dragTo event for it.
@@ -273,18 +311,16 @@ abstract class BaseGameboard(
             PressedArea.NextTile -> nextTile.sprite.setPosition(v.x + tileDragDelta.x, v.y + tileDragDelta.y)
             PressedArea.Board -> {
                 val c = with(ctx.drw.pointerPositionBoard(screenX, screenY)) { boardCoordToIndices(x, y) }
-                if (c.isNotSet())
-                    return
-                if (fieldScrollBase.isNotSet()) {
-                    fieldScrollBase.set(c)
+                if (c.isNotSet()) {
+                    inFieldDrag = false
                     return
                 }
-                scrollStep.set(c.x - fieldScrollBase.x, (c.y - fieldScrollBase.y) / scrollYstepMultiplier)
-                if (scrollStep.isNotZero()) {
-                    fieldScrollBase.x += scrollStep.x
-                    fieldScrollBase.y += scrollStep.y * scrollYstepMultiplier
-                    scrollBoard(scrollStep)
+                if (!inFieldDrag) {
+                    inFieldDrag = true
+                    return
                 }
+                v.set(dragPos).sub(prevDragPos)
+                panFieldBy(v.x, v.y)
             }
             else -> {}
         }
@@ -315,8 +351,8 @@ abstract class BaseGameboard(
      */
     private fun resetDragState() {
         dragStartedAt.set(-1f, -1f)
-        fieldScrollBase.unSet()
         tileDragDelta.set(0f, 0f)
+        inFieldDrag = false
     }
 
     // Durations of the tween animation phases
@@ -843,17 +879,6 @@ abstract class BaseGameboard(
      * Converts logic cell coordinates to the screen coordinates array of the cell polygon
      */
     abstract fun cellPolygon(c: Coord): FloatArray
-
-    /**
-     * Scroll the screen board by scrollStep
-     */
-    private fun scrollBoard(scrollStep: Coord) {
-        scrollOffset.set(
-            clipWrapCoord(scrollOffset.x + scrollStep.x),
-            clipWrapCoord(scrollOffset.y + scrollStep.y * scrollYstepMultiplier)
-        )
-        repositionSprites()
-    }
 
     /**
      * Serialize the game board and nextTile for save game

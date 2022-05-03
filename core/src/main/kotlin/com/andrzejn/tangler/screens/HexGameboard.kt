@@ -9,25 +9,33 @@ import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.math.Vector2
 import space.earlygrey.shapedrawer.JoinType
 
+
 /**
  * The game UI logic for hexagonal tiles gameboard
  */
 class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
     private val cell = HexCell()
     private val boardSize = ctx.gs.boardSize
-    private val maxCount = (boardSize + 1) * 2
+    private val maxCount = (boardSize + 2) * 2 + 1
 
     // The coordinates of all the grid corner points on the board.
     // Because the cells are hexagonal, not all of the X,Y combinations are the cell corners.
     private val coordX = Array(maxCount) { 0f }
-    private val coordY = Array(maxCount) { 0f }
+    private val coordY = Array(maxCount + 4) { 0f }
 
     // The grid is rendered as a set of horizontal polylines for top and bottom cell sides
     // and a set of vertical lines for the left and right cell sides
-    private val horizontalBorder = Array(boardSize + 1) { i ->
-        FloatArray(2 * if (i == 0 || i == boardSize) boardSize * 2 + 1 else (boardSize + 1) * 2)
-    }
-    private val verticalBorder = Array(boardSize * (boardSize + 1)) { FloatArray(4) }
+    private val horizontalBorder = Array(2) { Array(maxCount) { Vector2() } }
+    private val verticalBorder = Array(maxCount) { Array(2) { Vector2() } }
+    private val renderHBorder =
+        Array(2) {
+            com.badlogic.gdx.utils.Array<Vector2>(true, maxCount).apply { repeat(maxCount) { add(Vector2()) } }
+        }
+    private val renderVBorder = Array(maxCount) { Array(2) { Vector2() } }
+
+
+    private var boardWidth = 0f
+    private var boardHeight = 0f
 
     /**
      * Resize everything on the board grid and sprites when the screen size changes
@@ -36,51 +44,37 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
         val squareSize = boardSquareSize
         val stepX = (squareSize - 2 * indent) / (boardSize * 2 + 1)
         val stepY = stepX * 23 / 40
-
+        panStepY = stepY * 6
         cell.setLength(stepY * 2)
         resetSpriteSize(stepX * 2, stepY * 4)
+        boardWidth = boardSize * 2 * stepX
+        boardHeight = boardSize * 3 * stepY
 
-        var x = 0f
-        var y = 0f
+        var x = -2 * stepX
         for (i in coordX.indices) {
             coordX[i] = x
             x += stepX
+        }
+        var y = -6 * stepY
+        var dY = 0
+        for (i in coordY.indices) {
             coordY[i] = y
-            y += stepY * (1 + i % 2)
+            y += stepY * (1 + dY)
+            dY = 1 - dY
         }
 
-        var ky = 0
-        horizontalBorder.forEachIndexed { i, a ->
-            var kx: Int
-            var dy: Int
-            if (i < boardSize) {
-                kx = 0
-                dy = 1 - i % 2
-            } else {
-                kx = 1
-                dy = 0
-            }
-            for (j in a.indices step 2) {
-                a[j] = coordX[kx]
-                a[j + 1] = coordY[ky + dy]
-                kx++
-                dy = 1 - dy
-            }
-            ky += 2
+        dY = 1
+        for (i in horizontalBorder[0].indices) {
+            horizontalBorder[0][i].set(coordX[i], coordY[dY])
+            horizontalBorder[1][i].set(coordX[i], coordY[3 - dY])
+            dY = 1 - dY
         }
 
-        var kx = 0
-        ky = 1
-        verticalBorder.forEach { a ->
-            a[0] = coordX[kx]
-            a[1] = coordY[ky]
-            a[2] = coordX[kx]
-            a[3] = coordY[ky + 1]
-            kx += 2
-            if (kx >= coordX.size) {
-                kx = 1 - kx % 2
-                ky += 2
-            }
+        dY = 0
+        for (i in verticalBorder.indices) {
+            verticalBorder[i][0].set(coordX[i], coordY[1 + dY])
+            verticalBorder[i][1].set(coordX[i], coordY[2 + dY])
+            dY = 2 - dY
         }
 
         val leftX = (ctx.viewportWidth - squareSize) / 2 + indent
@@ -91,8 +85,8 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
 
         ctrl.setCoords(
             leftX,
-            bottomY + coordY.last() - coordY[0],
-            leftX + coordX.last() - coordX[0],
+            bottomY + boardHeight + stepY,
+            leftX + boardWidth + stepX,
             bottomY, boardSquareSize * minControlsHeightProportion
         )
         repositionSprites()
@@ -110,8 +104,17 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
     override fun renderBoadGrid() {
         with(ctx.drw.sd) {
             setColor(ctx.drw.theme.screenBackground)
-            horizontalBorder.forEach { v -> path(v, lineWidth, JoinType.POINTY, true) }
-            verticalBorder.forEach { a -> line(a[0], a[1], a[2], a[3], lineWidth) }
+            repeat(boardSize / 2 + 2) {
+                if (it == 0) {
+                    horizontalBorder.forEachIndexed { i, a -> a.forEachIndexed { j, v -> renderHBorder[i][j].set(v) } }
+                    verticalBorder.forEachIndexed { i, a -> a.forEachIndexed { j, v -> renderVBorder[i][j].set(v) } }
+                } else {
+                    renderHBorder.forEach { a -> a.forEach { v -> v.y += panStepY } }
+                    renderVBorder.forEach { a -> a.forEach { v -> v.y += panStepY } }
+                }
+                renderHBorder.forEach { v -> path(v, lineWidth, JoinType.POINTY, true) }
+                renderVBorder.forEach { a -> line(a[0], a[1], lineWidth) }
+            }
         }
     }
 
@@ -146,7 +149,7 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
         if (kx < 0 || ky < 0) return boardIndices.unSet()
         var iy = (ky + 1) / 2 - 1
         var ix = if (iy % 2 == 0) kx / 2 else if (kx < 1) -1 else (kx - 1) / 2
-        if (ix >= boardSize) return boardIndices.unSet()
+        if (ix >= boardSize + 2) return boardIndices.unSet()
 
         if (ky % 2 == 0) { // rectangle with diagonal side
             if ((ky + 2 * (kx % 2)) % 4 == 0) { // left-bottom to right-top diagonal
@@ -170,7 +173,7 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
             }
         }
         if (ix < 0 || iy < 0) boardIndices.unSet()
-        return boardIndices.set(ix, iy)
+        return boardIndices.set(ix - 1, iy - 2)
     }
 
     private val arrayIndices = Coord()
@@ -178,7 +181,8 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
     /**
      * Converts the cell X,Y coordinates to the cell bounding rectangle corner indexes in oordX,coordY arrays
      */
-    private fun boardIndexesToCoordArrayIndexes(c: Coord): Coord = arrayIndices.set(c.x * 2 + c.y % 2, c.y * 2 + 1)
+    private fun boardIndexesToCoordArrayIndexes(c: Coord): Coord =
+        arrayIndices.set((c.x + 1) * 2 + c.y % 2, (c.y + 2) * 2 + 1)
 
     /**
      * Converts logic cell coordinates to the screen coordinates of the cell bounding rectangle corner

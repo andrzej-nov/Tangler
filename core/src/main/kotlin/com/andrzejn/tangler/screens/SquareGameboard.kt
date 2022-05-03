@@ -6,6 +6,7 @@ import com.andrzejn.tangler.logic.Tile
 import com.andrzejn.tangler.tiles.*
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
 import com.badlogic.gdx.math.Vector2
+import kotlin.math.floor
 
 /**
  * The game UI logic for square tiles gameboard. It handles both the Square and Octo cell cases, because
@@ -18,36 +19,24 @@ class SquareGameboard(ctx: Context) :
     private val cell = if (useOctoCell) OctoCell() else SquareCell()
     private val boardSize = ctx.gs.boardSize
 
-    // The coordinates of all the grid corner points on the board.
-    private val coordX = Array(boardSize + 1) { 0f }
-    private val coordY = Array(boardSize + 1) { 0f }
+    private var cellSize = 0f
 
     /**
      * Resize everything on the board grid and sprites when the screen size changes
      */
     override fun resize() {
         val squareSize = boardSquareSize
-        val cellSize = (squareSize - 2 * indent) / boardSize
+        cellSize = (squareSize - 2 * indent) / boardSize
+        panStepY = cellSize
         cell.setLength(cellSize)
         resetSpriteSize(cellSize, cellSize)
-
-        var x = 0f
-        var y = 0f
-        coordX.indices.forEach { i ->
-            coordX[i] = x
-            coordY[i] = y
-            x += cellSize
-            y += cellSize
-        }
 
         val leftX = (ctx.viewportWidth - squareSize) / 2 + indent
         val bottomY = ctx.viewportHeight + indent - squareSize -
                 (ctx.viewportHeight - squareSize * (1 + minControlsHeightProportion)) / 2
+        val boardWidth = cellSize * boardSize
         ctrl.setCoords(
-            leftX,
-            bottomY + coordY.last() - coordY[0],
-            leftX + coordX.last() - coordX[0],
-            bottomY,
+            leftX, bottomY + boardWidth, leftX + boardWidth, bottomY,
             boardSquareSize * minControlsHeightProportion
         )
         repositionSprites()
@@ -63,11 +52,14 @@ class SquareGameboard(ctx: Context) :
      * Render the board grid.
      */
     override fun renderBoadGrid() {
+        val boardWidth = cellSize * (boardSize + 1)
         with(ctx.drw.sd) {
             setColor(ctx.drw.theme.screenBackground)
-            for (i in coordX.indices) {
-                line(coordX[i], coordY.first(), coordX[i], coordY.last(), lineWidth)
-                line(coordX.first(), coordY[i], coordX.last(), coordY[i], lineWidth)
+            var z = -cellSize
+            for (i in -1..boardSize + 1) {
+                line(z, -cellSize, z, boardWidth, lineWidth)
+                line(-cellSize, z, boardWidth, z, lineWidth)
+                z += cellSize
             }
         }
     }
@@ -98,20 +90,15 @@ class SquareGameboard(ctx: Context) :
      * Converts screen pointer coordinates (unprojected by the board viewport) to the screen cell indices.
      * Returns unset coord if no cell is pointed
      */
-    override fun boardCoordToIndices(x: Float, y: Float): Coord {
-        if (x < coordX.first() || x >= coordX.last() || y < coordY.first() || y >= coordY.last())
-            return boardIndices.unSet()
-        return boardIndices.set(coordX.indexOfLast { it < x }, coordY.indexOfLast { it < y })
-    }
+    override fun boardCoordToIndices(x: Float, y: Float): Coord =
+        boardIndices.set(floor(x / cellSize).toInt(), floor(y / cellSize).toInt())
 
     /**
      * Converts logic cell coordinates to the screen coordinates of the cell bounding rectangle corner
      * (relative to the board viewport)
      */
-    override fun cellCorner(c: Coord): Vector2 {
-        val cs = fieldToBoardIndices(c)
-        return cCorner.set(coordX[cs.x], coordY[cs.y])
-    }
+    override fun cellCorner(c: Coord): Vector2 =
+        with(fieldToBoardIndices(c)) { cCorner.set(x * cellSize, y * cellSize) }
 
     /**
      * Converts logic cell coordinates to the screen coordinates array of the cell polygon
@@ -119,10 +106,10 @@ class SquareGameboard(ctx: Context) :
     override fun cellPolygon(c: Coord): FloatArray {
         val cs = fieldToBoardIndices(c)
         return floatArrayOf(
-            coordX[cs.x], coordY[cs.y + 1],
-            coordX[cs.x + 1], coordY[cs.y + 1],
-            coordX[cs.x + 1], coordY[cs.y],
-            coordX[cs.x], coordY[cs.y]
+            cs.x * cellSize, (cs.y + 1) * cellSize,
+            (cs.x + 1) * cellSize, (cs.y + 1) * cellSize,
+            (cs.x + 1) * cellSize, cs.y * cellSize,
+            cs.x * cellSize, cs.y * cellSize
         )
     }
 
