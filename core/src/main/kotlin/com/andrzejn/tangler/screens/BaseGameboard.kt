@@ -183,8 +183,8 @@ abstract class BaseGameboard(
             PressedArea.RotateLeft -> safeRotateNextTile(-1)
             PressedArea.Board -> if (ctx.tweenAnimationRunning()) // Animation not ended yet
                 pressedCell.unSet()
-            else { // Clicked on the board, handle rotation zones click
-                if (with(ctx.drw.pointerPositionBoard(screenX, screenY)) {
+            else { // Clicked on the board, rotation zones check
+                /*if (with(ctx.drw.pointerPositionBoard(screenX, screenY)) {
                         boardCoordToValidMoveIndices(
                             x,
                             y
@@ -193,7 +193,7 @@ abstract class BaseGameboard(
                     scrollStep.set(ctrl.scrollAreaHitTest(v.x, v.y))
                     if (scrollStep.isNotZero()) // Border click, need to rotate field
                         scrollBoard(scrollStep, false)
-                }
+                }*/
             }
             else -> {} // do nothing
         }
@@ -255,7 +255,7 @@ abstract class BaseGameboard(
     /**
      * Smooth scroll field by field world coordinates
      */
-    private fun panFieldBy(deltaX: Float, deltaY: Float) {
+    fun panFieldBy(deltaX: Float, deltaY: Float) {
         with(ctx.drw.boardCamPos) {
             x -= deltaX
             y -= deltaY
@@ -269,6 +269,11 @@ abstract class BaseGameboard(
     }
 
     /**
+     * Calculate field indexes of the cells at the board corners (to render duplicates as needed)
+     */
+    abstract fun updateCornerIndexes()
+
+    /**
      * Scroll the screen board by scrollStep
      */
     private fun scrollBoard(scrollStep: Coord, moveCamera: Boolean) {
@@ -276,6 +281,7 @@ abstract class BaseGameboard(
             clipWrapCoord(scrollOffset.x + scrollStep.x),
             clipWrapCoord(scrollOffset.y + scrollStep.y * scrollYstepMultiplier)
         )
+        updateCornerIndexes()
         if (moveCamera) {
             val deltaX = scrollStep.x.toFloat() * ctrl.tileWidth
             val deltaY = scrollStep.y.toFloat() * panStepY
@@ -612,10 +618,15 @@ abstract class BaseGameboard(
     }
 
     /**
+     * Execute given draw method, duplicating it around the board corners as needed
+     */
+    abstract fun renderSpriteWithBoardCorners(t: BaseTile, draw: () -> Unit)
+
+    /**
      * Render all the tile sprites.
      */
     private fun renderTiles() {
-        flatTile().forEach { it.sprite.draw(ctx.batch) }
+        flatTile().forEach { t -> renderSpriteWithBoardCorners(t) { t.sprite.draw(ctx.batch) } }
         if (!ctx.gs.hints) return
         validMoves.forEach {
             val v = cellCorner(it.c)
@@ -823,7 +834,7 @@ abstract class BaseGameboard(
     private val cwCoord = Coord()
 
     /**
-     * Applies scroll offset to logic cell coordinates to get screen cell coordinates
+     * Applies scroll offset to logic cell coordinates to get board cell coordinates
      */
     fun fieldToBoardIndices(c: Coord): Coord =
         cwCoord.set(clipWrapCoord(c.x + scrollOffset.x), clipWrapCoord(c.y + scrollOffset.y))
@@ -831,7 +842,7 @@ abstract class BaseGameboard(
     /**
      * Applies scroll offset to screen cell coordinates to get logic cell coordinates
      */
-    private fun boardIndicesToFieldIndices(c: Coord): Coord =
+    protected fun boardToFieldIndices(c: Coord): Coord =
         cwCoord.set(clipWrapCoord(c.x - scrollOffset.x), clipWrapCoord(c.y - scrollOffset.y))
 
     /**
@@ -842,7 +853,7 @@ abstract class BaseGameboard(
         val c = boardCoordToIndices(x, y)
         if (c.isNotSet())
             return c
-        return boardIndicesToFieldIndices(c)
+        return boardToFieldIndices(c)
     }
 
     /**
@@ -902,8 +913,8 @@ abstract class BaseGameboard(
             val y = s[16].digitToIntOrNull()
             if (x == null || x >= ctx.gs.boardSize || y == null || y >= ctx.gs.boardSize)
                 return false
-            scrollOffset.x = x
-            scrollOffset.y = y
+            scrollOffset.set(x, y)
+            updateCornerIndexes()
             assignNextTile(playField.generateEmptyTile())
             val i = playField.deserialize(s, nextTile.t.deserialize(s, 17))
             if (i < 0)

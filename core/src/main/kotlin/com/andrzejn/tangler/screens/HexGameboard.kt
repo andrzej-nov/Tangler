@@ -3,6 +3,7 @@ package com.andrzejn.tangler.screens
 import com.andrzejn.tangler.Context
 import com.andrzejn.tangler.logic.Cell
 import com.andrzejn.tangler.logic.Tile
+import com.andrzejn.tangler.tiles.BaseTile
 import com.andrzejn.tangler.tiles.HexCell
 import com.andrzejn.tangler.tiles.HexTile
 import com.badlogic.gdx.graphics.g2d.PolygonSpriteBatch
@@ -16,22 +17,22 @@ import space.earlygrey.shapedrawer.JoinType
 class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
     private val cell = HexCell()
     private val boardSize = ctx.gs.boardSize
-    private val maxCount = (boardSize + 2) * 2 + 1
+    private val maxCount = (boardSize + 3) * 2 + 1
 
     // The coordinates of all the grid corner points on the board.
     // Because the cells are hexagonal, not all of the X,Y combinations are the cell corners.
-    private val coordX = Array(maxCount) { 0f }
+    private val coordX = Array(maxCount + 1) { 0f }
     private val coordY = Array(maxCount + 4) { 0f }
 
     // The grid is rendered as a set of horizontal polylines for top and bottom cell sides
     // and a set of vertical lines for the left and right cell sides
-    private val horizontalBorder = Array(2) { Array(maxCount) { Vector2() } }
-    private val verticalBorder = Array(maxCount) { Array(2) { Vector2() } }
+    private val horizontalBorder = Array(2) { Array(maxCount + 1) { Vector2() } }
+    private val verticalBorder = Array(maxCount + 1) { Array(2) { Vector2() } }
     private val renderHBorder =
         Array(2) {
-            com.badlogic.gdx.utils.Array<Vector2>(true, maxCount).apply { repeat(maxCount) { add(Vector2()) } }
+            com.badlogic.gdx.utils.Array<Vector2>(true, maxCount + 1).apply { repeat(maxCount + 1) { add(Vector2()) } }
         }
-    private val renderVBorder = Array(maxCount) { Array(2) { Vector2() } }
+    private val renderVBorder = Array(maxCount + 1) { Array(2) { Vector2() } }
 
 
     private var boardWidth = 0f
@@ -116,6 +117,58 @@ class HexGameboard(ctx: Context) : BaseGameboard(ctx) {
                 renderVBorder.forEach { a -> line(a[0], a[1], lineWidth) }
             }
         }
+    }
+
+    private val bottomLeft = Coord(0, 0)
+    private val nearBottomLeft = Coord(0, 1)
+    private val topRight = Coord(boardSize - 1, boardSize - 1)
+    private val nearTopRight = Coord(boardSize - 1, boardSize - 2)
+
+    /**
+     * Calculate field indexes of the cells at the board corners (to render duplicates as needed)
+     */
+    override fun updateCornerIndexes() {
+        bottomLeft.set(boardToFieldIndices(bottomLeft.set(0, 0)))
+        nearBottomLeft.set(boardToFieldIndices(nearBottomLeft.set(0, 1)))
+        topRight.set(boardToFieldIndices(topRight.set(boardSize - 1, boardSize - 1)))
+        nearTopRight.set(boardToFieldIndices(nearTopRight.set(boardSize - 1, boardSize - 2)))
+    }
+
+    /**
+     * Execute given draw method, duplicating it around the board corners as needed
+     */
+    override fun renderSpriteWithBoardCorners(t: BaseTile, draw: () -> Unit) {
+        draw()
+        val savedX = t.sprite.x
+        val savedY = t.sprite.y
+        var xAtBorder = false
+        if (t.x == bottomLeft.x) {
+            t.sprite.x += boardWidth
+            xAtBorder = true
+            draw()
+        } else if (t.x == topRight.x) {
+            xAtBorder = true
+            t.sprite.x -= boardWidth
+            draw()
+        }
+        if (xAtBorder) {
+            if (t.y == bottomLeft.y || t.y == nearBottomLeft.y) {
+                t.sprite.y += boardHeight
+                draw()
+            } else if (t.y == topRight.y || t.y == nearTopRight.y) {
+                t.sprite.y -= boardHeight
+                draw()
+            }
+        }
+        t.sprite.x = savedX
+        if (t.y == bottomLeft.y || t.y == nearBottomLeft.y) {
+            t.sprite.y = savedY + boardHeight
+            draw()
+        } else if (t.y == topRight.y || t.y == nearTopRight.y) {
+            t.sprite.y = savedY - boardHeight
+            draw()
+        }
+        t.sprite.y = savedY
     }
 
     /**

@@ -170,6 +170,15 @@ class GameboardScreen(ctx: Context) :
             gameboard.dragTo(screenX, screenY)
             return super.touchDragged(screenX, screenY, pointer)
         }
+
+        /**
+         * Handle mouse wheel for field scrolling and panning on desktop
+         */
+        override fun scrolled(amountX: Float, amountY: Float): Boolean {
+            gameboard.panFieldBy(amountX * ctx.viewportWidth / 10, amountY * ctx.viewportHeight / 10)
+            return super.scrolled(amountX, amountY)
+        }
+
     }
 
 }

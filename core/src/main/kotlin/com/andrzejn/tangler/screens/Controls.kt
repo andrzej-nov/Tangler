@@ -163,9 +163,10 @@ class Controls(
      * Hit test. Determines which of the screen areas has been pressed/clicked
      */
     fun pressedArea(x: Float, y: Float): PressedArea {
+        if (x in boardLeftX..boardRightX && y in boardBottomY..boardTopY)
+            return PressedArea.Board
         if (x in centerX - circleRadius..centerX + circleRadius && y in circleY - circleRadius..circleY + circleRadius)
             return PressedArea.NextTile
-
         if (x in sUndo.x..sUndo.x + sUndo.width && y in sUndo.y..sUndo.y + sUndo.height)
             return PressedArea.UndoMove
         if (x in sPlayBlue.x..sPlayBlue.x + sPlayBlue.width && y in sPlayBlue.y..sPlayBlue.y + sPlayBlue.height)
@@ -183,8 +184,6 @@ class Controls(
             && y in sRotateRight.y..sRotateRight.y + sRotateRight.height
         )
             return PressedArea.RotateRight
-        if (y >= circleY + circleRadius)
-            return PressedArea.Board
         return PressedArea.None
     }
 

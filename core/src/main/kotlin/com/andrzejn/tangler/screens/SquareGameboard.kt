@@ -20,6 +20,7 @@ class SquareGameboard(ctx: Context) :
     private val boardSize = ctx.gs.boardSize
 
     private var cellSize = 0f
+    private var boardWidth = 0f
 
     /**
      * Resize everything on the board grid and sprites when the screen size changes
@@ -34,7 +35,7 @@ class SquareGameboard(ctx: Context) :
         val leftX = (ctx.viewportWidth - squareSize) / 2 + indent
         val bottomY = ctx.viewportHeight + indent - squareSize -
                 (ctx.viewportHeight - squareSize * (1 + minControlsHeightProportion)) / 2
-        val boardWidth = cellSize * boardSize
+        boardWidth = cellSize * boardSize
         ctrl.setCoords(
             leftX, bottomY + boardWidth, leftX + boardWidth, bottomY,
             boardSquareSize * minControlsHeightProportion
@@ -62,6 +63,55 @@ class SquareGameboard(ctx: Context) :
                 z += cellSize
             }
         }
+    }
+
+    private val bottomLeft = Coord(0, 0)
+    private val topRight = Coord(boardSize - 1, boardSize - 1)
+
+    /**
+     * Calculate field indexes of the cells at the board corners (to render duplicates as needed)
+     */
+    override fun updateCornerIndexes() {
+        bottomLeft.set(boardToFieldIndices(bottomLeft.set(0, 0)))
+        topRight.set(boardToFieldIndices(topRight.set(boardSize - 1, boardSize - 1)))
+    }
+
+    /**
+     * Execute given draw method, duplicating it around the board corners as needed
+     */
+    override fun renderSpriteWithBoardCorners(t: BaseTile, draw: () -> Unit) {
+        draw()
+        //println("${t.x}: ${bottomLeft.x} ${topRight.x} - ${t.y}: ${bottomLeft.y} ${topRight.y}")
+        val savedX = t.sprite.x
+        val savedY = t.sprite.y
+        var xAtBorder = false
+        if (t.x == bottomLeft.x) {
+            t.sprite.x += boardWidth
+            xAtBorder = true
+            draw()
+        } else if (t.x == topRight.x) {
+            xAtBorder = true
+            t.sprite.x -= boardWidth
+            draw()
+        }
+        if (xAtBorder) {
+            if (t.y == bottomLeft.y) {
+                t.sprite.y += boardWidth
+                draw()
+            } else if (t.y == topRight.y) {
+                t.sprite.y -= boardWidth
+                draw()
+            }
+        }
+        t.sprite.x = savedX
+        if (t.y == bottomLeft.y) {
+            t.sprite.y = savedY + boardWidth
+            draw()
+        } else if (t.y == topRight.y) {
+            t.sprite.y = savedY - boardWidth
+            draw()
+        }
+        t.sprite.y = savedY
     }
 
     /**
