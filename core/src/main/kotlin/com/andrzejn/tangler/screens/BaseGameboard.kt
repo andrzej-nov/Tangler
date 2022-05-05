@@ -183,18 +183,6 @@ abstract class BaseGameboard(
             PressedArea.RotateLeft -> safeRotateNextTile(-1)
             PressedArea.Board -> if (ctx.tweenAnimationRunning()) // Animation not ended yet
                 pressedCell.unSet()
-            else { // Clicked on the board, rotation zones check
-                /*if (with(ctx.drw.pointerPositionBoard(screenX, screenY)) {
-                        boardCoordToValidMoveIndices(
-                            x,
-                            y
-                        )
-                    }.isNotSet()) { // Not a valid move cell clicked, check for the rotation zones
-                    scrollStep.set(ctrl.scrollAreaHitTest(v.x, v.y))
-                    if (scrollStep.isNotZero()) // Border click, need to rotate field
-                        scrollBoard(scrollStep, false)
-                }*/
-            }
             else -> {} // do nothing
         }
         return false
@@ -265,7 +253,7 @@ abstract class BaseGameboard(
             ((ctx.drw.board.worldHeight / 2 - ctx.drw.boardCamPos.y) / panStepY).toInt()
         )
         if (scrollStep.isNotZero())
-            scrollBoard(scrollStep, true)
+            scrollBoard(scrollStep)
     }
 
     /**
@@ -276,19 +264,17 @@ abstract class BaseGameboard(
     /**
      * Scroll the screen board by scrollStep
      */
-    private fun scrollBoard(scrollStep: Coord, moveCamera: Boolean) {
+    private fun scrollBoard(scrollStep: Coord) {
         scrollOffset.set(
             clipWrapCoord(scrollOffset.x + scrollStep.x),
             clipWrapCoord(scrollOffset.y + scrollStep.y * scrollYstepMultiplier)
         )
         updateCornerIndexes()
-        if (moveCamera) {
-            val deltaX = scrollStep.x.toFloat() * ctrl.tileWidth
-            val deltaY = scrollStep.y.toFloat() * panStepY
-            with(ctx.drw.boardCamPos) {
-                x += deltaX
-                y += deltaY
-            }
+        val deltaX = scrollStep.x.toFloat() * ctrl.tileWidth
+        val deltaY = scrollStep.y.toFloat() * panStepY
+        with(ctx.drw.boardCamPos) {
+            x += deltaX
+            y += deltaY
         }
         repositionSprites()
     }
@@ -605,7 +591,7 @@ abstract class BaseGameboard(
      * Render the target cell highlight, if any
      */
     private fun renderCellHighlight() {
-        val higlightedCell = if (input.isTouched) {
+        val higlightedCell = if (input.isTouched && lastPressedArea == PressedArea.Board) {
             val v = ctx.drw.pointerPositionBoard(input.x, input.y)
             boardCoordToFieldIndices(v.x, v.y)
         } else

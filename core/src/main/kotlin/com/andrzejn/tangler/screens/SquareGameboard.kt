@@ -81,7 +81,6 @@ class SquareGameboard(ctx: Context) :
      */
     override fun renderSpriteWithBoardCorners(t: BaseTile, draw: () -> Unit) {
         draw()
-        //println("${t.x}: ${bottomLeft.x} ${topRight.x} - ${t.y}: ${bottomLeft.y} ${topRight.y}")
         val savedX = t.sprite.x
         val savedY = t.sprite.y
         var xAtBorder = false
