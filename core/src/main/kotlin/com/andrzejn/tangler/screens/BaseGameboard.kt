@@ -179,10 +179,12 @@ abstract class BaseGameboard(
             PressedArea.UndoMove -> undoLastMove()
             PressedArea.NextTile -> // Prepare for possible tile drag
                 tileDragDelta.set(nextTile.sprite.x - v.x, nextTile.sprite.y - v.y)
+
             PressedArea.RotateRight -> safeRotateNextTile(1)
             PressedArea.RotateLeft -> safeRotateNextTile(-1)
             PressedArea.Board -> if (ctx.tweenAnimationRunning()) // Animation not ended yet
                 pressedCell.unSet()
+
             else -> {} // do nothing
         }
         return false
@@ -215,6 +217,7 @@ abstract class BaseGameboard(
                         return
                     }
                 }
+
                 PressedArea.NextTile -> rotateNextTile(if (v.x < ctrl.centerX) -1 else 1)
                 else -> {}
             }
@@ -300,7 +303,9 @@ abstract class BaseGameboard(
             dragStartedFrom = lastPressedArea // We not always get the press event before the drag.
         // So it's more reliable to determine what is been dragging, when we get the first dragTo event for it.
         when (dragStartedFrom) {
-            PressedArea.NextTile -> nextTile.sprite.setPosition(v.x + tileDragDelta.x, v.y + tileDragDelta.y)
+            PressedArea.NextTile ->
+                nextTile.sprite.setPosition(dragPos.x + tileDragDelta.x, dragPos.y + tileDragDelta.y)
+
             PressedArea.Board -> {
                 val c = with(ctx.drw.pointerPositionBoard(screenX, screenY)) { boardCoordToIndices(x, y) }
                 if (c.isNotSet()) {
@@ -314,6 +319,7 @@ abstract class BaseGameboard(
                 v.set(dragPos).sub(prevDragPos)
                 panFieldBy(v.x, v.y)
             }
+
             else -> {}
         }
     }
@@ -362,13 +368,6 @@ abstract class BaseGameboard(
         if (suggestedMove == null)
             suggestedMove = playField.suggestBestMove(nextTile.t)
         noMoreMoves = suggestedMove == null
-        if (noMoreMoves) {
-            if (flatTile().isEmpty()) {
-                ghostAnimation(true)
-                putFirstTile()
-                return lookForGoodMove()
-            } else ghostAnimation(false)
-        }
         return suggestedMove
     }
 
@@ -470,14 +469,34 @@ abstract class BaseGameboard(
             .push(Tween.to(sprite, TW_POS_XY, tileDropTweenDuration).target(dropTo.x, dropTo.y))
             .pushPause(0.1f)
             .setCallback { _, _ ->
-                if (putNextTileToBoard(tCell)) // Closed paths loops cleanup, as needed, is done there
-                    regenerateNextTile()
+                putNextTileToBoard(tCell) // Closed paths loops cleanup, as needed, is done there
                 clearTileDrop()
                 inTileDrop = false
                 prepareSprites() // Hack. For some reason the usual call from GameboardScreen.render() is not enough
                 // sometimes. So let's add a safeguard and refresh the field sprites after each tile drop, too.
             }
             .start(ctx.tweenManager)
+    }
+
+    private fun recreateFirstTileIfFieldEmpty() {
+        invalidateSprites()
+        if (flatTile().isEmpty()) {
+            ghostAnimation(true)
+            putFirstTile()
+            var nTile = nextTile
+            val w = nTile.sprite.width.toInt()
+            val h = nTile.sprite.height.toInt()
+            flatTile().forEach {
+                val p = cellCorner(renderCoord.set(it))
+                it.sprite.setPosition(p.x, p.y)
+                it.setSpriteSize(w, h)
+                it.buildSprite()
+            }
+            noMoreMoves = false
+            validMovesList = null
+            suggestedMove = null
+            lookForGoodMove()
+        }
     }
 
     /**
@@ -503,7 +522,22 @@ abstract class BaseGameboard(
             val f = cellCorner(place)
             ctx.score.addPoints(points, f.x + ctrl.tileWidth / 3, f.y + ctrl.tileHeight)
             invalidateSprites()
-            ctx.fader.fadeDown(pathsToClear) { clearPaths() }
+            ctx.fader.fadeDown(pathsToClear) {
+                regenerateNextTile()
+                clearPaths()
+                recreateFirstTileIfFieldEmpty()
+                if (noMoreMoves)
+                    ghostAnimation(false)
+            }
+        } else {
+            regenerateNextTile()
+            suggestedMove = null
+            lookForGoodMove()
+            if (noMoreMoves) {
+                invalidateSprites()
+                if (flatTile().isNotEmpty())
+                    ghostAnimation(false)
+            }
         }
         return true
     }
@@ -802,7 +836,7 @@ abstract class BaseGameboard(
      */
     fun createNextTile() {
         assignNextTile(playField.generateNextTile())
-        lookForGoodMove()
+        //lookForGoodMove()
     }
 
     /**
