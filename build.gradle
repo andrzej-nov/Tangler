@@ -104,7 +104,7 @@ project(':core') {
 
 
 subprojects {
-    version = '1.12'
+    version = '1.13'
     ext.appName = 'Tangler'
     repositories {
         mavenLocal()
