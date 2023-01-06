@@ -1,9 +1,32 @@
-apply plugin: 'com.android.application'
-//apply plugin: 'kotlin-android'
+plugins {
+    id 'com.android.application'
+    id 'org.jetbrains.kotlin.android'
+}
 
 android {
-    buildToolsVersion '30.0.3'
-    compileSdkVersion 30
+    compileSdk 32
+    defaultConfig {
+        applicationId 'com.andrzejn.tangler'
+        minSdk 19
+        targetSdk 32
+        versionCode 15
+        versionName '1.13'
+        multiDexEnabled true
+    }
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility '8.0'
+        targetCompatibility '8.0'
+        coreLibraryDesugaringEnabled true
+    }
+    kotlinOptions {
+        jvmTarget = '1.8'
+    }
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -21,28 +44,7 @@ android {
             pickFirsts += ['META-INF/LICENSE.txt', 'META-INF/LICENSE', 'META-INF/license.txt', 'META-INF/LGPL2.1', 'META-INF/NOTICE.txt', 'META-INF/NOTICE', 'META-INF/notice.txt']
         }
     }
-    defaultConfig {
-        applicationId 'com.andrzejn.tangler'
-        minSdkVersion 19
-        targetSdkVersion 30
-        versionCode 15
-        versionName '1.13'
-        multiDexEnabled true
-    }
-    compileOptions {
-        sourceCompatibility '8.0'
-        targetCompatibility '8.0'
-        coreLibraryDesugaringEnabled true
-    }
-    kotlinOptions.jvmTarget = '1.8'
-
-    buildTypes {
-        release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-
+    namespace 'com.andrzejn.tangler'
 }
 
 // Called every time gradle gets executed, takes the native dependencies of
@@ -96,7 +98,7 @@ task run(type: Exec) {
         path = "$System.env.ANDROID_HOME"
     }
 
-    def adb = path + '/platform-tools/adb'
+    final def adb = path + '/platform-tools/adb'
     commandLine "$adb", 'shell', 'am', 'start', '-n', 'com.andrzejn.tangler/com.andrzejn.tangler.AndroidLauncher'
 }
 

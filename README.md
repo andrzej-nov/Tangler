@@ -54,13 +54,13 @@ Andrzej Novosiolov, as the original author.
 
 The game has been implemented using following tools and libraries:
 
-- [IntelliJ IDEA 2022.2 (Community Edition)](https://www.jetbrains.com/idea/download/)
-- [Android Studio 2021.1.1 Patch 2](https://developer.android.com/studio) (for the Android emulator)
-- [Gradle 7.2.0](https://gradle.org/)
-- [Kotlin 1.6.20](https://kotlinlang.org/)
+- [IntelliJ IDEA 2022.3.1 (Community Edition)](https://www.jetbrains.com/idea/download/)
+- [Android Studio 2021.3.1 Patch 1](https://developer.android.com/studio) (for the Android emulator)
+- [Gradle 7.3.0](https://gradle.org/)
+- [Kotlin 1.7.0](https://kotlinlang.org/)
 - [libGDX 1.11.0](https://libgdx.com/)
-- [libKTX 1.11.0-rc2](https://libktx.github.io/)
-- [ShapeDrawer 2.5.0](https://github.com/earlygrey/shapedrawer#shape-drawer)
+- [libKTX 1.11.0-rc3](https://libktx.github.io/)
+- [ShapeDrawer 2.6.0](https://github.com/earlygrey/shapedrawer#shape-drawer)
 - [Universal Tween Engine 6.3.3](https://github.com/AurelienRibon/universal-tween-engine)
 - Free icons from https://www.flaticon.com/
 
