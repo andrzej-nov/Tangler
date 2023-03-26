@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk 33
     defaultConfig {
         applicationId 'com.andrzejn.tangler'
         minSdk 19
-        targetSdk 32
-        versionCode 15
-        versionName '1.13'
+        targetSdk 33
+        versionCode 16
+        versionName '1.14'
         multiDexEnabled true
     }
     buildTypes {
