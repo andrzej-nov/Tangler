@@ -23,7 +23,7 @@ for best experience.
 
 The game is provided in two options:
 
-- **Desktop Java**. [Download Tangler.jar](https://github.com/andrzej-nov/Tangler/releases/download/v1.13/Tangler.jar).
+- **Desktop Java**. [Download Tangler.jar](https://github.com/andrzej-nov/Tangler/releases/download/v1.15/Tangler.jar).
   Run it with `java -jar Tangler.jar` command line, or in most cases just double-click the Tangler.jar file. It has been
   tested with Java 18 Runtime, should also work with prior versions up to Java 8.
     - **On MacOS** you will get a warning about unidentified developer. Start the Tangler.jar using Finder context menu
@@ -32,7 +32,7 @@ The game is provided in two options:
       .
 
 - **Android**. [Get it on Google Play](https://play.google.com/store/apps/details?id=com.andrzejn.tangler) (recommended)
-  or [download the Tangler.apk](https://github.com/andrzej-nov/Tangler/releases/download/v1.13/Tangler.apk) here for
+  or [download the Tangler.apk](https://github.com/andrzej-nov/Tangler/releases/download/v1.15/Tangler.apk) here for
   manual install (it might be sometimes also a newer version due to the Google Play approval lag). It has been tested on Android
   8.0 and 10.0, should also work on any Android version starting from 4.4 and later.
     - **Known issues on Xiaomi smartphones:** Last move might be lost when you switch from Tangler to another app and
@@ -54,10 +54,10 @@ Andrzej Novosiolov, as the original author.
 
 The game has been implemented using following tools and libraries:
 
-- [IntelliJ IDEA 2022.3.1 (Community Edition)](https://www.jetbrains.com/idea/download/)
-- [Android Studio 2021.3.1 Patch 1](https://developer.android.com/studio) (for the Android emulator)
-- [Gradle 7.3.0](https://gradle.org/)
-- [Kotlin 1.7.0](https://kotlinlang.org/)
+- [IntelliJ IDEA 2022.3.3 (Community Edition)](https://www.jetbrains.com/idea/download/)
+- [Android Studio 2022.1.1 Patch 2](https://developer.android.com/studio) (for the Android emulator)
+- [Gradle 7.3.1](https://gradle.org/)
+- [Kotlin 1.7.22](https://kotlinlang.org/)
 - [libGDX 1.11.0](https://libgdx.com/)
 - [libKTX 1.11.0-rc3](https://libktx.github.io/)
 - [ShapeDrawer 2.6.0](https://github.com/earlygrey/shapedrawer#shape-drawer)
