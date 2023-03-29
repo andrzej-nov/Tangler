@@ -4,6 +4,7 @@ plugins {
 }
 
 android {
+    namespace 'com.andrzejn.tangler'
     compileSdk 33
     defaultConfig {
         applicationId 'com.andrzejn.tangler'
@@ -44,7 +45,6 @@ android {
             pickFirsts += ['META-INF/LICENSE.txt', 'META-INF/LICENSE', 'META-INF/license.txt', 'META-INF/LGPL2.1', 'META-INF/NOTICE.txt', 'META-INF/NOTICE', 'META-INF/notice.txt']
         }
     }
-    namespace 'com.andrzejn.tangler'
 }
 
 // Called every time gradle gets executed, takes the native dependencies of
