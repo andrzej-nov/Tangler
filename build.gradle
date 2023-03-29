@@ -8,7 +8,9 @@ buildscript {
         maven { url 'https://jitpack.io' }
     }
     dependencies {
-        classpath "com.android.tools.build:gradle:$gradleVersion"
+        //classpath "com.android.tools.build:gradle:$gradleVersion"
+        // AGP Update Assistant needs this version numbers here, not in gradle.properties
+        classpath 'com.android.tools.build:gradle:7.4.2'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "org.wisepersist:gwt-gradle-plugin:$gwtPluginVersion"
         classpath "com.mobidevelop.robovm:robovm-gradle-plugin:$roboVMVersion"
