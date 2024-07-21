@@ -29,6 +29,7 @@ class SpriteAccessor : TweenAccessor<Sprite> {
                 returnValues[1] = target.y
                 return 2
             }
+
             TW_ALPHA -> returnValues!![0] = target!!.color.a
         }
         return 1
@@ -45,6 +46,7 @@ class SpriteAccessor : TweenAccessor<Sprite> {
                 (target ?: return).x = (newValues ?: return)[0]
                 target.y = newValues[1]
             }
+
             TW_ALPHA -> (target ?: return).setAlpha((newValues ?: return)[0])
         }
     }

@@ -67,11 +67,13 @@ class PlayField(
                 c.setNeighbour(0, cell[x][y.plus1()])
                 c.setNeighbour(1, cell[x.plus1()][y])
             }
+
             3 -> { // Hex tiles
                 c.setNeighbour(0, if (y % 2 == 0) cell[x.minus1()][y.plus1()] else cell[x][y.plus1()])
                 c.setNeighbour(1, if (y % 2 == 0) cell[x][y.plus1()] else cell[x.plus1()][y.plus1()])
                 c.setNeighbour(2, cell[x.plus1()][y])
             }
+
             else -> { // Square tiles with corner borders
                 c.setNeighbour(0, cell[x.minus1()][y.plus1()])
                 c.setNeighbour(1, cell[x][y.plus1()])
@@ -312,6 +314,7 @@ class PlayField(
                     otherSegment[0]!!.path!!.mergeWith(s, this!!)
                     path.remove(this)
                 }
+
                 else -> {
                     // Segment closes both ends of the same path. Remove path, clean up empty tiles, if any
                     with(otherSegment[1]?.path) {

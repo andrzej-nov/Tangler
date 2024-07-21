@@ -483,7 +483,7 @@ abstract class BaseGameboard(
         if (flatTile().isEmpty()) {
             ghostAnimation(true)
             putFirstTile()
-            var nTile = nextTile
+            val nTile = nextTile
             val w = nTile.sprite.width.toInt()
             val h = nTile.sprite.height.toInt()
             flatTile().forEach {

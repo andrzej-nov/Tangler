@@ -15,6 +15,7 @@ import ktx.assets.loadOnDemand
 /**
  * The object that loads and provides sprite textures, fonts etc.
  */
+@Suppress("LongLine")
 class Atlas {
     private lateinit var atlas: Asset<TextureAtlas>
 

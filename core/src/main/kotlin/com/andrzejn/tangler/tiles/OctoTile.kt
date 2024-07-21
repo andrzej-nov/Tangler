@@ -38,18 +38,21 @@ class OctoTile(
                 tsd.setColor(cLight)
                 tsd.arc(centerX, centerY, radius, startAngle, radians, cell.lineWidthLight)
             }
+
             6 -> with(cell.sideArc[if (endpoint[1] == 6) 7 else 0]) {
                 tsd.setColor(cDark)
                 tsd.arc(centerX, centerY, radius, startAngle, radians, cell.lineWidthDark)
                 tsd.setColor(cLight)
                 tsd.arc(centerX, centerY, radius, startAngle, radians, cell.lineWidthLight)
             }
+
             4 -> with(cell.line[endpoint[0]]) {
                 tsd.setColor(cDark)
                 tsd.line(this[0], this[1], cell.lineWidthDark)
                 tsd.setColor(cLight)
                 tsd.line(this[0], this[1], cell.lineWidthLight)
             }
+
             1 -> {
                 val i = endpoint[0]
                 val j = (endpoint[0] + 1) / 2
@@ -78,6 +81,7 @@ class OctoTile(
                     )
                 }
             }
+
             7 -> {
                 val i = 7
                 val j = 0
@@ -106,6 +110,7 @@ class OctoTile(
                     )
                 }
             }
+
             3 -> {
                 val i = when (endpoint[0]) {
                     0 -> 0
@@ -142,6 +147,7 @@ class OctoTile(
                 }
                 with(cell.longCornerline[j]) { tsd.filledCircle(this[1], cell.lineWidthLight * 1.1f / 2) }
             }
+
             5 -> {
                 val i = when (endpoint[0]) {
                     0 -> 7

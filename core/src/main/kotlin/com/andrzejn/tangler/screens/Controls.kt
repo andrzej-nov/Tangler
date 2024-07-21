@@ -27,22 +27,22 @@ class Controls(
     /**
      * X coordinate of the right side of the board
      */
-    var boardRightX: Float = 0f
+    private var boardRightX: Float = 0f
 
     /**
      * Y coordinate of the top side of the board
      */
-    var boardTopY: Float = 0f
+    private var boardTopY: Float = 0f
 
     /**
      * X coordinate of the left side of the board
      */
-    var boardLeftX: Float = 0f
+    private var boardLeftX: Float = 0f
 
     /**
      * Y coordinate of the bottom side of the board
      */
-    var boardBottomY: Float = 0f
+    private var boardBottomY: Float = 0f
 
     /**
      * X coordinate of the screen senter

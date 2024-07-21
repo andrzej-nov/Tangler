@@ -36,24 +36,28 @@ class HexTile(
                 tsd.setColor(cLight)
                 tsd.arc(centerX, centerY, radius, startAngle, radians, cell.lineWidthLight)
             }
+
             5 -> with(cell.shortArc[0]) {
                 tsd.setColor(cDark)
                 tsd.arc(centerX, centerY, radius, startAngle, radians, cell.lineWidthDark)
                 tsd.setColor(cLight)
                 tsd.arc(centerX, centerY, radius, startAngle, radians, cell.lineWidthLight)
             }
+
             2 -> with(cell.longArc[endpoint[0] + 1]) {
                 tsd.setColor(cDark)
                 tsd.arc(centerX, centerY, radius, startAngle, radians, cell.lineWidthDark)
                 tsd.setColor(cLight)
                 tsd.arc(centerX, centerY, radius, startAngle, radians, cell.lineWidthLight)
             }
+
             4 -> with(cell.longArc[if (endpoint[0] == 0) 5 else 0]) {
                 tsd.setColor(cDark)
                 tsd.arc(centerX, centerY, radius, startAngle, radians, cell.lineWidthDark)
                 tsd.setColor(cLight)
                 tsd.arc(centerX, centerY, radius, startAngle, radians, cell.lineWidthLight)
             }
+
             3 -> with(cell.line[endpoint[0]]) {
                 tsd.setColor(cDark)
                 tsd.line(this[0], this[1], cell.lineWidthDark)

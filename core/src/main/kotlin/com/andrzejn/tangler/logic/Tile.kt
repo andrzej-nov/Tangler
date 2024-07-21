@@ -50,6 +50,7 @@ class Tile(private val sidesCount: Int, private val colorsCount: Int, private va
             val r = Random.nextDouble()
             if (r < 0.15) 1 else if (r < 0.4) 2 else 3
         }
+
         else -> { ->
             val r = Random.nextDouble()
             if (r < 0.15) 1 else if (r < 0.35) 2 else if (r < 0.6) 3 else 4

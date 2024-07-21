@@ -360,10 +360,12 @@ class HomeScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
                         anySettingChanged = true
                         ctx.gs.sidesCount = 4
                     }
+
                     in 5f * gridX..6.5f * gridX -> {
                         anySettingChanged = true
                         ctx.gs.sidesCount = 6
                     }
+
                     in 7f * gridX..8.5f * gridX -> {
                         anySettingChanged = true
                         ctx.gs.sidesCount = 8
@@ -390,10 +392,12 @@ class HomeScreen(ctx: Context) : BaseScreen(ctx), KtxScreen {
                         anySettingChanged = true
                         ctx.gs.boardSize = 6
                     }
+
                     in 5.5 * gridX..8.5 * gridX -> {
                         anySettingChanged = true
                         ctx.gs.boardSize = 8
                     }
+
                     in 8.5 * gridX..11.5 * gridX -> {
                         anySettingChanged = true
                         ctx.gs.boardSize = 10

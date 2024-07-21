@@ -1,3 +1,4 @@
+//file:noinspection LongLine
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
@@ -5,28 +6,33 @@ plugins {
 
 android {
     namespace 'com.andrzejn.tangler'
-    compileSdk 33
+    compileSdk 34
     defaultConfig {
         applicationId 'com.andrzejn.tangler'
         minSdk 19
-        targetSdk 33
-        versionCode 16
-        versionName '1.14'
+        targetSdk 34
+        versionCode 17
+        versionName '1.15'
         multiDexEnabled true
+    }
+    compileOptions {
+        // Android versions prior to 12.0 (SDK level 32) do not support Java versions over 1.8
+        sourceCompatibility = 1.8
+        targetCompatibility = 1.8
+        coreLibraryDesugaringEnabled true
+    }
+    kotlinOptions {
+        jvmTarget = 1.8
     }
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-    }
-    compileOptions {
-        sourceCompatibility '8.0'
-        targetCompatibility '8.0'
-        coreLibraryDesugaringEnabled true
-    }
-    kotlinOptions {
-        jvmTarget = '1.8'
+/*        debug { // Used to find out which classes have been erroneously stripped out by proguard.
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }*/
     }
     sourceSets {
         main {
@@ -45,19 +51,23 @@ android {
             pickFirsts += ['META-INF/LICENSE.txt', 'META-INF/LICENSE', 'META-INF/license.txt', 'META-INF/LGPL2.1', 'META-INF/NOTICE.txt', 'META-INF/NOTICE', 'META-INF/notice.txt']
         }
     }
+    buildFeatures {
+        renderScript true
+        aidl true
+    }
 }
 
 // Called every time gradle gets executed, takes the native dependencies of
 // the natives configuration, and extracts them to the proper libs/ folders
 // so they get packed with the APK.
-task copyAndroidNatives() {
+tasks.register('copyAndroidNatives') {
     doFirst {
         file('libs/armeabi-v7a/').mkdirs()
         file('libs/arm64-v8a/').mkdirs()
         file('libs/x86_64/').mkdirs()
         file('libs/x86/').mkdirs()
 
-        configurations.getByName('natives').copy().files.each { jar ->
+        configurations.getByName('natives').copy().files.each { final jar ->
             def outputDir = null
             if (jar.name.endsWith('natives-armeabi-v7a.jar')) outputDir = file('libs/armeabi-v7a')
             if (jar.name.endsWith('natives-arm64-v8a.jar')) outputDir = file('libs/arm64-v8a')
@@ -74,21 +84,21 @@ task copyAndroidNatives() {
     }
 }
 
-tasks.whenTaskAdded { packageTask ->
+tasks.configureEach { final packageTask ->
     if (packageTask.name.contains('package')) {
         packageTask.dependsOn 'copyAndroidNatives'
     }
 }
 
-task run(type: Exec) {
+tasks.register('run', Exec) {
     def path
-    def localProperties = project.file('../local.properties')
+    final def localProperties = project.file('../local.properties')
     if (localProperties.exists()) {
-        Properties properties = new Properties()
-        localProperties.withInputStream { instr ->
+        final Properties properties = new Properties()
+        localProperties.withInputStream { final instr ->
             properties.load(instr)
         }
-        def sdkDir = properties.getProperty('sdk.dir')
+        final def sdkDir = properties.getProperty('sdk.dir')
         if (sdkDir) {
             path = sdkDir
         } else {

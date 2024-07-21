@@ -36,12 +36,14 @@ class SquareTile(
                 tsd.setColor(cLight)
                 tsd.arc(centerX, centerY, radius, startAngle, radians, cell.lineWidthLight)
             }
+
             3 -> with(cell.arc[0]) {
                 tsd.setColor(cDark)
                 tsd.arc(centerX, centerY, radius, startAngle, radians, cell.lineWidthDark)
                 tsd.setColor(cLight)
                 tsd.arc(centerX, centerY, radius, startAngle, radians, cell.lineWidthLight)
             }
+
             2 -> with(cell.line[endpoint[0]]) {
                 tsd.setColor(cDark)
                 tsd.line(this[0], this[1], cell.lineWidthDark)

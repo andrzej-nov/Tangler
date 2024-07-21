@@ -221,7 +221,7 @@ class Draw(
     /**
      * Center camera on the field viewport
      */
-    fun centerFieldCamera() {
+    private fun centerFieldCamera() {
         if (this::board.isInitialized) // Check if the lateinit property has been initialised already
             board.camera.position.set(board.worldWidth / 2, board.worldHeight / 2, 0f)
     }

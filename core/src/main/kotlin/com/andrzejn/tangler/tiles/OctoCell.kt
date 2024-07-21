@@ -279,6 +279,7 @@ class OctoCell : BaseCell() {
                         lineWidthLight
                     )
                 }
+
                 else -> {
                     sd.setColor(cDark)
                     sd.line(

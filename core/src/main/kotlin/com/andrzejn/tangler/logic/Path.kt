@@ -49,12 +49,14 @@ class Path(firstSegment: Segment) {
                         border[1] = s.border[1]
                         neighbourCell[1] = s.neighbourCell[1]
                     }
+
                     else -> {
                         border[1] = s.border[0]
                         neighbourCell[1] = s.neighbourCell[0]
                     }
                 }
             }
+
             else -> { // insert into the beginning of the segments list
                 segment.add(0, s)
                 when {
@@ -62,6 +64,7 @@ class Path(firstSegment: Segment) {
                         border[0] = s.border[1]
                         neighbourCell[0] = s.neighbourCell[1]
                     }
+
                     else -> {
                         border[0] = s.border[0]
                         neighbourCell[0] = s.neighbourCell[0]
@@ -84,16 +87,19 @@ class Path(firstSegment: Segment) {
                 border[1] = otherPath.border[1]
                 neighbourCell[1] = otherPath.neighbourCell[1]
             }
+
             border[1] == otherPath.border[1] -> {
                 segment.addAll(otherPath.segment.reversed())
                 border[1] = otherPath.border[0]
                 neighbourCell[1] = otherPath.neighbourCell[0]
             }
+
             border[0] == otherPath.border[1] -> {
                 segment.addAll(0, otherPath.segment)
                 border[0] = otherPath.border[0]
                 neighbourCell[0] = otherPath.neighbourCell[0]
             }
+
             else -> { // if (border[0] == otherPath.border[0])
                 segment.addAll(0, otherPath.segment.reversed())
                 border[0] = otherPath.border[1]

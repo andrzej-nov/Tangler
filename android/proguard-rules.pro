@@ -27,6 +27,11 @@
 -dontwarn com.badlogic.gdx.jnigen.BuildTarget*
 -dontwarn com.badlogic.gdx.graphics.g2d.freetype.FreetypeBuild
 
+# For some unknown reason GlyphLayout was stripped out, so let's keep it explicitly.
+-keep class com.badlogic.gdx.graphics.g2d.GlyphLayout
+# Just to be safe, keep whole g2d
+-keep class com.badlogic.gdx.graphics.g2d.** { *; }
+
 # Required if using Gdx-Controllers extension
 -keep class com.badlogic.gdx.controllers.android.AndroidControllers
 
