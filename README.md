@@ -23,7 +23,7 @@ for best experience.
 
 The game is provided in two options:
 
-- **Desktop Java**. [Download Tangler.jar](https://github.com/andrzej-nov/Tangler/releases/download/v1.15/Tangler.jar).
+- **Desktop Java**. [Download Tangler.jar](https://github.com/andrzej-nov/Tangler/releases/download/v1.16/Tangler.jar).
   Run it with `java -jar Tangler.jar` command line, or in most cases just double-click the Tangler.jar file. It has been
   tested with Java 18 Runtime, should also work with prior versions up to Java 8.
     - **On MacOS** you will get a warning about unidentified developer. Start the Tangler.jar using Finder context menu
@@ -32,19 +32,14 @@ The game is provided in two options:
       .
 
 - **Android**. [Get it on Google Play](https://play.google.com/store/apps/details?id=com.andrzejn.tangler) (recommended)
-  or [download the Tangler.apk](https://github.com/andrzej-nov/Tangler/releases/download/v1.15/Tangler.apk) here for
-  manual install (it might be sometimes also a newer version due to the Google Play approval lag). It has been tested on Android
-  8.0 and 10.0, should also work on any Android version starting from 4.4 and later.
+  or [download the Tangler.apk](https://github.com/andrzej-nov/Tangler/releases/download/v1.16/Tangler.apk) here for
+  manual install (it might be sometimes also a newer version due to the Google Play approval lag).
+  It should work on any Android version starting from 4.4 and later.
     - **Known issues on Xiaomi smartphones:** Last move might be lost when you switch from Tangler to another app and
       back again. That is the Xiaomi issue, I do not know a workaround yet.
 
 There is no iOS build because I do not have tools to test and deploy it to the AppStore. If somebody completes the iOS
 module (see below), I will add it here.
-
-## Donation
-
-If you like the game and want to support the author, you may donate arbitrary amount via following
-link: https://pay.fondy.eu/s/3DJ4BV1DmBgU (processed by the [Fondy.eu](https://fondy.io/) payment system).
 
 ## Development
 
@@ -54,12 +49,12 @@ Andrzej Novosiolov, as the original author.
 
 The game has been implemented using following tools and libraries:
 
-- [IntelliJ IDEA 2024.1.4 (Community Edition)](https://www.jetbrains.com/idea/download/)
-- [Android Studio 2024.1.1 Patch 1](https://developer.android.com/studio) (for the Android emulator)
-- [Gradle 8.2.2](https://gradle.org/)
-- [Kotlin 2.0.0](https://kotlinlang.org/)
-- [libGDX 1.12.1](https://libgdx.com/)
-- [libKTX 1.12.1-rc1](https://libktx.github.io/)
+- [IntelliJ IDEA 2025.2.1 (Community Edition)](https://www.jetbrains.com/idea/download/)
+- [Android Studio 2025.1.3 Narwhal 3 Feature Drop](https://developer.android.com/studio) (for the Android emulator)
+- [Gradle 8.14.3](https://gradle.org/)
+- [Kotlin 2.1.20](https://kotlinlang.org/)
+- [libGDX 1.13.1](https://libgdx.com/)
+- [libKTX 1.13.1-rc1](https://libktx.github.io/)
 - [ShapeDrawer 2.6.0](https://github.com/earlygrey/shapedrawer#shape-drawer)
 - [Universal Tween Engine 6.3.3](https://github.com/AurelienRibon/universal-tween-engine)
 - Free icons from https://www.flaticon.com/

@@ -1,43 +1,68 @@
+plugins {
+    id 'kotlin'
+    id 'com.gradleup.shadow' version '9.1.0'
+}
+
 kotlin {
     jvmToolchain 8
 }
 
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(8)
+    }
+}
 apply plugin: 'application'
+sourceSets.main.java.srcDirs = ['src/']
+sourceSets.main.resources.srcDirs = ['../assets', 'src/main/resources']
 
-sourceSets.main.resources.srcDirs += [ rootProject.file('assets').path ]
-mainClassName = 'com.andrzejn.tangler.lwjgl3.Lwjgl3Launcher'
+dependencies {
+    implementation project(':core')
+    api "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
+    api "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-desktop"
+    api "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-desktop"
+    api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    api "space.earlygrey:shapedrawer:$shapedrawerVersion"
+    api "org.mini2Dx:universal-tween-engine:$tweenEngineVersion"
+}
+
+project.ext.mainClassName = 'com.andrzejn.tangler.lwjgl3.Lwjgl3Launcher'
+project.ext.assetsDir = new File('../assets')
 eclipse.project.name = appName + '-lwjgl3'
 
 import org.gradle.internal.os.OperatingSystem
 
 run {
-	workingDir = rootProject.file('assets').path
-	setIgnoreExitValue(true)
-	
-	if (OperatingSystem.current() == OperatingSystem.MAC_OS) {
-		// Required to run LWJGL3 Java apps on MacOS
-		jvmArgs += '-XstartOnFirstThread'
-	}
+    workingDir = rootProject.file('assets').path
+    setIgnoreExitValue(true)
+    mainClass = project.mainClassName
+
+    if (OperatingSystem.current() == OperatingSystem.MAC_OS) {
+        // Required to run LWJGL3 Java apps on MacOS
+        jvmArgs += '-XstartOnFirstThread'
+    }
 }
 
-jar {
-// sets the name of the .jar file this produces to the name of the game or app.
-	archiveBaseName.set(appName)
-// the duplicatesStrategy will matter starting in Gradle 7.0; this setting works.
-	duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
-	dependsOn configurations.runtimeClasspath
-	from { configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) } }
-// these "exclude" lines remove some unnecessary duplicate files in the output JAR.
-	exclude('META-INF/INDEX.LIST', 'META-INF/*.SF', 'META-INF/*.DSA', 'META-INF/*.RSA')
-	dependencies {
-		exclude('META-INF/INDEX.LIST', 'META-INF/maven/**')
-	}
-// setting the manifest makes the JAR runnable.
-	manifest {
-		attributes 'Main-Class': project.mainClassName
-	}
-// this last step may help on some OSes that need extra instruction to make runnable JARs.
-	doLast {
-		file(archiveFile).setExecutable(true, false)
-	}
+tasks.register('debug', JavaExec) {
+    dependsOn classes
+    mainClass = project.mainClassName
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+    workingDir = project.assetsDir
+    ignoreExitValue = true
+    debug = true
+}
+
+// Run the Gradle desktop:shadowJar configuration to create the self-sufficient Jar package
+// that could be runned on desktops
+shadowJar {
+    archiveClassifier = ''
+    manifest {
+        attributes 'Main-Class': project.mainClassName
+    }
+
+    // Exclude problematic files that might cause issues
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
 }
