@@ -5,11 +5,18 @@ plugins {
 
 sourceSets.main.java.srcDirs = ['src/']
 
-[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
 
 ext {
-	mainClassName = 'com.andrzejn.tangler.IOSLauncher'
+    mainClassName = 'com.andrzejn.tangler.IOSLauncher'
 }
+
+launchIPhoneSimulator.dependsOn build
+launchIPadSimulator.dependsOn build
+launchIOSDevice.dependsOn build
+createIPA.dependsOn build
 
 dependencies {
     implementation project(':core')
@@ -20,13 +27,6 @@ dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 }
 
-launchIPhoneSimulator.dependsOn build
-launchIPadSimulator.dependsOn build
-launchIOSDevice.dependsOn build
-createIPA.dependsOn build
-
 robovm {
-	archs = 'thumbv7:arm64'
+    archs = 'thumbv7:arm64'
 }
-
-eclipse.project.name = appName + '-ios'

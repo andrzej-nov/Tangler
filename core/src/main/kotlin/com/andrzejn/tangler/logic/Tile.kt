@@ -126,7 +126,7 @@ class Tile(private val sidesCount: Int, private val colorsCount: Int, private va
     /**
      * Serialize the tile as part of the game save
      */
-    fun serialize(sb: com.badlogic.gdx.utils.StringBuilder) {
+    fun serialize(sb: StringBuilder) {
         sb.append(segment.size)
         segment.forEach { it.serialize(sb) }
     }

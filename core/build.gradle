@@ -1,18 +1,10 @@
 plugins {
-    id 'kotlin'
+    id 'org.jetbrains.kotlin.jvm'
 }
 
 kotlin {
-    jvmToolchain 8
+    jvmToolchain(17)
 }
-
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(8)
-    }
-}
-
-[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
 
 sourceSets.main.java.srcDirs = ['src/']
 
@@ -34,6 +26,5 @@ dependencies {
     api "io.github.libktx:ktx-log:$ktxLogVersion"
     api "space.earlygrey:shapedrawer:$shapedrawerVersion"
     api "org.mini2Dx:universal-tween-engine:$tweenEngineVersion"
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
 }
-
-eclipse.project.name = appName + '-core'

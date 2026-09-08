@@ -1,99 +1,119 @@
-//file:noinspection LongLine
+import javax.inject.Inject
+
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
 }
 
 android {
     namespace = 'com.andrzejn.tangler'
-    compileSdk = 36
+    compileSdk = 37
     defaultConfig {
         applicationId = 'com.andrzejn.tangler'
-        minSdk = 19
-        targetSdk = 36
-        versionCode = 18
-        versionName = '1.16'
+        minSdk = 21
+        targetSdk = 37
+        versionCode = 19
+        versionName = '1.17'
         multiDexEnabled = true
     }
     compileOptions {
-        // Android versions prior to 12.0 (SDK level 32) do not support Java versions over 1.8
-        sourceCompatibility = 1.8
-        targetCompatibility = 1.8
+        // Android versions prior to 12.0 (SDK level 32) do not support Java versions over 1.8,
+        // but the desugaring process fixes that
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
         coreLibraryDesugaringEnabled = true
     }
-    kotlinOptions {
-        jvmTarget = 1.8
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['../assets']
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+    packaging {
+        resources {
+            // Excluding unnecessary meta-data:
+            excludes += ['META-INF/robovm/ios/robovm.xml', 'META-INF/DEPENDENCIES.txt', 'META-INF/DEPENDENCIES', 'META-INF/dependencies.txt']
+            // Preventing from license violations (more or less):
+            pickFirsts += ['META-INF/LICENSE.txt', 'META-INF/LICENSE', 'META-INF/license.txt', 'META-INF/LGPL2.1', 'META-INF/NOTICE.txt', 'META-INF/NOTICE', 'META-INF/notice.txt']
+        }
     }
     buildTypes {
         release {
             minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
 /*        debug { // Used to find out which classes have been erroneously stripped out by proguard.
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }*/
     }
-    sourceSets {
-        main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src/main/java', 'src/main/kotlin']
-            aidl.srcDirs = ['src/main/java', 'src/main/kotlin']
-            renderscript.srcDirs = ['src/main/java', 'src/main/kotlin']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['../assets']
-            jniLibs.srcDirs = ['libs']
-        }
+}
+
+configurations { natives }
+
+dependencies {
+    implementation project(':core')
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:$desugaringVersion"
+    api "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
+    api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a"
+    natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-arm64-v8a"
+    natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86"
+    natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"
+    natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-armeabi-v7a"
+    natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-arm64-v8a"
+    natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86"
+    natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86_64"
+}
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
     }
-    configurations { natives }
-    dependencies {
-        implementation project(':core')
-        coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:$desugaringVersion"
-        api "com.badlogicgames.gdx:gdx-backend-android:$gdxVersion"
-        api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-armeabi-v7a"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-arm64-v8a"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86"
-        natives "com.badlogicgames.gdx:gdx-platform:$gdxVersion:natives-x86_64"
-        natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-armeabi-v7a"
-        natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-arm64-v8a"
-        natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86"
-        natives "com.badlogicgames.gdx:gdx-freetype-platform:$gdxVersion:natives-x86_64"
-    }
-    packagingOptions {
-        jniLibs {
-            useLegacyPackaging = false // Ensure modern packaging is used
-        }
-        resources {
-            excludes += ['META-INF/robovm/ios/robovm.xml', 'META-INF/DEPENDENCIES.txt', 'META-INF/DEPENDENCIES', 'META-INF/dependencies.txt']
-            pickFirsts += ['META-INF/LICENSE.txt', 'META-INF/LICENSE', 'META-INF/license.txt', 'META-INF/LGPL2.1', 'META-INF/NOTICE.txt', 'META-INF/NOTICE', 'META-INF/notice.txt']
-        }
-    }
-    buildFeatures {
-        renderScript = true
-        aidl = true
-    }
+}
+
+// Lifecycle task bridges for IntelliJ IDEA Rebuild Project
+tasks.register('classes') {
+    dependsOn tasks.matching { it.name == 'compileDebugSources' }
+}
+tasks.register('testClasses') {
+    dependsOn tasks.matching { it.name == 'compileDebugUnitTestSources' }
 }
 
 // Called every time gradle gets executed, takes the native dependencies of
 // the natives configuration, and extracts them to the proper libs/ folders
 // so they get packed with the APK.
-tasks.register('copyAndroidNatives') {
-    doFirst {
-        file('libs/armeabi-v7a/').mkdirs()
-        file('libs/arm64-v8a/').mkdirs()
-        file('libs/x86_64/').mkdirs()
-        file('libs/x86/').mkdirs()
+abstract class CopyAndroidNativesTask extends DefaultTask {
+    @Inject
+    abstract FileSystemOperations getFileSystemOperations()
 
-        configurations.natives.copy().files.each { final jar ->
+    @Inject
+    abstract ArchiveOperations getArchiveOperations()
+
+    @InputFiles
+    abstract ConfigurableFileCollection getNativeJars()
+
+    @OutputDirectory
+    abstract DirectoryProperty getOutputDirectory()
+
+    @TaskAction
+    void copyNatives() {
+        def baseDir = getOutputDirectory().get().asFile
+        new File(baseDir, 'armeabi-v7a').mkdirs()
+        new File(baseDir, 'arm64-v8a').mkdirs()
+        new File(baseDir, 'x86_64').mkdirs()
+        new File(baseDir, 'x86').mkdirs()
+
+        getNativeJars().files.each { final jar ->
             def outputDir = null
-            if (jar.name.endsWith('natives-armeabi-v7a.jar')) outputDir = file('libs/armeabi-v7a')
-            if (jar.name.endsWith('natives-arm64-v8a.jar')) outputDir = file('libs/arm64-v8a')
-            if (jar.name.endsWith('natives-x86_64.jar')) outputDir = file('libs/x86_64')
-            if (jar.name.endsWith('natives-x86.jar')) outputDir = file('libs/x86')
+            if (jar.name.endsWith('natives-armeabi-v7a.jar')) outputDir = new File(baseDir, 'armeabi-v7a')
+            if (jar.name.endsWith('natives-arm64-v8a.jar')) outputDir = new File(baseDir, 'arm64-v8a')
+            if (jar.name.endsWith('natives-x86_64.jar')) outputDir = new File(baseDir, 'x86_64')
+            if (jar.name.endsWith('natives-x86.jar')) outputDir = new File(baseDir, 'x86')
             if (outputDir != null) {
-                copy {
-                    from zipTree(jar)
+                fileSystemOperations.copy {
+                    from archiveOperations.zipTree(jar)
                     into outputDir
                     include '*.so'
                 }
@@ -102,9 +122,14 @@ tasks.register('copyAndroidNatives') {
     }
 }
 
-tasks.configureEach { final packageTask ->
-    if (packageTask.name.contains('package')) {
-        packageTask.dependsOn 'copyAndroidNatives'
+tasks.register('copyAndroidNatives', CopyAndroidNativesTask) {
+    nativeJars.from(configurations.natives)
+    outputDirectory.set(layout.projectDirectory.dir('libs'))
+}
+
+tasks.configureEach { final task ->
+    if (task.name.contains('package') || (task.name.contains('merge') && task.name.contains('JniLibFolders'))) {
+        task.dependsOn 'copyAndroidNatives'
     }
 }
 
@@ -113,8 +138,7 @@ tasks.register('run', Exec) {
     final def localProperties = project.file('../local.properties')
     if (localProperties.exists()) {
         final Properties properties = new Properties()
-        localProperties.withInputStream { final instr ->
-            properties.load(instr)
+        localProperties.withInputStream { final instr -> properties.load(instr)
         }
         final def sdkDir = properties.getProperty('sdk.dir')
         if (sdkDir) {
@@ -129,5 +153,3 @@ tasks.register('run', Exec) {
     final def adb = path + '/platform-tools/adb'
     commandLine "$adb", 'shell', 'am', 'start', '-n', 'com.andrzejn.tangler/com.andrzejn.tangler.AndroidLauncher'
 }
-
-eclipse.project.name = appName + '-android'

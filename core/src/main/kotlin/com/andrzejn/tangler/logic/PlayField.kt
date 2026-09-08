@@ -341,7 +341,7 @@ class PlayField(
     /**
      * Serialize all the playfield tiles for save game
      */
-    fun serialize(sb: com.badlogic.gdx.utils.StringBuilder) {
+    fun serialize(sb: StringBuilder) {
         allCellsWithTiles().forEach {
             sb.append(it.x).append(it.y)
             (it.tile ?: return@forEach).serialize(sb)

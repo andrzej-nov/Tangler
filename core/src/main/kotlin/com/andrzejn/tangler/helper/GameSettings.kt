@@ -164,7 +164,7 @@ class GameSettings {
     /**
      * Serialize game settings, to include into the saved game. Always 4 characters.
      */
-    fun serialize(sb: com.badlogic.gdx.utils.StringBuilder) {
+    fun serialize(sb: StringBuilder) {
         sb.append(boardSize / 2).append(sidesCount).append(colorsCount).append(if (allowDuplicateColors) 1 else 0)
             .append(if (hints) 1 else 0)
     }

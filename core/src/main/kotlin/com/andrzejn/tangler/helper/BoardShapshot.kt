@@ -2,7 +2,6 @@ package com.andrzejn.tangler.helper
 
 import com.andrzejn.tangler.logic.PlayField
 import com.andrzejn.tangler.logic.Tile
-import com.badlogic.gdx.utils.StringBuilder
 
 /**
  * Snapshot of the board position, to save/restore last move

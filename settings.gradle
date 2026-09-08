@@ -1,4 +1,9 @@
+pluginManagement {
+    plugins {
+        id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion"
+    }
+}
 plugins {
-    id "org.gradle.toolchains.foojay-resolver-convention"  version "1.0.0"
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }
 include 'core', 'lwjgl3', 'android', 'ios'

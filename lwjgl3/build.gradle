@@ -1,18 +1,12 @@
 plugins {
-    id 'kotlin'
-    id 'com.gradleup.shadow' version '9.1.0'
+    id 'org.jetbrains.kotlin.jvm'
+    id 'com.gradleup.shadow' version '9.6.1'
 }
 
 kotlin {
-    jvmToolchain 8
+    jvmToolchain(17)
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(8)
-    }
-}
-apply plugin: 'application'
 sourceSets.main.java.srcDirs = ['src/']
 sourceSets.main.resources.srcDirs = ['../assets', 'src/main/resources']
 
@@ -24,21 +18,22 @@ dependencies {
     api "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     api "space.earlygrey:shapedrawer:$shapedrawerVersion"
     api "org.mini2Dx:universal-tween-engine:$tweenEngineVersion"
+    testImplementation 'org.jetbrains.kotlin:kotlin-test'
 }
 
 project.ext.mainClassName = 'com.andrzejn.tangler.lwjgl3.Lwjgl3Launcher'
 project.ext.assetsDir = new File('../assets')
-eclipse.project.name = appName + '-lwjgl3'
 
-import org.gradle.internal.os.OperatingSystem
-
-run {
-    workingDir = rootProject.file('assets').path
-    setIgnoreExitValue(true)
+tasks.register('run', JavaExec) {
+    dependsOn classes
     mainClass = project.mainClassName
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+    workingDir = project.assetsDir
+    ignoreExitValue = true
 
-    if (OperatingSystem.current() == OperatingSystem.MAC_OS) {
-        // Required to run LWJGL3 Java apps on MacOS
+    if (System.getProperty('os.name').toLowerCase().contains('mac')) {
+        // Required to run on macOS
         jvmArgs += '-XstartOnFirstThread'
     }
 }

@@ -914,7 +914,7 @@ abstract class BaseGameboard(
     /**
      * Serialize the game board and nextTile for save game
      */
-    fun serialize(sb: com.badlogic.gdx.utils.StringBuilder) {
+    fun serialize(sb: StringBuilder) {
         sb.append(scrollOffset.x).append(scrollOffset.y)
         nextTile.t.serialize(sb)
         playField.serialize(sb)

@@ -45,7 +45,7 @@ class Score(
     /**
      * Serialize the current score for the save game
      */
-    fun serialize(sb: com.badlogic.gdx.utils.StringBuilder) {
+    fun serialize(sb: StringBuilder) {
         sb.append(moves, 5).append(points, 5)
     }
 

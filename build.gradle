@@ -10,24 +10,18 @@ buildscript {
     dependencies {
         //classpath "com.android.tools.build:gradle:$gradleVersion"
         // AGP Update Assistant needs this version numbers here, not in gradle.properties
-        classpath 'com.android.tools.build:gradle:8.11.2'
+        classpath 'com.android.tools.build:gradle:9.1.1'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-        classpath "org.wisepersist:gwt-gradle-plugin:$gwtPluginVersion"
         classpath "com.mobidevelop.robovm:robovm-gradle-plugin:$roboVMVersion"
-        classpath "space.earlygrey:shapedrawer:$shapedrawerVersion"
-        classpath "org.mini2Dx:universal-tween-engine:$tweenEngineVersion"
     }
 }
 
 plugins {
-    id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion"
+    id 'org.jetbrains.kotlin.jvm' version "$kotlinVersion" apply false
 }
 
 allprojects {
-    apply plugin: 'eclipse'
-    apply plugin: 'idea'
-
-    version = '1.16'
+    version = '1.17'
     ext.appName = 'Tangler'
     repositories {
         mavenLocal()
@@ -39,5 +33,3 @@ allprojects {
         maven { url = 'https://jitpack.io' }
     }
 }
-
-eclipse.project.name = 'Tangler' + '-parent'

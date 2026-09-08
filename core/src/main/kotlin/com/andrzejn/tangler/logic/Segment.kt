@@ -62,7 +62,7 @@ class Segment(
     /**
      * The object serialization, invoked during the game save.
      */
-    fun serialize(sb: com.badlogic.gdx.utils.StringBuilder) {
+    fun serialize(sb: StringBuilder) {
         sb.append(color).append(endsAtSide[0]).append(endsAtSide[1])
     }
 }
