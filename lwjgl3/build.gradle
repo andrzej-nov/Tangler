@@ -55,6 +55,7 @@ shadowJar {
     manifest {
         attributes 'Main-Class': project.mainClassName
     }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 
     // Exclude problematic files that might cause issues
     exclude 'META-INF/*.SF'

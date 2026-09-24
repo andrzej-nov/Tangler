@@ -127,8 +127,10 @@ tasks.register('copyAndroidNatives', CopyAndroidNativesTask) {
     outputDirectory.set(layout.projectDirectory.dir('libs'))
 }
 
-tasks.configureEach { final task ->
-    if (task.name.contains('package') || (task.name.contains('merge') && task.name.contains('JniLibFolders'))) {
+// Replace the dynamic tasks.configureEach block with explicit names:
+tasks.configureEach { final task -> 
+    // Target only the explicit base tasks when they are added
+    if (task.name == "mergeDebugJniLibFolders" || task.name == "mergeReleaseJniLibFolders" || task.name == "packageDebug" || task.name == "packageRelease") {
         task.dependsOn 'copyAndroidNatives'
     }
 }
